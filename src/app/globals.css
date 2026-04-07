@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700&family=Fustat:wght@400..800&family=Poppins:wght@500;600&family=Rubik:wght@700&family=Instrument+Serif:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&family=Instrument+Sans:ital,opsz,wght@0,14..72,400..700;1,14..72,400..700&display=swap");
+@import url("https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -46,6 +48,79 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-spin-slow: spin 12s linear infinite;
+  --animate-spin-reverse: spin-reverse 12s linear infinite;
+  --shadow-tooltip-b: 8px 10px 10px -13px rgba(255, 255, 255, 1), -8px 9px 10px -13px rgba(255, 255, 255, 1),
+    0px 23px 40px -10px rgba(255, 255, 255, 1);
+  --shadow-tooltip-t: 8px -10px 10px -13px rgba(255, 255, 255, 1), -8px -9px 10px -13px rgba(255, 255, 255, 1),
+    0px -23px 40px -10px rgba(255, 255, 255, 1);
+  --shadow-tooltip-r: -12px 0px 12px -10px rgba(255, 255, 255, 1);
+  --shadow-tooltip-l: 12px 0px 12px -10px rgba(255, 255, 255, 1);
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes orbit-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shine-pulse {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@property --gradient-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes gradient-angle-rotate {
+  from {
+    --gradient-angle: 0deg;
+  }
+  to {
+    --gradient-angle: 360deg;
+  }
+}
+
+.gradient-border-auto {
+  animation: gradient-angle-rotate var(--animation-duration, 5s) linear infinite;
+}
+
+.gradient-border-hover {
+  animation: none;
+}
+
+.gradient-border-hover:hover {
+  animation: gradient-angle-rotate var(--animation-duration, 5s) linear infinite;
+}
+
+.gradient-border-stop-hover {
+  animation: gradient-angle-rotate var(--animation-duration, 5s) linear infinite;
+}
+
+.gradient-border-stop-hover:hover {
+  animation-play-state: paused;
 }
 
 :root {
@@ -81,6 +156,28 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --button-ripple-color: oklch(0.145 0 0 / 0.3);
+  --bauhaus-card-bg: #f0f4fb;
+  --bauhaus-card-separator: #d3dce8;
+  --bauhaus-card-inscription-top: #3b4252;
+  --bauhaus-card-inscription-main: #111014;
+  --bauhaus-card-inscription-sub: #5e6473;
+  --bauhaus-card-inscription-progress-label: #454f55;
+  --bauhaus-card-inscription-progress-value: #1c2541;
+  --bauhaus-card-progress-bar-bg: #e5e7eb;
+  --bauhaus-chronicle-bg: #151419;
+  --bauhaus-chronicle-fg: #fff;
+  --bauhaus-chronicle-hover-fg: #fff;
+  --diced-hero-section-top-text: #2c3e50;
+  --diced-hero-section-main-gradient-from: #16a085;
+  --diced-hero-section-main-gradient-to: #2980b9;
+  --diced-hero-section-main-gradient-foreground: #16a085;
+  --diced-hero-section-separator: #005baa;
+  --diced-hero-section-sub-text: #34495e;
+  --diced-hero-section-button-bg: #27ae60;
+  --diced-hero-section-button-fg: #ffffff;
+  --diced-hero-section-button-hover-bg: #2ecc71;
+  --diced-hero-section-button-hover-fg: #fff;
 }
 
 .dark {
@@ -115,6 +212,28 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --button-ripple-color: oklch(0.985 0 0 / 0.5);
+  --bauhaus-card-bg: #151419;
+  --bauhaus-card-separator: #2f2b2a;
+  --bauhaus-card-inscription-top: #bfc7d5;
+  --bauhaus-card-inscription-main: #f0f0f1;
+  --bauhaus-card-inscription-sub: #a0a1b3;
+  --bauhaus-card-inscription-progress-label: #b5b6c4;
+  --bauhaus-card-inscription-progress-value: #e7e7f7;
+  --bauhaus-card-progress-bar-bg: #363636;
+  --bauhaus-chronicle-bg: #fff;
+  --bauhaus-chronicle-fg: #151419;
+  --bauhaus-chronicle-hover-fg: #fff;
+  --diced-hero-section-top-text: #f7f7ff;
+  --diced-hero-section-main-gradient-from: #9f4eff;
+  --diced-hero-section-main-gradient-to: #00a6fb;
+  --diced-hero-section-main-gradient-foreground: #9f4eff;
+  --diced-hero-section-separator: #086ca2;
+  --diced-hero-section-sub-text: #f7f7ff;
+  --diced-hero-section-button-bg: #00a6fb;
+  --diced-hero-section-button-fg: #0a0a0a;
+  --diced-hero-section-button-hover-bg: #9f4eff;
+  --diced-hero-section-button-hover-fg: #ffffff;
 }
 
 @layer base {
@@ -123,8 +242,290 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
   }
   html {
     @apply font-sans;
+    overflow-x: hidden;
   }
+}
+
+/* TextColor (text-color.tsx) — gradientes neon + animações de opacidade */
+@keyframes gradient-foreground-1 {
+  from,
+  16.667%,
+  to {
+    opacity: 1;
+  }
+  33.333%,
+  83.333% {
+    opacity: 0;
+  }
+}
+
+.animate-gradient-foreground-1 {
+  animation: gradient-foreground-1 8s infinite;
+}
+
+@keyframes gradient-foreground-2 {
+  from,
+  to {
+    opacity: 0;
+  }
+  33.333%,
+  50% {
+    opacity: 1;
+  }
+  16.667%,
+  66.667% {
+    opacity: 0;
+  }
+}
+
+.animate-gradient-foreground-2 {
+  animation: gradient-foreground-2 8s infinite;
+}
+
+@keyframes gradient-foreground-3 {
+  from,
+  50%,
+  to {
+    opacity: 0;
+  }
+  66.667%,
+  83.333% {
+    opacity: 1;
+  }
+}
+
+.animate-gradient-foreground-3 {
+  animation: gradient-foreground-3 8s infinite;
+}
+
+.from-gradient-1-start {
+  --tw-gradient-from: #39ff14;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(57, 255, 20, 0));
+}
+
+.to-gradient-1-end {
+  --tw-gradient-to: #00ffff;
+}
+
+.from-gradient-2-start {
+  --tw-gradient-from: #ff073a;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(255, 7, 58, 0));
+}
+
+.to-gradient-2-end {
+  --tw-gradient-to: #ff6ec7;
+}
+
+.from-gradient-3-start {
+  --tw-gradient-from: #faff00;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 255, 0, 0));
+}
+
+.to-gradient-3-end {
+  --tw-gradient-to: #00f0ff;
+}
+
+@keyframes gradient-background-1 {
+  from,
+  16.667%,
+  to {
+    opacity: 0;
+  }
+  25%,
+  91.667% {
+    opacity: 1;
+  }
+}
+
+.before\:animate-gradient-background-1::before {
+  content: "";
+  animation: gradient-background-1 8s infinite;
+}
+
+@keyframes gradient-background-2 {
+  from,
+  to {
+    opacity: 1;
+  }
+  33.333%,
+  50% {
+    opacity: 0;
+  }
+  25%,
+  58.333% {
+    opacity: 1;
+  }
+}
+
+.before\:animate-gradient-background-2::before {
+  content: "";
+  animation: gradient-background-2 8s infinite;
+}
+
+@keyframes gradient-background-3 {
+  from,
+  58.333%,
+  91.667%,
+  to {
+    opacity: 1;
+  }
+  66.667%,
+  83.333% {
+    opacity: 0;
+  }
+}
+
+.before\:animate-gradient-background-3::before {
+  content: "";
+  animation: gradient-background-3 8s infinite;
+}
+
+.before\:content-\[attr\(data-content\)\]::before {
+  content: attr(data-content);
+}
+
+/* Landing heroes (biblioteca) */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+@keyframes fade-in-overlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in-overlay {
+  animation: fade-in-overlay 0.4s ease-out forwards;
+}
+
+@keyframes fade-in-dialog {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up-overlay {
+  animation: fade-in-dialog 0.5s ease-out forwards;
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-rise {
+  animation: fade-rise 0.8s ease-out forwards;
+}
+
+.animate-fade-rise-delay {
+  animation: fade-rise 0.8s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-fade-rise-delay-2 {
+  animation: fade-rise 0.8s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+@keyframes landing-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.landing-marquee-track {
+  animation: landing-marquee 20s linear infinite;
+}
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(4px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.15) 80%,
+    rgba(255, 255, 255, 0.45) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.liquid-glass-strong {
+  background: rgba(255, 255, 255, 0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(50px);
+  border: none;
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass-strong::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.2) 80%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }

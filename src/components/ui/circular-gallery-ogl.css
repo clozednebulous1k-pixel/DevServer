@@ -1,0 +1,19 @@
+.circular-gallery {
+  position: relative;
+  width: 100%;
+  min-height: min(70vh, 560px);
+  height: 100%;
+  touch-action: pan-y;
+}
+
+.circular-gallery--preview {
+  min-height: 0;
+  height: 100%;
+  touch-action: pan-x pan-y;
+}
+
+.circular-gallery canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

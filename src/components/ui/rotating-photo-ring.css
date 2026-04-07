@@ -1,0 +1,60 @@
+/* Anel de fotos 3D (CSS) — baseado em Jhey / CodePen */
+
+.rpr-scene,
+.rpr-a3d {
+  display: grid;
+}
+
+.rpr-scene {
+  overflow: hidden;
+  perspective: 35em;
+  mask: linear-gradient(90deg, transparent, #000 20% 80%, transparent);
+  min-height: 280px;
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.rpr-scene--preview {
+  min-height: 0;
+  max-width: none;
+  margin-inline: 0;
+  height: 100%;
+  perspective: 22em;
+  mask: linear-gradient(90deg, transparent, #000 12% 88%, transparent);
+}
+
+.rpr-scene--preview .rpr-card {
+  --w: 6.5em;
+}
+
+.rpr-a3d {
+  place-self: center;
+  transform-style: preserve-3d;
+  animation: rpr-ry 32s linear infinite;
+}
+
+@keyframes rpr-ry {
+  to {
+    transform: rotateY(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rpr-a3d {
+    animation-duration: 128s;
+  }
+}
+
+.rpr-card {
+  --w: min(17.5em, 70vw);
+  --ba: calc(1turn / var(--n));
+  grid-area: 1 / 1;
+  width: var(--w);
+  aspect-ratio: 7 / 10;
+  object-fit: cover;
+  border-radius: 1.5em;
+  backface-visibility: hidden;
+  transform: rotateY(calc(var(--i) * var(--ba)))
+    translateZ(calc(-1 * ((0.5 * var(--w) + 0.5em) / tan(0.5 * var(--ba)))));
+}
