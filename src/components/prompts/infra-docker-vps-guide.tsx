@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import {
   Box,
   ChevronLeft,
@@ -128,12 +128,16 @@ const containerVariants = {
     opacity: 1,
     transition: { staggerChildren: 0.06, delayChildren: 0.05 },
   },
-};
+} satisfies Variants;
 
 const itemVariants = {
   hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 380, damping: 28 } },
-};
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring" as const, stiffness: 380, damping: 28 },
+  },
+} satisfies Variants;
 
 export function InfraDockerVpsGuide({ onBack }: { onBack: () => void }) {
   const [track, setTrack] = useState<Track>("docker");
@@ -227,7 +231,7 @@ export function InfraDockerVpsGuide({ onBack }: { onBack: () => void }) {
               className="h-full rounded-full bg-gradient-to-r from-primary via-cyan-400 to-primary"
               initial={false}
               animate={{ width: `${progress}%` }}
-              transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              transition={{ type: "spring" as const, stiffness: 120, damping: 20 }}
             />
           </div>
           <p className="mt-2 text-right text-xs tabular-nums text-muted-foreground">
