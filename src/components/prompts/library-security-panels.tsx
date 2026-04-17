@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, BookOpen, ChevronLeft, Globe, ListChecks, Lock, Monitor, Shield } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronLeft, Container, Globe, ListChecks, Lock, Monitor, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { InfraDockerVpsGuide } from "@/components/prompts/infra-docker-vps-guide";
 
 export type PromptCategoryNavItem = {
   id: string;
@@ -12,10 +13,10 @@ export type PromptCategoryNavItem = {
   soon?: boolean;
 };
 
-/** Badge na sidebar: três trilhas (Website, Software, Produto & QA). */
-export const SECURITY_ENV_CHECKS_COUNT = 3;
+/** Badge na sidebar: quatro trilhas (Website, Software, Produto & QA, Docker & VPS). */
+export const SECURITY_ENV_CHECKS_COUNT = 4;
 
-type SecurityGuideId = "website" | "software" | "product" | null;
+type SecurityGuideId = "website" | "software" | "product" | "infra" | null;
 
 /** Checklist alinhada a boas práticas OWASP, headers HTTP, cookies, privacidade e hardening comum de front. */
 const websiteSteps: readonly { title: string; body: string }[] = [
@@ -292,7 +293,13 @@ export function SecurityCheckPanel() {
           ? productQaSteps
           : null;
   const title =
-    open === "website" ? "Website" : open === "software" ? "Software" : open === "product" ? "Produto & QA" : null;
+    open === "website"
+      ? "Website"
+      : open === "software"
+        ? "Software"
+        : open === "product"
+          ? "Produto & QA"
+          : null;
 
   return (
     <div className="space-y-6">
@@ -304,15 +311,15 @@ export function SecurityCheckPanel() {
           <div>
             <h2 className="text-lg font-semibold">Deixe seu sistema mais seguro</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Três trilhas: web, backend/infra e produto (pagamentos, RLS, IDOR, mass assignment, testes). Não substitui
-              auditoria formal nem normas do seu setor.
+              Quatro trilhas: web, backend/infra, produto (pagamentos, RLS, testes) e laboratório Docker/VPS com passos
+              animados. Não substitui auditoria formal nem normas do seu setor.
             </p>
           </div>
         </div>
       </div>
 
       {!open && (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid auto-rows-fr gap-4 sm:grid-cols-2">
           <button
             type="button"
             onClick={() => setOpen("website")}
@@ -381,10 +388,40 @@ export function SecurityCheckPanel() {
               <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-0.5" />
             </span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setOpen("infra")}
+            className={cn(
+              "group relative flex flex-col items-start gap-3 overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-card via-card to-cyan-500/[0.07] p-6 text-left shadow-sm transition-all",
+              "hover:border-primary/40 hover:shadow-md",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            )}
+          >
+            <span
+              className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
+              aria-hidden
+            >
+              <span className="absolute -right-8 -top-8 size-32 rounded-full bg-cyan-400/15 blur-2xl" />
+            </span>
+            <span className="relative flex size-12 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400">
+              <Container className="size-6" aria-hidden />
+            </span>
+            <span className="relative text-lg font-semibold">Docker &amp; VPS</span>
+            <span className="relative text-sm text-muted-foreground">
+              Laboratório imersivo: trilhas Docker e servidor, barra de progresso, comandos e navegação passo a passo.
+            </span>
+            <span className="relative mt-1 inline-flex items-center text-sm font-medium text-cyan-600 dark:text-cyan-400">
+              Entrar no laboratório
+              <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </button>
         </div>
       )}
 
-      {open && steps && title && (
+      {open === "infra" && <InfraDockerVpsGuide onBack={() => setOpen(null)} />}
+
+      {open && open !== "infra" && steps && title && (
         <div className="space-y-4">
           <Button
             type="button"
