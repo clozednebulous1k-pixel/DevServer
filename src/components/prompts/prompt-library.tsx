@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { LazyPreview } from "@/components/ui/lazy-preview";
 import { HeroPreviewRouter, type HeroPreviewId } from "@/components/prompts/hero-preview-router";
 import { GatedImagePreview } from "@/components/prompts/image-preview-gated";
+import { HostingPanel, HOSTING_TOPIC_COUNT } from "@/components/prompts/hosting-panel";
 import {
   LibraryCatalogPanel,
   SECURITY_ENV_CHECKS_COUNT,
@@ -46,7 +47,7 @@ type PromptCategoryId =
   | "texts"
   | "announcements";
 
-type CategoryId = PromptCategoryId | "library" | "security";
+type CategoryId = PromptCategoryId | "library" | "security" | "hosting";
 
 const promptCategories: readonly {
   id: PromptCategoryId;
@@ -66,7 +67,7 @@ const promptCategories: readonly {
 
 const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
 
-/** Sidebar: só Biblioteca (todo o conteúdo) e Segurança — categorias de prompts ficam dentro da Biblioteca. */
+/** Sidebar: Biblioteca, Segurança, Hospedagem — categorias de prompts ficam dentro da Biblioteca. */
 const navCategories: readonly {
   id: CategoryId;
   label: string;
@@ -75,6 +76,7 @@ const navCategories: readonly {
 }[] = [
   { id: "library", label: "Biblioteca", count: totalLibraryPromptItems },
   { id: "security", label: "Segurança", count: SECURITY_ENV_CHECKS_COUNT },
+  { id: "hosting", label: "Hospedagem", count: HOSTING_TOPIC_COUNT },
 ];
 
 const heroPrompts = [
@@ -615,6 +617,7 @@ const categoryLabels: Record<CategoryId, string> = {
   announcements: "Announcements",
   library: "Biblioteca",
   security: "Segurança",
+  hosting: "Hospedagem",
 };
 
 type CarouselPreviewId =
@@ -1099,7 +1102,8 @@ export function PromptLibrary() {
     return promptCategories.filter((c) => c.label.toLowerCase().includes(q));
   }, [deferredQuery]);
 
-  const browsingFromLibrary = active !== "library" && active !== "security";
+  const browsingFromLibrary =
+    active !== "library" && active !== "security" && active !== "hosting";
 
   async function copyPrompt(text: string, id: string) {
     await navigator.clipboard.writeText(text);
@@ -1142,7 +1146,9 @@ export function PromptLibrary() {
               const isActive =
                 cat.id === "security"
                   ? active === "security"
-                  : active === "library" || browsingFromLibrary;
+                  : cat.id === "hosting"
+                    ? active === "hosting"
+                    : active === "library" || browsingFromLibrary;
               return (
                 <button
                   key={cat.id}
@@ -1195,6 +1201,11 @@ export function PromptLibrary() {
                     Biblioteca /{" "}
                     <span className="font-medium text-foreground">Segurança</span>
                   </>
+                ) : active === "hosting" ? (
+                  <>
+                    Biblioteca /{" "}
+                    <span className="font-medium text-foreground">Hospedagem</span>
+                  </>
                 ) : (
                   <span className="font-medium text-foreground">Biblioteca</span>
                 )}
@@ -1202,7 +1213,7 @@ export function PromptLibrary() {
               <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
                 {categoryLabels[active]}
               </h1>
-              {(browsingFromLibrary || active === "security") && (
+              {(browsingFromLibrary || active === "security" || active === "hosting") && (
                 <Button
                   type="button"
                   variant="link"
@@ -1572,6 +1583,8 @@ export function PromptLibrary() {
 
           {active === "security" && <SecurityCheckPanel />}
 
+          {active === "hosting" && <HostingPanel />}
+
           {active !== "heroes" &&
             active !== "backgrounds" &&
             active !== "borders" &&
@@ -1580,7 +1593,8 @@ export function PromptLibrary() {
             active !== "navigation" &&
             active !== "texts" &&
             active !== "library" &&
-            active !== "security" && (
+            active !== "security" &&
+            active !== "hosting" && (
             <div className="rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center text-muted-foreground">
               Em breve nesta categoria.
             </div>
