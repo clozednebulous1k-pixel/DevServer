@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ArrowRight, BookOpen, CheckCircle2, HelpCircle, Lock, Shield, ShieldAlert } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, BookOpen, ChevronLeft, Globe, Lock, Monitor, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -12,114 +12,158 @@ export type PromptCategoryNavItem = {
   soon?: boolean;
 };
 
-type SecurityStatus = "pass" | "warn" | "fail";
+/** Badge na sidebar: duas trilhas (Website e Software). */
+export const SECURITY_ENV_CHECKS_COUNT = 2;
 
-type CheckResult = {
-  id: string;
-  title: string;
-  description: string;
-  status: SecurityStatus;
-  detail?: string;
-};
+type SecurityGuideId = "website" | "software" | null;
 
-function runSecurityChecks(): CheckResult[] {
-  const results: CheckResult[] = [];
+/** Checklist alinhada a boas práticas OWASP, headers HTTP, cookies, privacidade e hardening comum de front. */
+const websiteSteps: readonly { title: string; body: string }[] = [
+  {
+    title: "TLS/HTTPS e tráfego",
+    body: "Use TLS 1.2+ em produção; desative protocolos legados. Redirecione todo HTTP para HTTPS. Evite conteúdo misto (recursos HTTP em página HTTPS). Renove certificados a tempo; considere OCSP stapling onde a CA permitir.",
+  },
+  {
+    title: "HSTS e política de transporte",
+    body: "Envie Strict-Transport-Security com max-age adequado; use includeSubDomains e preload só se souber o impacto em todos os subdomínios. Evite que aplicações aceitem credenciais em HTTP claro.",
+  },
+  {
+    title: "CSP, Permissions-Policy e MIME",
+    body: "Content-Security-Policy restritiva (default-src, script-src, frame-ancestors, object-src 'none', base-uri). Permissions-Policy para recursos sensíveis (câmera, geolocalização, microfone). X-Content-Type-Options: nosniff. Remova X-Powered-By e cabeçalhos que vazam stack.",
+  },
+  {
+    title: "Clickjacking, abertura e redirecionamentos",
+    body: "frame-ancestors (CSP) ou X-Frame-Options para impedir embedding malicioso. Valide URLs em redirecionamentos pós-login (open redirect). Use rel=\"noopener noreferrer\" em links externos quando abrir nova aba.",
+  },
+  {
+    title: "Referrer, CORS e exposição de API",
+    body: "Referrer-Policy consistente (ex.: strict-origin-when-cross-origin). Em APIs chamadas pelo browser: CORS com origens explícitas — nunca combine Access-Control-Allow-Origin: * com credenciais. Não exponha endpoints internos ou documentação admin sem autenticação.",
+  },
+  {
+    title: "Cookies e sessão no navegador",
+    body: "Cookies de sessão: Secure, HttpOnly, SameSite=Lax ou Strict conforme o fluxo. Evite armazenar refresh tokens de longa duração em localStorage se o risco de XSS for relevante; prefira httpOnly + rotação no servidor. Proteção contra fixação de sessão ao elevar privilégio.",
+  },
+  {
+    title: "XSS, DOM e templates",
+    body: "Escape saída por contexto (HTML, JS, URL). Evite dangerouslySetInnerHTML e innerHTML com dados do usuário. Sanitize HTML rico com allowlist (DOMPurify ou equivalente). CSP com nonce/hash reduz impacto de XSS.",
+  },
+  {
+    title: "CSRF e formulários",
+    body: "Para mudanças de estado com cookie de sessão, use tokens anti-CSRF (synchronizer ou double submit) além de SameSite. Valide método HTTP, Content-Type e origem quando fizer sentido. Rate limit em login, reset de senha e cadastro.",
+  },
+  {
+    title: "Injeção e validação no servidor",
+    body: "Toda entrada passa por validação no backend (formato, tamanho, tipo). Queries parametrizadas; ORM sem concatenar SQL. Cuidado com OS command injection, SSTI e path traversal em uploads/downloads. Limite tamanho do corpo da requisição.",
+  },
+  {
+    title: "Upload de arquivos e conteúdo rico",
+    body: "Validar tipo real (magic bytes), extensão, tamanho e armazenar fora da raiz web servível. Nomes de arquivo imprevisíveis; antivírus/scan se o risco exigir. Não confiar só no Content-Type do cliente.",
+  },
+  {
+    title: "Autenticação, senhas e recuperação",
+    body: "Política de senha forte; hash só no servidor (Argon2/bcrypt). MFA quando possível. Fluxo de “esqueci senha” sem enumerar contas; rate limit e token de uso único com expiração curta. Mensagens de erro genéricas no login.",
+  },
+  {
+    title: "JWT e tokens no front (se usar)",
+    body: "Access token curto; refresh com rotação e revogação no servidor. Valide iss, aud, exp, algoritmo (evite \"none\"). Não coloque dados sensíveis no payload JWT (é legível). Armazene com o mesmo rigor que sessão.",
+  },
+  {
+    title: "Dependências, SRI e terceiros",
+    body: "npm/yarn/pnpm audit em CI; atualize CVE críticos. Subresource Integrity em scripts de CDN. Inventário de tags de terceiros (analytics, ads); carregue o mínimo. Verifique subprocessoras para LGPD.",
+  },
+  {
+    title: "Segredos, build e repositório",
+    body: "Nenhuma chave privada no repositório ou no bundle público. NEXT_PUBLIC_* / variáveis públicas só para o que pode ser exposto. .env no .gitignore; use secrets no provedor de deploy. Revogue chaves vazadas.",
+  },
+  {
+    title: "Erros, logs e superfície",
+    body: "Em produção, não exponha stack traces ao usuário. Páginas 404/500 neutras. Arquivo security.txt na raiz com canal responsável. Desative directory listing e métodos HTTP desnecessários (TRACE).",
+  },
+  {
+    title: "WAF, rate limit e bots",
+    body: "Camada de CDN/WAF para padrões comuns de ataque. Rate limiting por IP/usuário em endpoints sensíveis. Proteção a brute force e credential stuffing (CAPTCHA só se necessário, preferir limites e MFA).",
+  },
+  {
+    title: "SSRF e chamadas server-side",
+    body: "Se o servidor busca URLs fornecidas pelo usuário (webhooks, pré-visualização, importação), use allowlist de hosts, bloqueie IPs internos/metadata cloud e timeouts curtos.",
+  },
+  {
+    title: "LGPD, privacidade e consentimento",
+    body: "Política de privacidade clara; bases legais; minimização e retenção definida. Consentimento quando exigido; canal para titular (acesso, correção, exclusão, portabilidade). Registro de operações de tratamento (ROPA) quando aplicável. DPA com subprocessadores.",
+  },
+];
 
-  const isLocal =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1" ||
-      window.location.hostname.endsWith(".local"));
-
-  const https = typeof window !== "undefined" && window.location.protocol === "https:";
-  const secureContext = typeof window !== "undefined" && window.isSecureContext;
-
-  results.push({
-    id: "transport",
-    title: "Conexão criptografada (HTTPS)",
-    description: "Dados em trânsito devem usar TLS em produção.",
-    status: https || isLocal ? "pass" : "fail",
-    detail: isLocal
-      ? "Ambiente local — em produção use HTTPS."
-      : https
-        ? "Protocolo HTTPS ativo."
-        : "Sem HTTPS neste endereço.",
-  });
-
-  results.push({
-    id: "secure-context",
-    title: "Contexto seguro do navegador",
-    description: "APIs sensíveis (clipboard, criptografia) exigem contexto seguro.",
-    status: secureContext ? "pass" : "warn",
-    detail: secureContext ? "isSecureContext = true." : "Algumas APIs podem estar bloqueadas. Prefira HTTPS.",
-  });
-
-  results.push({
-    id: "cookies",
-    title: "Cookies habilitados",
-    description: "Sessões e preferências costumam depender de cookies.",
-    status: typeof navigator !== "undefined" && navigator.cookieEnabled ? "pass" : "warn",
-    detail:
-      typeof navigator !== "undefined" && navigator.cookieEnabled
-        ? "navigator.cookieEnabled = true."
-        : "Cookies desativados podem quebrar login.",
-  });
-
-  let storageOk = true;
-  let storageDetail = "localStorage disponível.";
-  try {
-    if (typeof window !== "undefined" && window.localStorage) {
-      const k = "__devserver_sec_test__";
-      window.localStorage.setItem(k, "1");
-      window.localStorage.removeItem(k);
-    }
-  } catch {
-    storageOk = false;
-    storageDetail = "localStorage bloqueado (modo privado ou política do navegador).";
-  }
-  results.push({
-    id: "storage",
-    title: "Armazenamento local",
-    description: "Apps web frequentemente usam localStorage/sessionStorage.",
-    status: storageOk ? "pass" : "warn",
-    detail: storageDetail,
-  });
-
-  results.push({
-    id: "online",
-    title: "Conectividade",
-    description: "Verifica se o navegador relata estar online.",
-    status: typeof navigator !== "undefined" && navigator.onLine ? "pass" : "warn",
-    detail:
-      typeof navigator !== "undefined" && navigator.onLine
-        ? "navigator.onLine = true."
-        : "Modo offline ou rede instável.",
-  });
-
-  results.push({
-    id: "scope",
-    title: "Escopo desta verificação",
-    description: "Checagens locais do navegador — não substituem auditoria de servidor, LGPD ou pentest.",
-    status: "warn",
-    detail: "Use HTTPS, headers de segurança (CSP, HSTS), WAF e revisão de código em produção.",
-  });
-
-  return results;
-}
-
-/** Mantém o badge da sidebar alinhado a `runSecurityChecks().length`. */
-export const SECURITY_ENV_CHECKS_COUNT = runSecurityChecks().length;
-
-function statusIcon(status: SecurityStatus) {
-  switch (status) {
-    case "pass":
-      return <CheckCircle2 className="size-5 shrink-0 text-emerald-500" aria-hidden />;
-    case "fail":
-      return <ShieldAlert className="size-5 shrink-0 text-destructive" aria-hidden />;
-    default:
-      return <HelpCircle className="size-5 shrink-0 text-amber-500" aria-hidden />;
-  }
-}
+/** Checklist cobrindo OWASP API Top 10, ASVS em alto nível, infra, supply chain e operações. */
+const softwareSteps: readonly { title: string; body: string }[] = [
+  {
+    title: "Gestão de segredos e configuração",
+    body: "Cofre de secrets (Vault, cloud KMS) ou variáveis injetadas no runtime — nunca no Git. Rotação periódica; revogação imediata após vazamento. Configuração por ambiente separada; desative debug e stack traces em produção.",
+  },
+  {
+    title: "Autenticação e credenciais",
+    body: "Hash Argon2/bcrypt com parâmetros atuais; nunca MD5/SHA1 para senhas. MFA para contas privilegiadas. Política de senha e bloqueio progressivo contra brute force. Sessão com timeout e invalidação no logout; proteção a session fixation.",
+  },
+  {
+    title: "Autorização e controle de acesso",
+    body: "RBAC/ABAC explícito em cada endpoint; negue por padrão. Teste IDOR/BOLA (acesso a recurso de outro usuário). Separe papéis admin. Não confie só em IDs sequenciais ou ocultos na URL.",
+  },
+  {
+    title: "Injeção (SQL, NoSQL, LDAP, OS)",
+    body: "Consultas parametrizadas ou ORM seguro; nunca concatenar entrada em SQL. Sanitize entradas em queries NoSQL/LDAP. Evite shell=True; use listas de argumentos. Validar ordem e tipo de deserialização (pickle, YAML unsafe, etc.).",
+  },
+  {
+    title: "XXE, SSRF e resolução de nomes",
+    body: "Desabilite entidades externas em parsers XML. Para HTTP saída iniciada por usuário: allowlist de destinos, bloqueio de ranges privados/link-local, sem redirecionamento automático para file://. Timeouts e limites de tamanho.",
+  },
+  {
+    title: "Mass assignment e validação de entrada",
+    body: "DTOs com allowlist de campos; nunca ligar body JSON direto ao modelo persistido sem filtrar. Validar esquema (tamanho, formato, enum). Normalizar Unicode e tratar upload multipart com limites.",
+  },
+  {
+    title: "Criptografia em trânsito e em repouso",
+    body: "TLS 1.2+ com cipher suites modernas; HSTS no serviço. Disco e backups criptografados quando o dado exigir. Use bibliotecas padrão (NaCl, libsodium) para novos desenvolvimentos; não invente cifra custom.",
+  },
+  {
+    title: "Banco de dados, backups e disponibilidade",
+    body: "Usuário de aplicação com least privilege (sem DROP, sem superuser). Backups automáticos, cifrados, fora do mesmo site; teste de restauração documentado. Replicação e RPO/RTO alinhados ao negócio.",
+  },
+  {
+    title: "APIs REST/GraphQL e limites",
+    body: "Autenticação forte (OAuth2/OIDC bem implementado); escopos mínimos. Rate limiting, paginação e tamanho máximo de payload. GraphQL: limites de profundidade/custo e desabilitar introspection em produção se não for necessário.",
+  },
+  {
+    title: "Webhooks e integrações",
+    body: "Assine payloads (HMAC) e valide timestamp para evitar replay. HTTPS obrigatório; verifique certificado do parceiro. Idempotência em endpoints que recebem eventos duplicados.",
+  },
+  {
+    title: "Logs, auditoria e privacidade",
+    body: "Logs estruturados sem senhas, tokens completos ou dados clínicos desnecessários. Retenção e anonimização conforme LGPD. Trilha de auditoria para ações administrativas. Proteção contra log injection (newline em entrada).",
+  },
+  {
+    title: "Supply chain e build",
+    body: "Lockfile versionado; SCA em CI (Dependabot, Snyk, etc.). Revisar scripts postinstall. Assinatura de commits ou imagens quando o processo permitir. SBOM para componentes críticos.",
+  },
+  {
+    title: "Containers e infraestrutura",
+    body: "Imagens mínimas (distroless/alpine com cuidado), usuário não-root, read-only root filesystem quando possível. Scan de imagem em CI. Segredos via orchestrator, não na imagem. Network policies / security groups restritivos.",
+  },
+  {
+    title: "Rede, bastion e administração",
+    body: "Firewall default deny; só portas necessárias. SSH com chaves, sem senha root; Fail2ban ou equivalente. Bastion/VPN para acesso a produção. Segmentação entre app, DB e filas.",
+  },
+  {
+    title: "Filas, workers e jobs",
+    body: "Autenticação entre serviços (mTLS ou tokens de curta duração). Filas privadas; consumidores validam payload. Dead-letter e idempotência. Limites de reprocessamento para evitar loops.",
+  },
+  {
+    title: "Desktop, mobile e updates",
+    body: "Assinatura de binários e updates por canal HTTPS com verificação de integridade. Auto-update com assinatura verificada. Armazenamento local cifrado quando guardar credenciais (Keychain/Keystore). Ofuscação não substitui criptografia.",
+  },
+  {
+    title: "Testes, SAST/DAST e resposta a incidentes",
+    body: "Testes de segurança no SDLC; SAST/DAST periódicos ou pentest para releases grandes. Plano de resposta a incidentes: contatos, isolamento, preservação de evidências, comunicação legal (LGPD notificação à ANPD quando aplicável).",
+  },
+];
 
 export function LibraryCatalogPanel({
   categories,
@@ -179,88 +223,119 @@ export function LibraryCatalogPanel({
 }
 
 export function SecurityCheckPanel() {
-  const [checks, setChecks] = useState<CheckResult[] | null>(null);
+  const [open, setOpen] = useState<SecurityGuideId>(null);
 
-  useEffect(() => {
-    setChecks(runSecurityChecks());
-  }, []);
-
-  const summary = checks
-    ? {
-        pass: checks.filter((c) => c.status === "pass").length,
-        warn: checks.filter((c) => c.status === "warn").length,
-        fail: checks.filter((c) => c.status === "fail").length,
-      }
-    : null;
+  const steps = open === "website" ? websiteSteps : open === "software" ? softwareSteps : null;
+  const title = open === "website" ? "Website" : open === "software" ? "Software" : null;
 
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/60 p-5 md:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-start gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Shield className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">Verificação rápida do ambiente</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Indicadores locais do seu navegador e desta página. Não é um laudo de segurança nem varre seu
-                servidor.
-              </p>
-            </div>
+        <div className="flex items-start gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Shield className="size-5" />
           </div>
-          {summary && (
-            <div className="flex flex-wrap gap-2 sm:justify-end">
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                OK: {summary.pass}
-              </span>
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">
-                Atenção: {summary.warn}
-              </span>
-              {summary.fail > 0 && (
-                <span className="rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
-                  Crítico: {summary.fail}
-                </span>
-              )}
-            </div>
-          )}
+          <div>
+            <h2 className="text-lg font-semibold">Deixe seu sistema mais seguro</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Checklist ampliada (TLS, headers OWASP, XSS/CSRF/CORS, sessão, uploads, APIs, LGPD no web; injeção,
+              segredos, APIs, infra, supply chain e operações no software). Não substitui auditoria formal nem normas
+              do seu setor.
+            </p>
+          </div>
         </div>
       </div>
 
-      {!checks && (
-        <div className="rounded-2xl border border-border bg-muted/20 p-8 text-center text-sm text-muted-foreground">
-          Executando verificações…
+      {!open && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setOpen("website")}
+            className={cn(
+              "group flex flex-col items-start gap-3 rounded-2xl border border-border bg-card/80 p-6 text-left shadow-sm transition-colors",
+              "hover:border-primary/40 hover:bg-card",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            )}
+          >
+            <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+              <Globe className="size-6" aria-hidden />
+            </span>
+            <span className="text-lg font-semibold">Website</span>
+            <span className="text-sm text-muted-foreground">
+              TLS, HSTS, CSP, cookies, XSS/CSRF, CORS, uploads, JWT, SRI, WAF, SSRF server-side, LGPD e hardening de
+              deploy.
+            </span>
+            <span className="mt-1 inline-flex items-center text-sm font-medium text-primary">
+              Abrir passo a passo
+              <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setOpen("software")}
+            className={cn(
+              "group flex flex-col items-start gap-3 rounded-2xl border border-border bg-card/80 p-6 text-left shadow-sm transition-colors",
+              "hover:border-primary/40 hover:bg-card",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            )}
+          >
+            <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+              <Monitor className="size-6" aria-hidden />
+            </span>
+            <span className="text-lg font-semibold">Software</span>
+            <span className="text-sm text-muted-foreground">
+              Segredos, authz, injeção, SSRF/XXE, APIs e webhooks, criptografia, DB, containers, rede, supply chain,
+              incident response e apps instaláveis.
+            </span>
+            <span className="mt-1 inline-flex items-center text-sm font-medium text-primary">
+              Abrir passo a passo
+              <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </button>
         </div>
       )}
 
-      {checks && (
-        <ul className="space-y-3">
-          {checks.map((c) => (
-            <li
-              key={c.id}
-              className={cn(
-                "flex gap-3 rounded-2xl border p-4",
-                c.status === "pass" && "border-emerald-500/20 bg-emerald-500/[0.04]",
-                c.status === "warn" && "border-amber-500/20 bg-amber-500/[0.06]",
-                c.status === "fail" && "border-destructive/30 bg-destructive/[0.06]",
-              )}
-            >
-              <div className="pt-0.5">{statusIcon(c.status)}</div>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium leading-tight">{c.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{c.description}</p>
-                {c.detail && <p className="mt-2 text-xs text-muted-foreground/90">{c.detail}</p>}
-              </div>
-            </li>
-          ))}
-        </ul>
+      {open && steps && title && (
+        <div className="space-y-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="-ml-2 gap-1 rounded-full text-muted-foreground hover:text-foreground"
+            onClick={() => setOpen(null)}
+          >
+            <ChevronLeft className="size-4" />
+            Voltar às opções
+          </Button>
+
+          <div className="rounded-2xl border border-border bg-card/80 p-5 md:p-6">
+            <h3 className="text-base font-semibold md:text-lg">Passo a passo — {title}</h3>
+            <ol className="mt-6 space-y-5">
+              {steps.map((step, index) => (
+                <li key={step.title} className="flex gap-4">
+                  <span
+                    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold tabular-nums text-primary"
+                    aria-hidden
+                  >
+                    {index + 1}
+                  </span>
+                  <div className="min-w-0 pt-0.5">
+                    <p className="font-medium leading-tight">{step.title}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
       )}
 
       <div className="flex items-start gap-3 rounded-2xl border border-dashed border-border bg-muted/10 p-4 text-sm text-muted-foreground">
         <Lock className="mt-0.5 size-4 shrink-0" />
         <p>
-          Para um sistema real, revise também autenticação, permissões, backup, logs, dependências (npm audit),
-          segredos em variáveis de ambiente e conformidade (ex.: LGPD para dados de saúde).
+          Este guia é informativo. Para dados sensíveis (saúde, financeiro), consulte regras da ANVISA, BACEN ou LGPD e
+          considere assessoria jurídica e testes de segurança (pentest) quando fizer sentido.
         </p>
       </div>
     </div>
