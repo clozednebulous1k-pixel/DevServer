@@ -11,6 +11,11 @@ import { cn } from "@/lib/utils";
 import { LazyPreview } from "@/components/ui/lazy-preview";
 import { HeroPreviewRouter, type HeroPreviewId } from "@/components/prompts/hero-preview-router";
 import { GatedImagePreview } from "@/components/prompts/image-preview-gated";
+import {
+  LibraryCatalogPanel,
+  SECURITY_ENV_CHECKS_COUNT,
+  SecurityCheckPanel,
+} from "@/components/prompts/library-security-panels";
 
 function CategoryPreviewSkeleton() {
   return <div className="h-[168px] animate-pulse rounded-lg bg-muted/30 sm:h-[180px]" />;
@@ -31,7 +36,7 @@ const LibraryMiscLazy = dynamic(
   { ssr: false, loading: CategoryPreviewSkeleton },
 );
 
-type CategoryId =
+type PromptCategoryId =
   | "heroes"
   | "backgrounds"
   | "borders"
@@ -41,8 +46,10 @@ type CategoryId =
   | "texts"
   | "announcements";
 
-const categories: readonly {
-  id: CategoryId;
+type CategoryId = PromptCategoryId | "library" | "security";
+
+const promptCategories: readonly {
+  id: PromptCategoryId;
   label: string;
   count: number;
   soon?: boolean;
@@ -55,6 +62,19 @@ const categories: readonly {
   { id: "navigation", label: "Navigation Menus", count: 3 },
   { id: "texts", label: "Textos", count: 16 },
   { id: "announcements", label: "Announcements", count: 0, soon: true },
+];
+
+const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
+
+const navCategories: readonly {
+  id: CategoryId;
+  label: string;
+  count: number;
+  soon?: boolean;
+}[] = [
+  ...promptCategories,
+  { id: "library", label: "Biblioteca", count: totalLibraryPromptItems },
+  { id: "security", label: "Segurança", count: SECURITY_ENV_CHECKS_COUNT },
 ];
 
 const heroPrompts = [
@@ -593,6 +613,8 @@ const categoryLabels: Record<CategoryId, string> = {
   navigation: "Navigation Menus",
   texts: "Textos",
   announcements: "Announcements",
+  library: "Biblioteca",
+  security: "Segurança",
 };
 
 type CarouselPreviewId =
@@ -1071,6 +1093,12 @@ export function PromptLibrary() {
     );
   }, [deferredQuery]);
 
+  const filteredLibraryNavCategories = useMemo(() => {
+    if (!deferredQuery.trim()) return promptCategories;
+    const q = deferredQuery.toLowerCase();
+    return promptCategories.filter((c) => c.label.toLowerCase().includes(q));
+  }, [deferredQuery]);
+
   async function copyPrompt(text: string, id: string) {
     await navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -1106,7 +1134,7 @@ export function PromptLibrary() {
           </div>
           <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden overscroll-y-contain px-2 pb-4 [scrollbar-gutter:stable]">
             <p className="shrink-0 px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categorias</p>
-            {categories.map((cat) => {
+            {navCategories.map((cat) => {
               const isActive = active === cat.id;
               return (
                 <button
@@ -1495,13 +1523,24 @@ export function PromptLibrary() {
             </div>
           )}
 
+          {active === "library" && (
+            <LibraryCatalogPanel
+              categories={filteredLibraryNavCategories}
+              onPickCategory={(id) => setActive(id as CategoryId)}
+            />
+          )}
+
+          {active === "security" && <SecurityCheckPanel />}
+
           {active !== "heroes" &&
             active !== "backgrounds" &&
             active !== "borders" &&
             active !== "carousels" &&
             active !== "images" &&
             active !== "navigation" &&
-            active !== "texts" && (
+            active !== "texts" &&
+            active !== "library" &&
+            active !== "security" && (
             <div className="rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center text-muted-foreground">
               Em breve nesta categoria.
             </div>

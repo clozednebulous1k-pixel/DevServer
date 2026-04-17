@@ -3,7 +3,6 @@
 import { useScreenSize } from "@/components/hooks/use-screen-size";
 import { SiteNav } from "@/components/site-nav";
 import { PixelTrail } from "@/components/ui/pixel-trail";
-import { SignInFlow } from "@/components/ui/sign-in-flow-1";
 
 export default function SignUpPage() {
   const screenSize = useScreenSize();
@@ -19,8 +18,16 @@ export default function SignUpPage() {
         />
       </div>
       <SiteNav />
-      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-4 pb-12 pt-28">
-        <SignInFlow initialMode="signup" />
+      <main className="relative z-10 mx-auto flex w-full max-w-2xl flex-1 items-center justify-center px-4 pb-12 pt-28">
+        <section className="w-full rounded-3xl border bg-card/80 p-6 text-center backdrop-blur md:p-8">
+          <h1 className="text-2xl font-semibold">Cadastro fechado</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Os logins sao criados manualmente pelo admin no Supabase.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Se voce ja comprou a biblioteca, fale com a DevServer para receber seu acesso.
+          </p>
+        </section>
       </main>
     </div>
   );

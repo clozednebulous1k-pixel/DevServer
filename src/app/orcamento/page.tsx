@@ -1,16 +1,59 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { type FormEvent, type ReactNode, useMemo, useState } from "react";
 import { ClipboardList, Clock3, FileText, PhoneCall } from "lucide-react";
 import { useScreenSize } from "@/components/hooks/use-screen-size";
 import { SiteNav } from "@/components/site-nav";
 import { PixelTrail } from "@/components/ui/pixel-trail";
 import { GlowCard } from "@/components/ui/spotlight-card";
 import { Button } from "@/components/ui/button";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function OrcamentoPage() {
   const screenSize = useScreenSize();
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSent(false);
+    setErrorMessage(null);
+    setSending(true);
+    if (!supabase) {
+      setSending(false);
+      setErrorMessage("Envio indisponivel: configure o Supabase no ambiente.");
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const payload = {
+      full_name: String(formData.get("full_name") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      whatsapp: String(formData.get("whatsapp") ?? ""),
+      company: String(formData.get("company") ?? ""),
+      project_type: String(formData.get("project_type") ?? ""),
+      budget_range: String(formData.get("budget_range") ?? ""),
+      desired_deadline: String(formData.get("desired_deadline") ?? ""),
+      start_date: String(formData.get("start_date") ?? ""),
+      project_goal: String(formData.get("project_goal") ?? ""),
+      desired_features: String(formData.get("desired_features") ?? ""),
+      references_url: String(formData.get("references_url") ?? ""),
+      additional_notes: String(formData.get("additional_notes") ?? ""),
+    };
+
+    const { error } = await supabase.from("orcamentos").insert(payload);
+    setSending(false);
+
+    if (error) {
+      setErrorMessage("Falha ao enviar. Tente novamente em alguns instantes.");
+      return;
+    }
+
+    event.currentTarget.reset();
+    setSent(true);
+  }
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -65,15 +108,10 @@ export default function OrcamentoPage() {
         </section>
 
         <section className="rounded-3xl border bg-card/70 p-6 backdrop-blur md:p-8">
-          <form
-            className="grid gap-4 md:grid-cols-2"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setSent(true);
-            }}
-          >
+          <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
             <Field label="Nome completo" required>
               <input
+                name="full_name"
                 type="text"
                 required
                 placeholder="Seu nome"
@@ -82,6 +120,7 @@ export default function OrcamentoPage() {
             </Field>
             <Field label="E-mail" required>
               <input
+                name="email"
                 type="email"
                 required
                 placeholder="voce@empresa.com"
@@ -91,6 +130,7 @@ export default function OrcamentoPage() {
 
             <Field label="WhatsApp">
               <input
+                name="whatsapp"
                 type="tel"
                 placeholder="(00) 00000-0000"
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
@@ -98,6 +138,7 @@ export default function OrcamentoPage() {
             </Field>
             <Field label="Empresa">
               <input
+                name="company"
                 type="text"
                 placeholder="Nome da empresa (opcional)"
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
@@ -106,6 +147,7 @@ export default function OrcamentoPage() {
 
             <Field label="Tipo de projeto" required>
               <select
+                name="project_type"
                 required
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
                 defaultValue=""
@@ -123,6 +165,7 @@ export default function OrcamentoPage() {
             </Field>
             <Field label="Faixa de orçamento" required>
               <select
+                name="budget_range"
                 required
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
                 defaultValue=""
@@ -139,6 +182,7 @@ export default function OrcamentoPage() {
 
             <Field label="Prazo desejado" required>
               <select
+                name="desired_deadline"
                 required
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
                 defaultValue=""
@@ -154,6 +198,7 @@ export default function OrcamentoPage() {
             </Field>
             <Field label="Data ideal de início">
               <input
+                name="start_date"
                 type="date"
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
@@ -161,6 +206,7 @@ export default function OrcamentoPage() {
 
             <Field label="Objetivo do projeto" className="md:col-span-2" required>
               <textarea
+                name="project_goal"
                 required
                 rows={4}
                 placeholder="Ex.: captar leads, vender online, automatizar processos..."
@@ -170,6 +216,7 @@ export default function OrcamentoPage() {
 
             <Field label="Funcionalidades desejadas" className="md:col-span-2" required>
               <textarea
+                name="desired_features"
                 required
                 rows={5}
                 placeholder="Ex.: login, painel admin, integração com pagamento, chatbot, relatórios..."
@@ -179,6 +226,7 @@ export default function OrcamentoPage() {
 
             <Field label="Referências (links)" className="md:col-span-2">
               <input
+                name="references_url"
                 type="url"
                 placeholder="https://..."
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
@@ -187,6 +235,7 @@ export default function OrcamentoPage() {
 
             <Field label="Observações adicionais" className="md:col-span-2">
               <textarea
+                name="additional_notes"
                 rows={4}
                 placeholder="Conte qualquer detalhe importante para nossa equipe..."
                 className="w-full rounded-xl border bg-background/80 px-3 py-3 text-sm outline-none ring-primary/20 focus:ring-2"
@@ -194,9 +243,10 @@ export default function OrcamentoPage() {
             </Field>
 
             <div className="md:col-span-2 flex flex-col items-start gap-3 pt-2">
-              <Button type="submit" size="lg" className="rounded-full">
-                Enviar solicitação
+              <Button type="submit" size="lg" className="rounded-full" disabled={sending}>
+                {sending ? "Enviando..." : "Enviar solicitação"}
               </Button>
+              {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
               {sent && (
                 <p className="text-sm text-primary">
                   Solicitação enviada com sucesso! Vamos retornar seu contato em breve.
