@@ -172,8 +172,6 @@ export function LibraryCatalogPanel({
   categories: readonly PromptCategoryNavItem[];
   onPickCategory: (id: string) => void;
 }) {
-  const items = categories.filter((c) => !c.soon);
-
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/60 p-5 md:p-6">
@@ -184,37 +182,49 @@ export function LibraryCatalogPanel({
           <div>
             <h2 className="text-lg font-semibold">Conteúdo disponível</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Escolha uma categoria para ver os prompts, pré-visualizações e copiar o texto para sua IA ou equipe.
+              Todas as categorias de prompts estão aqui. Escolha uma para ver pré-visualizações e copiar o texto para
+              sua IA ou equipe.
             </p>
           </div>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {items.map((cat) => (
+        {categories.map((cat) => (
           <div
             key={cat.id}
-            className="flex flex-col rounded-2xl border border-border bg-card/80 p-4 shadow-sm backdrop-blur-sm"
+            className={cn(
+              "flex flex-col rounded-2xl border border-border bg-card/80 p-4 shadow-sm backdrop-blur-sm",
+              cat.soon && "opacity-80",
+            )}
           >
             <div className="flex items-start justify-between gap-2">
               <h3 className="font-semibold leading-tight">{cat.label}</h3>
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
-                {cat.count}
+                {cat.soon ? "—" : cat.count}
               </span>
             </div>
             <p className="mt-2 flex-1 text-sm text-muted-foreground">
-              {cat.count} {cat.count === 1 ? "item" : "itens"} na biblioteca.
+              {cat.soon
+                ? "Em breve na biblioteca."
+                : `${cat.count} ${cat.count === 1 ? "item" : "itens"} disponíveis.`}
             </p>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="mt-4 w-full rounded-full"
-              onClick={() => onPickCategory(cat.id)}
-            >
-              Ver conteúdo
-              <ArrowRight className="ml-2 size-4" />
-            </Button>
+            {cat.soon ? (
+              <Button type="button" variant="secondary" size="sm" className="mt-4 w-full rounded-full" disabled>
+                Em breve
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="mt-4 w-full rounded-full"
+                onClick={() => onPickCategory(cat.id)}
+              >
+                Ver conteúdo
+                <ArrowRight className="ml-2 size-4" />
+              </Button>
+            )}
           </div>
         ))}
       </div>

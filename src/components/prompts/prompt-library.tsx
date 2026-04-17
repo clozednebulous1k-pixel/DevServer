@@ -66,13 +66,13 @@ const promptCategories: readonly {
 
 const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
 
+/** Sidebar: só Biblioteca (todo o conteúdo) e Segurança — categorias de prompts ficam dentro da Biblioteca. */
 const navCategories: readonly {
   id: CategoryId;
   label: string;
   count: number;
   soon?: boolean;
 }[] = [
-  ...promptCategories,
   { id: "library", label: "Biblioteca", count: totalLibraryPromptItems },
   { id: "security", label: "Segurança", count: SECURITY_ENV_CHECKS_COUNT },
 ];
@@ -1031,7 +1031,7 @@ Diferente de particle-text-effect.tsx (palavras + clique direito).`,
 ];
 
 export function PromptLibrary() {
-  const [active, setActive] = useState<CategoryId>("heroes");
+  const [active, setActive] = useState<CategoryId>("library");
   const [query, setQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -1099,6 +1099,8 @@ export function PromptLibrary() {
     return promptCategories.filter((c) => c.label.toLowerCase().includes(q));
   }, [deferredQuery]);
 
+  const browsingFromLibrary = active !== "library" && active !== "security";
+
   async function copyPrompt(text: string, id: string) {
     await navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -1133,20 +1135,23 @@ export function PromptLibrary() {
             </div>
           </div>
           <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden overscroll-y-contain px-2 pb-4 [scrollbar-gutter:stable]">
-            <p className="shrink-0 px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categorias</p>
+            <p className="shrink-0 px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Menu
+            </p>
             {navCategories.map((cat) => {
-              const isActive = active === cat.id;
+              const isActive =
+                cat.id === "security"
+                  ? active === "security"
+                  : active === "library" || browsingFromLibrary;
               return (
                 <button
                   key={cat.id}
                   type="button"
-                  onClick={() => !cat.soon && setActive(cat.id)}
-                  disabled={!!cat.soon}
+                  onClick={() => setActive(cat.id)}
                   className={cn(
                     "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
                     isActive && "bg-muted text-foreground font-medium",
-                    !isActive && !cat.soon && "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-                    cat.soon && "cursor-not-allowed opacity-50",
+                    !isActive && "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                   )}
                 >
                   <span>{cat.label}</span>
@@ -1156,7 +1161,7 @@ export function PromptLibrary() {
                       isActive ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
                     )}
                   >
-                    {cat.soon ? "—" : cat.count}
+                    {cat.count}
                   </span>
                 </button>
               );
@@ -1166,14 +1171,49 @@ export function PromptLibrary() {
 
         <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden px-4 md:px-0">
           <div className="mb-6 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+            <div className="min-w-0">
+              {active !== "library" && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="-ml-2 mb-1 h-8 gap-1 px-2 text-muted-foreground hover:text-foreground md:hidden"
+                  onClick={() => setActive("library")}
+                >
+                  <ChevronLeft className="size-4" />
+                  Biblioteca
+                </Button>
+              )}
               <p className="text-sm text-muted-foreground">
-                Biblioteca /{" "}
-                <span className="font-medium text-foreground">{categoryLabels[active]}</span>
+                {browsingFromLibrary ? (
+                  <>
+                    Biblioteca /{" "}
+                    <span className="font-medium text-foreground">{categoryLabels[active]}</span>
+                  </>
+                ) : active === "security" ? (
+                  <>
+                    Biblioteca /{" "}
+                    <span className="font-medium text-foreground">Segurança</span>
+                  </>
+                ) : (
+                  <span className="font-medium text-foreground">Biblioteca</span>
+                )}
               </p>
               <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
                 {categoryLabels[active]}
               </h1>
+              {(browsingFromLibrary || active === "security") && (
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="mt-1 hidden h-auto p-0 text-xs text-muted-foreground md:inline-flex"
+                  onClick={() => setActive("library")}
+                >
+                  <ChevronLeft className="mr-1 size-3" />
+                  Voltar à biblioteca
+                </Button>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Ordenar</span>
