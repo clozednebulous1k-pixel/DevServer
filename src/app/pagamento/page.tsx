@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Copy, QrCode, ShieldCheck } from "lucide-react";
+import { ORCAMENTO_FIELD_MAX } from "@/lib/orcamento-limits";
 import { useScreenSize } from "@/components/hooks/use-screen-size";
 import { SiteNav } from "@/components/site-nav";
 import { PixelTrail } from "@/components/ui/pixel-trail";
@@ -53,6 +54,11 @@ export default function PagamentoPage() {
             Plano selecionado: <strong>{planName}</strong>. Mensal: <strong>R$ {monthlyValue.toFixed(2)}</strong> | Anual:{" "}
             <strong>R$ {yearlyValue.toFixed(2)}</strong> (media de R$ {yearlyMonthlyAverage}/mes).
           </p>
+          <p className="mt-3 rounded-xl border border-border/80 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+            Reembolsos e cancelamentos: use sempre fluxo autenticado no seu produto, confirme titularidade, idempotência
+            em webhooks e auditoria de alteração de assinatura — nunca confie só no front para liberar ou revogar
+            acesso.
+          </p>
 
           <form
             className="mt-6 grid gap-4 md:grid-cols-2"
@@ -66,6 +72,7 @@ export default function PagamentoPage() {
               <input
                 type="text"
                 required
+                maxLength={ORCAMENTO_FIELD_MAX.full_name}
                 value={payerName}
                 onChange={(e) => setPayerName(e.target.value)}
                 placeholder="Seu nome"
@@ -77,6 +84,7 @@ export default function PagamentoPage() {
               <input
                 type="tel"
                 required
+                maxLength={ORCAMENTO_FIELD_MAX.whatsapp}
                 value={payerPhone}
                 onChange={(e) => setPayerPhone(e.target.value)}
                 placeholder="(00) 00000-0000"

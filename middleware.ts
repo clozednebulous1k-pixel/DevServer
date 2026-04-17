@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+/**
+ * Biblioteca: só entra quem tem `profiles.library_access` ou admin.
+ * `library_access` deve ser gravado só no servidor (Service Role / webhook de pagamento confirmado),
+ * nunca por update direto do cliente — RLS em `profiles` não concede UPDATE ao authenticated.
+ * Teste race: dois requests simultâneos não devem duplicar cobrança nem reembolso; use idempotency-key no PSP.
+ */
 type AppRole = "admin" | "user";
 
 async function getRole(

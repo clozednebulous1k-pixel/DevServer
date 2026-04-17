@@ -1,4 +1,8 @@
--- Roles e acesso por usuario
+-- Roles e acesso por usuario (assinatura / biblioteca).
+-- RLS restrito: o cliente autenticado só LÊ a própria linha.
+-- Não há policy de INSERT/UPDATE para authenticated — quem cria a linha é o trigger (security definer);
+-- library_access e role só devem mudar via Service Role (webhook de pagamento, job interno) ou SQL admin.
+-- Nunca exponha a service_role key no browser.
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   role text not null default 'user' check (role in ('admin', 'user')),
@@ -34,11 +38,26 @@ create table if not exists public.orcamentos (
 
 alter table public.orcamentos enable row level security;
 
+-- Insert público com limites de tamanho (anti-abuse, alinhado a src/lib/orcamento-limits.ts).
+drop policy if exists "orcamentos_insert_public" on public.orcamentos;
 create policy "orcamentos_insert_public"
 on public.orcamentos
 for insert
 to anon, authenticated
-with check (true);
+with check (
+  char_length(trim(full_name)) between 1 and 200
+  and char_length(trim(email)) between 3 and 254
+  and char_length(trim(coalesce(whatsapp, ''))) <= 40
+  and char_length(trim(coalesce(company, ''))) <= 200
+  and char_length(trim(project_type)) between 1 and 120
+  and char_length(trim(budget_range)) between 1 and 80
+  and char_length(trim(desired_deadline)) between 1 and 80
+  and char_length(trim(coalesce(start_date, ''))) <= 40
+  and char_length(trim(project_goal)) between 1 and 4000
+  and char_length(trim(desired_features)) between 1 and 8000
+  and char_length(trim(coalesce(references_url, ''))) <= 2000
+  and char_length(trim(coalesce(additional_notes, ''))) <= 4000
+);
 
 create policy "orcamentos_select_admin_only"
 on public.orcamentos

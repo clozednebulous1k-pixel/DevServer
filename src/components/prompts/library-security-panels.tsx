@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, BookOpen, ChevronLeft, Globe, Lock, Monitor, Shield } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronLeft, Globe, ListChecks, Lock, Monitor, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -12,10 +12,10 @@ export type PromptCategoryNavItem = {
   soon?: boolean;
 };
 
-/** Badge na sidebar: duas trilhas (Website e Software). */
-export const SECURITY_ENV_CHECKS_COUNT = 2;
+/** Badge na sidebar: três trilhas (Website, Software, Produto & QA). */
+export const SECURITY_ENV_CHECKS_COUNT = 3;
 
-type SecurityGuideId = "website" | "software" | null;
+type SecurityGuideId = "website" | "software" | "product" | null;
 
 /** Checklist alinhada a boas práticas OWASP, headers HTTP, cookies, privacidade e hardening comum de front. */
 const websiteSteps: readonly { title: string; body: string }[] = [
@@ -165,6 +165,54 @@ const softwareSteps: readonly { title: string; body: string }[] = [
   },
 ];
 
+/** SaaS, monetização, Postgres/Supabase RLS, QA de segurança e entrega com foco (ex.: GSD). */
+const productQaSteps: readonly { title: string; body: string }[] = [
+  {
+    title: "Acesso a conteúdo pago (ex.: biblioteca)",
+    body: "Decisão só no servidor ou edge (middleware, API, RLS): flag de assinatura ou entitlement vindo de webhook do PSP. Nunca confie em “usuário disse que pagou” no front. Revogue acesso se assinatura expirar ou chargeback.",
+  },
+  {
+    title: "Autenticação: prefira IdP pronto",
+    body: "Evite implementar login completo do zero. Use serviços maduros: Clerk, Keycloak, Casdoor, Authentik, Auth0, Supabase Auth, etc. Eles cobrem fluxos, recuperação de senha, MFA e boa parte de ameaças comuns — você integra e customiza políticas.",
+  },
+  {
+    title: "Postgres / Supabase: RLS o mais restritivo possível",
+    body: "Padrão negar tudo; crie policies mínimas por tabela/ação. Não permita que o cliente atualize colunas sensíveis (ex.: library_access, role) via PostgREST — só leitura da própria linha ou updates via Service Role em backend confiável. Revise `anon` vs `authenticated` em cada policy.",
+  },
+  {
+    title: "Banco e segredos: nada exposto",
+    body: "Connection string e service_role só em servidor/CI. Não publique URL do painel do DB na internet; use IP allowlist/VPN se possível. Variáveis de ambiente por ambiente; rotação de chaves. Backups fora da mesma conta com acesso restrito.",
+  },
+  {
+    title: "Mass assignment e regras de negócio",
+    body: "DTO com allowlist de campos; nunca persistir o body JSON inteiro no modelo. Regras de negócio críticas (preço, desconto, papel, cancelamento) só no servidor e repetidas na camada que grava no banco. Teste casos de borda e abuso.",
+  },
+  {
+    title: "IDOR e permissão por recurso",
+    body: "Sempre valide `resource_id` pertence ao `user_id` autenticado (ou ao tenant). Teste com dois usuários e Postman/cURL trocando IDs. UUID ajuda contra enumeração fácil, mas não substitui checagem de ownership.",
+  },
+  {
+    title: "Limites de input em todas as camadas",
+    body: "maxLength no HTML, validação no gateway/API, CHECK ou constraint no SQL e limite de body (413). Igual para uploads (tamanho, tipo, contagem). Reduz DoS, armazenamento indevido e payloads maliciosos.",
+  },
+  {
+    title: "Race conditions, pagamento e reembolso",
+    body: "Use idempotency-key no provedor de pagamento; webhooks com assinatura e deduplicação por event_id. Reembolso: fluxo autenticado, confirme titularidade, estado explícito (máquina de estados), trava otimista ou transação ao debitar crédito. Teste concorrência (dois cliques, retry de rede).",
+  },
+  {
+    title: "Validação e contratos",
+    body: "Esquema versionado (OpenAPI/Zod): tipos, ranges, enums. Mesmas regras no front (UX) e no back (fonte da verdade). Mensagens de erro que não vazem estrutura interna.",
+  },
+  {
+    title: "Fluxo estruturado, testes e “get it done”",
+    body: "Divida o sistema em sessões/fluxos (cadastro, checkout, biblioteca, admin…). Para cada um: casos de teste felizes + abuso; checklist de segurança antes de merge. Entregas pequenas com definição de pronto que inclua teste automatizado ou manual registrado.",
+  },
+  {
+    title: "Testes de segurança recorrentes",
+    body: "Inclua na suíte: IDOR, CSRF onde couber, rate limit, sessão expirada, replay de webhook, tentativa de escalar role. Em CI: SCA de dependências; opcionalmente DAST em ambiente de staging.",
+  },
+];
+
 export function LibraryCatalogPanel({
   categories,
   onPickCategory,
@@ -182,8 +230,8 @@ export function LibraryCatalogPanel({
           <div>
             <h2 className="text-lg font-semibold">Conteúdo disponível</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Todas as categorias de prompts estão aqui. Escolha uma para ver pré-visualizações e copiar o texto para
-              sua IA ou equipe.
+              Acesso exclusivo para assinantes com plano ativo (ou administradores). Todas as categorias de prompts
+              estão aqui — escolha uma para ver pré-visualizações e copiar o texto para sua IA ou equipe.
             </p>
           </div>
         </div>
@@ -235,8 +283,16 @@ export function LibraryCatalogPanel({
 export function SecurityCheckPanel() {
   const [open, setOpen] = useState<SecurityGuideId>(null);
 
-  const steps = open === "website" ? websiteSteps : open === "software" ? softwareSteps : null;
-  const title = open === "website" ? "Website" : open === "software" ? "Software" : null;
+  const steps =
+    open === "website"
+      ? websiteSteps
+      : open === "software"
+        ? softwareSteps
+        : open === "product"
+          ? productQaSteps
+          : null;
+  const title =
+    open === "website" ? "Website" : open === "software" ? "Software" : open === "product" ? "Produto & QA" : null;
 
   return (
     <div className="space-y-6">
@@ -248,16 +304,15 @@ export function SecurityCheckPanel() {
           <div>
             <h2 className="text-lg font-semibold">Deixe seu sistema mais seguro</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Checklist ampliada (TLS, headers OWASP, XSS/CSRF/CORS, sessão, uploads, APIs, LGPD no web; injeção,
-              segredos, APIs, infra, supply chain e operações no software). Não substitui auditoria formal nem normas
-              do seu setor.
+              Três trilhas: web, backend/infra e produto (pagamentos, RLS, IDOR, mass assignment, testes). Não substitui
+              auditoria formal nem normas do seu setor.
             </p>
           </div>
         </div>
       </div>
 
       {!open && (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <button
             type="button"
             onClick={() => setOpen("website")}
@@ -297,6 +352,29 @@ export function SecurityCheckPanel() {
             <span className="text-sm text-muted-foreground">
               Segredos, authz, injeção, SSRF/XXE, APIs e webhooks, criptografia, DB, containers, rede, supply chain,
               incident response e apps instaláveis.
+            </span>
+            <span className="mt-1 inline-flex items-center text-sm font-medium text-primary">
+              Abrir passo a passo
+              <ArrowRight className="ml-1 size-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setOpen("product")}
+            className={cn(
+              "group flex flex-col items-start gap-3 rounded-2xl border border-border bg-card/80 p-6 text-left shadow-sm transition-colors",
+              "hover:border-primary/40 hover:bg-card",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            )}
+          >
+            <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+              <ListChecks className="size-6" aria-hidden />
+            </span>
+            <span className="text-lg font-semibold">Produto &amp; QA</span>
+            <span className="text-sm text-muted-foreground">
+              Biblioteca paga, IdP (Clerk, Keycloak, Casdoor, Authentik), RLS estrito, IDOR, mass assignment, limites de
+              input, race em pagamento/reembolso, testes por fluxo.
             </span>
             <span className="mt-1 inline-flex items-center text-sm font-medium text-primary">
               Abrir passo a passo

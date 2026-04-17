@@ -8,6 +8,7 @@ import { PixelTrail } from "@/components/ui/pixel-trail";
 import { GlowCard } from "@/components/ui/spotlight-card";
 import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { clampOrcamentoField, ORCAMENTO_FIELD_MAX } from "@/lib/orcamento-limits";
 
 export default function OrcamentoPage() {
   const screenSize = useScreenSize();
@@ -29,18 +30,18 @@ export default function OrcamentoPage() {
 
     const formData = new FormData(event.currentTarget);
     const payload = {
-      full_name: String(formData.get("full_name") ?? ""),
-      email: String(formData.get("email") ?? ""),
-      whatsapp: String(formData.get("whatsapp") ?? ""),
-      company: String(formData.get("company") ?? ""),
-      project_type: String(formData.get("project_type") ?? ""),
-      budget_range: String(formData.get("budget_range") ?? ""),
-      desired_deadline: String(formData.get("desired_deadline") ?? ""),
-      start_date: String(formData.get("start_date") ?? ""),
-      project_goal: String(formData.get("project_goal") ?? ""),
-      desired_features: String(formData.get("desired_features") ?? ""),
-      references_url: String(formData.get("references_url") ?? ""),
-      additional_notes: String(formData.get("additional_notes") ?? ""),
+      full_name: clampOrcamentoField("full_name", String(formData.get("full_name") ?? "")),
+      email: clampOrcamentoField("email", String(formData.get("email") ?? "")),
+      whatsapp: clampOrcamentoField("whatsapp", String(formData.get("whatsapp") ?? "")),
+      company: clampOrcamentoField("company", String(formData.get("company") ?? "")),
+      project_type: clampOrcamentoField("project_type", String(formData.get("project_type") ?? "")),
+      budget_range: clampOrcamentoField("budget_range", String(formData.get("budget_range") ?? "")),
+      desired_deadline: clampOrcamentoField("desired_deadline", String(formData.get("desired_deadline") ?? "")),
+      start_date: clampOrcamentoField("start_date", String(formData.get("start_date") ?? "")),
+      project_goal: clampOrcamentoField("project_goal", String(formData.get("project_goal") ?? "")),
+      desired_features: clampOrcamentoField("desired_features", String(formData.get("desired_features") ?? "")),
+      references_url: clampOrcamentoField("references_url", String(formData.get("references_url") ?? "")),
+      additional_notes: clampOrcamentoField("additional_notes", String(formData.get("additional_notes") ?? "")),
     };
 
     const { error } = await supabase.from("orcamentos").insert(payload);
@@ -114,6 +115,7 @@ export default function OrcamentoPage() {
                 name="full_name"
                 type="text"
                 required
+                maxLength={ORCAMENTO_FIELD_MAX.full_name}
                 placeholder="Seu nome"
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
@@ -123,6 +125,7 @@ export default function OrcamentoPage() {
                 name="email"
                 type="email"
                 required
+                maxLength={ORCAMENTO_FIELD_MAX.email}
                 placeholder="voce@empresa.com"
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
@@ -132,6 +135,7 @@ export default function OrcamentoPage() {
               <input
                 name="whatsapp"
                 type="tel"
+                maxLength={ORCAMENTO_FIELD_MAX.whatsapp}
                 placeholder="(00) 00000-0000"
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
@@ -140,6 +144,7 @@ export default function OrcamentoPage() {
               <input
                 name="company"
                 type="text"
+                maxLength={ORCAMENTO_FIELD_MAX.company}
                 placeholder="Nome da empresa (opcional)"
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
@@ -200,6 +205,7 @@ export default function OrcamentoPage() {
               <input
                 name="start_date"
                 type="date"
+                maxLength={ORCAMENTO_FIELD_MAX.start_date}
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
             </Field>
@@ -209,6 +215,7 @@ export default function OrcamentoPage() {
                 name="project_goal"
                 required
                 rows={4}
+                maxLength={ORCAMENTO_FIELD_MAX.project_goal}
                 placeholder="Ex.: captar leads, vender online, automatizar processos..."
                 className="w-full rounded-xl border bg-background/80 px-3 py-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
@@ -219,6 +226,7 @@ export default function OrcamentoPage() {
                 name="desired_features"
                 required
                 rows={5}
+                maxLength={ORCAMENTO_FIELD_MAX.desired_features}
                 placeholder="Ex.: login, painel admin, integração com pagamento, chatbot, relatórios..."
                 className="w-full rounded-xl border bg-background/80 px-3 py-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
@@ -228,6 +236,7 @@ export default function OrcamentoPage() {
               <input
                 name="references_url"
                 type="url"
+                maxLength={ORCAMENTO_FIELD_MAX.references_url}
                 placeholder="https://..."
                 className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
@@ -237,6 +246,7 @@ export default function OrcamentoPage() {
               <textarea
                 name="additional_notes"
                 rows={4}
+                maxLength={ORCAMENTO_FIELD_MAX.additional_notes}
                 placeholder="Conte qualquer detalhe importante para nossa equipe..."
                 className="w-full rounded-xl border bg-background/80 px-3 py-3 text-sm outline-none ring-primary/20 focus:ring-2"
               />
