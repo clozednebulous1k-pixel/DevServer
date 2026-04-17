@@ -12,6 +12,7 @@ import { LazyPreview } from "@/components/ui/lazy-preview";
 import { HeroPreviewRouter, type HeroPreviewId } from "@/components/prompts/hero-preview-router";
 import { GatedImagePreview } from "@/components/prompts/image-preview-gated";
 import { HostingPanel, HOSTING_TOPIC_COUNT } from "@/components/prompts/hosting-panel";
+import { DatabasePanel, DATABASE_PANEL_SECTION_COUNT } from "@/components/prompts/database-panel";
 import { SpeedPanel, SPEED_TOPIC_COUNT } from "@/components/prompts/speed-panel";
 import {
   LibraryCatalogPanel,
@@ -48,7 +49,7 @@ type PromptCategoryId =
   | "texts"
   | "announcements";
 
-type CategoryId = PromptCategoryId | "library" | "security" | "hosting" | "speed";
+type CategoryId = PromptCategoryId | "library" | "security" | "hosting" | "speed" | "databases";
 
 const promptCategories: readonly {
   id: PromptCategoryId;
@@ -68,7 +69,7 @@ const promptCategories: readonly {
 
 const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
 
-/** Sidebar: Biblioteca, Segurança, Hospedagem, Velocidade — prompts ficam dentro da Biblioteca. */
+/** Sidebar: guias + Biblioteca de prompts. */
 const navCategories: readonly {
   id: CategoryId;
   label: string;
@@ -79,6 +80,7 @@ const navCategories: readonly {
   { id: "security", label: "Segurança", count: SECURITY_ENV_CHECKS_COUNT },
   { id: "hosting", label: "Hospedagem", count: HOSTING_TOPIC_COUNT },
   { id: "speed", label: "Velocidade", count: SPEED_TOPIC_COUNT },
+  { id: "databases", label: "Bancos de dados", count: DATABASE_PANEL_SECTION_COUNT },
 ];
 
 const heroPrompts = [
@@ -621,6 +623,7 @@ const categoryLabels: Record<CategoryId, string> = {
   security: "Segurança",
   hosting: "Hospedagem",
   speed: "Velocidade",
+  databases: "Bancos de dados",
 };
 
 type CarouselPreviewId =
@@ -1109,7 +1112,8 @@ export function PromptLibrary() {
     active !== "library" &&
     active !== "security" &&
     active !== "hosting" &&
-    active !== "speed";
+    active !== "speed" &&
+    active !== "databases";
 
   async function copyPrompt(text: string, id: string) {
     await navigator.clipboard.writeText(text);
@@ -1156,7 +1160,9 @@ export function PromptLibrary() {
                     ? active === "hosting"
                     : cat.id === "speed"
                       ? active === "speed"
-                      : active === "library" || browsingFromLibrary;
+                      : cat.id === "databases"
+                        ? active === "databases"
+                        : active === "library" || browsingFromLibrary;
               return (
                 <button
                   key={cat.id}
@@ -1219,6 +1225,11 @@ export function PromptLibrary() {
                     Biblioteca /{" "}
                     <span className="font-medium text-foreground">Velocidade</span>
                   </>
+                ) : active === "databases" ? (
+                  <>
+                    Biblioteca /{" "}
+                    <span className="font-medium text-foreground">Bancos de dados</span>
+                  </>
                 ) : (
                   <span className="font-medium text-foreground">Biblioteca</span>
                 )}
@@ -1229,7 +1240,8 @@ export function PromptLibrary() {
               {(browsingFromLibrary ||
                 active === "security" ||
                 active === "hosting" ||
-                active === "speed") && (
+                active === "speed" ||
+                active === "databases") && (
                 <Button
                   type="button"
                   variant="link"
@@ -1603,6 +1615,8 @@ export function PromptLibrary() {
 
           {active === "speed" && <SpeedPanel />}
 
+          {active === "databases" && <DatabasePanel />}
+
           {active !== "heroes" &&
             active !== "backgrounds" &&
             active !== "borders" &&
@@ -1613,7 +1627,8 @@ export function PromptLibrary() {
             active !== "library" &&
             active !== "security" &&
             active !== "hosting" &&
-            active !== "speed" && (
+            active !== "speed" &&
+            active !== "databases" && (
             <div className="rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center text-muted-foreground">
               Em breve nesta categoria.
             </div>
