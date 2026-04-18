@@ -68,12 +68,12 @@ const promptCategories: readonly {
   count: number;
   soon?: boolean;
 }[] = [
-  { id: "heroes", label: "Heroes", count: 29 },
-  { id: "backgrounds", label: "Backgrounds", count: 8 },
-  { id: "borders", label: "Borders", count: 14 },
-  { id: "carousels", label: "Carrossel para clientes", count: 8 },
-  { id: "images", label: "Imagens", count: 13 },
-  { id: "navigation", label: "Navigation Menus", count: 3 },
+  { id: "heroes", label: "Heroes", count: 39 },
+  { id: "backgrounds", label: "Backgrounds", count: 18 },
+  { id: "borders", label: "Borders", count: 24 },
+  { id: "carousels", label: "Carrossel para clientes", count: 18 },
+  { id: "images", label: "Imagens", count: 23 },
+  { id: "navigation", label: "Navigation Menus", count: 13 },
   { id: "texts", label: "Textos", count: 16 },
   { id: "announcements", label: "Announcements", count: 0, soon: true },
 ];
@@ -98,7 +98,7 @@ const navCategories: readonly {
 const heroPrompts = [
   {
     id: "myna-hero",
-    title: "Hero Myna UI — IA & mono",
+    title: "Hero Myna UI - IA & mono",
     description: "Hero completo com navegação, menu mobile (Sheet), título animado por palavra e grid de features.",
     prompt: `Crie um hero para landing de produto B2B no estilo "Myna UI":
 - Tipografia monoespaçada no título principal; palavras aparecem em sequência com animação suave (Framer Motion).
@@ -113,7 +113,7 @@ Use tokens do tema (primary, muted-foreground) em vez de cores hex fixas.`,
   {
     id: "digital-loom",
     title: "Hero Digital Loom",
-    description: "Fundo em canvas com fios animados e texto central com motion — vibe futurista DevServer.",
+    description: "Fundo em canvas com fios animados e texto central com motion - vibe futurista DevServer.",
     prompt: `Implemente um hero full-viewport com fundo animado em canvas:
 - Componente DigitalLoomBackground: threads horizontais com onda senoidal, composite "lighter", fade trail preto semi-transparente.
 - Cor dos fios próxima ao verde primary da marca (rgba com baixa opacidade).
@@ -126,7 +126,7 @@ Next.js client component, TypeScript, Tailwind para tipografia.`,
   {
     id: "robot-spline",
     title: "Hero com robô 3D (Spline)",
-    description: "Cena 3D interativa em fullscreen com texto sobreposto — ótimo para produtos tech.",
+    description: "Cena 3D interativa em fullscreen com texto sobreposto - ótimo para produtos tech.",
     prompt: `Monte um hero fullscreen com @splinetool/react-spline:
 - Lazy import do Spline dentro de Suspense com fallback de spinner.
 - Prop scene com URL .splinecode da prod.spline.design.
@@ -158,7 +158,7 @@ Next.js client component, Tailwind, tokens border-border bg-card text-foreground
     prompt: `Crie FormBuilderHero com props: illustrationSrc, illustrationAlt, title (ReactNode), description, buttonText, buttonHref.
 - Animação: motion container com staggerChildren 0.2; itens com fade + y.
 - Ilustração: next/image para URLs remotas (remotePatterns), w-48 md:w-64.
-- CTA: elemento <a> com cn(buttonVariants({ size: "lg" })) — o projeto pode usar Button Base UI sem asChild; evite Slot.
+- CTA: elemento <a> com cn(buttonVariants({ size: "lg" })) - o projeto pode usar Button Base UI sem asChild; evite Slot.
 - lucide-react ArrowRight ao lado do texto.
 Stack: framer-motion, Tailwind, TypeScript.`,
     preview: "form8" as const,
@@ -206,7 +206,7 @@ Use styled-jsx global para @property e keyframes se necessário.`,
   },
   {
     id: "hero-section-2",
-    title: "Hero Tailark — mockup + logos",
+    title: "Hero Tailark - mockup + logos",
     description:
       "AnimatedGroup (blur→foco), radial no fundo, mockup claro/escuro, grid de logos com hover blur e link.",
     prompt: `Hero em duas seções:
@@ -255,7 +255,7 @@ CTAs: Link + buttonVariants (sem Slot).`,
   },
   {
     id: "interactive-hero-ballpit",
-    title: "Hero WebGL — esferas metálicas",
+    title: "Hero WebGL - esferas metálicas",
     description:
       "InstancedMesh + RoomEnvironment; esferas seguem o ponteiro com suavização; navbar, formulário email e menu mobile.",
     prompt: `InteractiveHero (versão simplificada do “ballpit”):
@@ -268,115 +268,227 @@ O prompt original com classes X/W/Z completas pode ser expandido para física co
   },
   {
     id: "hero-stellar-ai",
-    title: "Stellar.ai — tabs + vídeo + overlays",
+    title: "Stellar.ai - tabs + vídeo + overlays",
     description: "Landing clara Inter, nav, hero com tabs que alternam a cada 4s, vídeo CloudFront e badges.",
     prompt: `Ver implementação em marketing-heroes-part1 (StellarAiHeroInner): animate-fade-in-up, Lucide, vídeo MP4, 4 overlays condicionais.`,
     preview: "stellar" as const,
   },
   {
     id: "hero-power-ai",
-    title: "Power AI — vídeo escuro + marquee",
+    title: "Power AI - vídeo escuro + marquee",
     description: "Fullscreen escuro, vídeo com fade loop (VideoFadeMp4), General Sans, blob blur, marquee logos.",
     prompt: `CSS vars HSL, liquid-glass no marquee, sem overlay no vídeo além do fade JS.`,
     preview: "power-ai" as const,
   },
   {
     id: "hero-aethera",
-    title: "Aethera — Instrument Serif + vídeo fade",
+    title: "Aethera - Instrument Serif + vídeo fade",
     description: "Vídeo posicionado abaixo do nav, gradiente sobre o vídeo, headline editorial.",
     prompt: `VideoFadeMp4 + classes animate-fade-rise em globals.css.`,
     preview: "aethera" as const,
   },
   {
     id: "hero-rubik-era",
-    title: "NEW ERA — Rubik + vídeo azul",
+    title: "NEW ERA - Rubik + vídeo azul",
     description: "Headline em 3 linhas uppercase, botão com SVG fill, fundo #21346e.",
-    prompt: `RubikEraHeroInner — vídeo CloudFront, tipografia bold uppercase, CTA 184×65 com path SVG branco.`,
+    prompt: `RubikEraHeroInner - vídeo CloudFront, tipografia bold uppercase, CTA 184×65 com path SVG branco.`,
     preview: "rubik-era" as const,
   },
   {
     id: "hero-web3-eos",
-    title: "Web3 EOS — gradient text + waitlist",
+    title: "Web3 EOS - gradient text + waitlist",
     description: "Vídeo com overlay 50%, nav 120px, pills waitlist com brilho.",
-    prompt: `Web3EosHeroInner — gradiente 144.5deg em background-clip text, botões waitlist em camadas.`,
+    prompt: `Web3EosHeroInner - gradiente 144.5deg em background-clip text, botões waitlist em camadas.`,
     preview: "web3-eos" as const,
   },
   {
     id: "hero-glass-hls",
     title: "Glass + HLS (Cloudflare Stream)",
     description: "hls.js, mix-blend-screen no vídeo, faixa logos tailus, react-use-measure, InfiniteSlider.",
-    prompt: `GlassHlsHeroInner — HLS Cloudflare Stream, motion/react, clsx + tailwind-merge; logo cloud com SVG externos.`,
+    prompt: `GlassHlsHeroInner - HLS Cloudflare Stream, motion/react, clsx + tailwind-merge; logo cloud com SVG externos.`,
     preview: "glass-hls" as const,
   },
   {
     id: "hero-geist-minimal",
-    title: "Geist + Instrument Serif — vídeo invertido",
+    title: "Geist + Instrument Serif - vídeo invertido",
     description: "scaleY(-1) no vídeo, gradiente branco, email bar + CTA com inner shadow.",
-    prompt: `GeistMinimalHeroInner — gradiente Tailwind from/to com stops percentuais, motion stagger.`,
+    prompt: `GeistMinimalHeroInner - gradiente Tailwind from/to com stops percentuais, motion stagger.`,
     preview: "geist-minimal" as const,
   },
   {
     id: "hero-ai-builder-hls",
-    title: "AI builder — Mux HLS",
+    title: "AI builder - Mux HLS",
     description: "HlsVideo stream Mux, overlays gradiente, motion headline, CTAs.",
-    prompt: `AiBuilderHlsHeroInner — HlsVideo + poster Unsplash; gradientes decorativos blur mix-blend-screen.`,
+    prompt: `AiBuilderHlsHeroInner - HlsVideo + poster Unsplash; gradientes decorativos blur mix-blend-screen.`,
     preview: "ai-builder-hls" as const,
   },
   {
     id: "hero-taskly-glass",
-    title: "Taskly — orb webm + Fustat",
+    title: "Taskly - orb webm + Fustat",
     description: "future.co orb.webm, mix-blend-screen, filtros hue/saturation, nav glass sticky.",
-    prompt: `TasklyGlassHeroInner — vídeo webm future.co, nav backdrop-blur 50px, CTA rgba(0,132,255,0.8).`,
+    prompt: `TasklyGlassHeroInner - vídeo webm future.co, nav backdrop-blur 50px, CTA rgba(0,132,255,0.8).`,
     preview: "taskly-glass" as const,
   },
   {
     id: "hero-barlow-agency",
-    title: "Agency — Barlow + Instrument Serif",
+    title: "Agency - Barlow + Instrument Serif",
     description: "Vídeo full bleed, badge Fortune glass, cantos 7px, CTAs #f8f8f8.",
-    prompt: `BarlowAgencyHeroInner — sem overlay no vídeo; cantos 7×7px nos quatro cantos do bloco central.`,
+    prompt: `BarlowAgencyHeroInner - sem overlay no vídeo; cantos 7×7px nos quatro cantos do bloco central.`,
     preview: "barlow-agency" as const,
   },
   {
     id: "hero-bloom-glass",
-    title: "Bloom — liquid glass + vídeo",
+    title: "Bloom - liquid glass + vídeo",
     description: "Poppins/Source Serif 4, painéis liquid-glass / liquid-glass-strong, split layout.",
-    prompt: `BloomGlassHeroInner — classes .liquid-glass e .liquid-glass-strong em globals.css; lucide ícones.`,
+    prompt: `BloomGlassHeroInner - classes .liquid-glass e .liquid-glass-strong em globals.css; lucide ícones.`,
     preview: "bloom-glass" as const,
   },
   {
     id: "hero-targo",
-    title: "Targo — logística vermelha",
+    title: "Targo - logística vermelha",
     description: "Rubik bold, vídeo sem overlay, clip-path nos botões, card consulta glass.",
-    prompt: `TargoHeroInner — marca #EE3F2C, clipPath polygon para cantos cortados, backdrop-blur no card.`,
+    prompt: `TargoHeroInner - marca #EE3F2C, clipPath polygon para cantos cortados, backdrop-blur no card.`,
     preview: "targo-red" as const,
   },
   {
     id: "hero-synapse-hls",
-    title: "Synapse — HLS atrás do texto",
+    title: "Synapse - HLS atrás do texto",
     description: "Vídeo Mux 80vh bottom-[35vh], navbar glass, motion stagger.",
-    prompt: `SynapseHlsHeroInner — stream Mux .m3u8, posicionamento bottom 35vh / h-[80vh].`,
+    prompt: `SynapseHlsHeroInner - stream Mux .m3u8, posicionamento bottom 35vh / h-[80vh].`,
     preview: "synapse-hls" as const,
   },
   {
     id: "hero-ai-unlock-hls",
-    title: "AI Unlock — split text + Mux",
+    title: "AI Unlock - split text + Mux",
     description: "Vídeo deslocado/scaled, blur-in motion, badge Sparkles.",
-    prompt: `AiUnlockHlsHeroInner — motion blur filter, palavras com stagger; vídeo margin-left + scale.`,
+    prompt: `AiUnlockHlsHeroInner - motion blur filter, palavras com stagger; vídeo margin-left + scale.`,
     preview: "ai-unlock-hls" as const,
   },
   {
     id: "hero-clear-invoice",
-    title: "ClearInvoice — barra gradiente + HLS",
+    title: "ClearInvoice - barra gradiente + HLS",
     description: "Topo colorido, vídeo Mux memoizado, CTAs gradiente laranja.",
-    prompt: `ClearInvoiceHeroInner — React.memo no fundo HLS; barra topo gradiente ccf/e7d04c/31fb78.`,
+    prompt: `ClearInvoiceHeroInner - React.memo no fundo HLS; barra topo gradiente ccf/e7d04c/31fb78.`,
     preview: "clear-invoice-hls" as const,
   },
   {
     id: "section-webfluin-calculator",
     title: "Calculadora orçamento Webfluin",
     description: "Grid 2 colunas, radios/checkbox custom, slider páginas, preços agency/freelancer/you.",
-    prompt: `WebfluinCalculatorInner — calculatePrice / calculateAgencyCost / calculateFreelancerCost conforme especificação; input range 1–30.`,
+    prompt: `WebfluinCalculatorInner - calculatePrice / calculateAgencyCost / calculateFreelancerCost conforme especificação; input range 1-30.`,
     preview: "webfluin-calculator" as const,
+  },
+  {
+    id: "hero-saas-metrics-live",
+    title: "Hero SaaS - métricas ao vivo",
+    description: "Cards flutuantes com números animados, sparklines SVG e badge de uptime; vibe dashboard confiável.",
+    prompt: `Crie um hero B2B SaaS em viewport alto:
+- Fundo sutil (gradiente radial ou noise CSS) sem roubar foco dos números.
+- Grid 2×2 ou 3 mini-cards com valor principal (tabular-nums), delta % verde/vermelho e micro sparkline (SVG ou recharts só se leve).
+- Headline forte + subtítulo; CTA primário e secundário (outline).
+- Opcional: linha de logos em escala de cinza abaixo (trust).
+Stack: Next.js, Tailwind, framer-motion para contadores e entrada stagger. Prefira tokens theme (primary, muted).`,
+    preview: "stellar" as const,
+  },
+  {
+    id: "hero-podcast-wave",
+    title: "Hero podcast - ondas + episódio",
+    description: "Visual tipo waveform reativo (fake ou áudio opcional), capa do episódio e botão play.",
+    prompt: `Hero para podcast ou newsletter em áudio:
+- Coluna esquerda: título do show, episódio atual (número + nome), descrição curta.
+- Coluna direita ou fundo: waveform animado (canvas ou barras CSS com motion) que pode ser só decorativo se não houver áudio.
+- Botão play circular grande; links Spotify/Apple/Youtube como ícones ghost.
+- Tipografia contrastante (display + sans legível).
+Next.js client onde necessário; reduza bundle (sem libs pesadas de áudio se não precisar).`,
+    preview: "power-ai" as const,
+  },
+  {
+    id: "hero-event-countdown",
+    title: "Hero conferência - countdown",
+    description: "Contagem regressiva grande, timezone, CTA ingresso e faixa de palestrantes.",
+    prompt: `Landing de evento (dev conference / webinar):
+- Countdown com dias-horas-min-seg atualizado por setInterval ou date-fns; layout responsivo (stack em mobile).
+- Bloco inferior com avatares empilhados + \"+120 palestrantes\" e link para grade.
+- Navbar mínima com logo e botão \"Garantir ingresso\".
+Acessível: números com aria-live polite ao tick; prefers-reduced-motion reduz pulsação decorativa.`,
+    preview: "rubik-era" as const,
+  },
+  {
+    id: "hero-product-hotspots",
+    title: "Hero e-commerce - produto + hotspots",
+    description: "Imagem do produto com pontos clicáveis e tooltip para features.",
+    prompt: `Hero tipo PDP premium:
+- Imagem grande (next/image) com hotspots absolutos (% top/left) que abrem popover Radix ou Sheet no mobile.
+- Lista de bullets ao lado sincronizada ao hotspot ativo (estado lifted).
+- Preço, parcelamento e CTA \"Adicionar\"; selo de garantia.
+Use cn(), motion só no hover dos pontos (scale). Evite CLS: width/height na imagem.`,
+    preview: "bloom-glass" as const,
+  },
+  {
+    id: "hero-nonprofit-story",
+    title: "Hero ONG - história + impacto",
+    description: "Foto humanizada full-bleed, headline emotiva e métricas de impacto (vidas, água, escolas).",
+    prompt: `Hero institucional para ONG ou impacto social:
+- Meia viewport ou full com foto real (Unsplash placeholder com crédito), overlay gradiente para leitura.
+- Headline curta + subtítulo factual; linha com 3 métricas grandes (número + label).
+- CTAs: \"Doar\" (primário) e \"Conhecer projetos\" (outline branco/semi-transparente).
+Tom respeitoso; contraste WCAG AA no texto sobre foto.`,
+    preview: "animated" as const,
+  },
+  {
+    id: "hero-crypto-ticker",
+    title: "Hero fintech crypto - ticker",
+    description: "Faixa com preços fake scrollando, cards glass e aviso de risco.",
+    prompt: `Hero estética crypto/fintech (genérico, sem prometer retorno):
+- Marquee horizontal com pares SYMBOL/USDT e variação % (dados mock).
+- Painel glass central: headline, subtítulo, dois CTAs (\"Criar conta\" / \"Ver taxas\").
+- Disclaimer pequeno abaixo sobre volatilidade.
+Tailwind glass (backdrop-blur, border-white/10); motion reduzida se prefers-reduced-motion.`,
+    preview: "web3-eos" as const,
+  },
+  {
+    id: "hero-fitness-rings",
+    title: "Hero fitness - anéis de progresso",
+    description: "SVG ou conic-gradient animado como Apple rings; meta diária e CTA treino.",
+    prompt: `Hero app de saúde/fitness:
+- Visual central: três anéis (calorias, minutos, passos) com stroke-dasharray animado via CSS ou framer-motion.
+- Texto motivacional + progresso \"Hoje: 72% da meta\".
+- CTA \"Começar treino\" e link secundário para planos.
+Cores vibrantes mas consistentes com tema; preview compacto deve funcionar em altura fixa.`,
+    preview: "particle" as const,
+  },
+  {
+    id: "hero-editorial-split",
+    title: "Hero editorial - revista split",
+    description: "Layout assimétrico tipo capa de revista: serif grande + imagem sangrando.",
+    prompt: `Hero editorial / blog premium:
+- Grid 12 colunas: coluna texto (serif para título multilinha) + coluna imagem com object-cover e cantos opcionalmente cortados (clip-path suave).
+- Metadados: categoria pill, tempo de leitura, autor com avatar.
+- Sem carrossel automático; foco tipográfico.
+Tailwind typography opcional para lead paragraph.`,
+    preview: "geist-minimal" as const,
+  },
+  {
+    id: "hero-weather-glass",
+    title: "Hero clima - card glass dinâmico",
+    description: "Ícone meteorológico animado (sol/chuva), temperatura grande e cidade.",
+    prompt: `Hero landing de app de clima ou widget destaque:
+- Card glass grande com ícone Lucide ou SVG animado leve (sun/cloud-rain).
+- Temperatura principal \"24°\" + sensação + vento em linhas secundárias.
+- Campo de busca cidade estilizado (combobox shadcn).
+Fundo: gradiente dinâmico por tema (dia/noite) via classe dark ou prop.`,
+    preview: "glass-hls" as const,
+  },
+  {
+    id: "hero-onboarding-steps",
+    title: "Hero onboarding - passos numerados",
+    description: "Progress horizontal, três passos com ícones e CTA \"Começar cadastro\".",
+    prompt: `Hero para fluxo de onboarding ou produto com trial:
+- Stepper horizontal (1 Connect 2 Configure 3 Launch) com estado ativo no primeiro passo.
+- Área principal: headline + lista curta de benefícios com ícones Lucide.
+- CTA \"Continuar\" + link \"Já tenho conta\".
+Componentes acessíveis: aria-current no passo ativo; foco visível nos botões.`,
+    preview: "form8" as const,
   },
 ];
 
@@ -401,7 +513,7 @@ const backgroundPrompts: {
     id: "shape-landing-hero",
     title: "Hero geométrico (formas + gradiente)",
     description:
-      "Full viewport escuro com formas elípticas animadas (Framer Motion), badge e título em gradiente — ideal como hero ou seção de impacto.",
+      "Full viewport escuro com formas elípticas animadas (Framer Motion), badge e título em gradiente - ideal como hero ou seção de impacto.",
     prompt: `Implemente HeroGeometric em components/ui/shape-landing-hero.tsx (client):
 - ElegantShape: motion.div com entrada opacity/y/rotate, flutuação vertical infinita, gradiente radial e borda suave.
 - Props: badge, title1, title2, description opcional, className.
@@ -485,6 +597,110 @@ Stack: framer-motion, lucide-react (Circle no badge), cn de @/lib/utils.`,
 - Demo da biblioteca usa lucide-react nos ícones em vez de react-icons.`,
     preview: "radar",
   },
+  {
+    id: "bg-aurora-gradient",
+    title: "Aurora boreal (gradientes em movimento)",
+    description: "Camadas de blur + gradientes CSS animados; vibe noturno sem WebGL.",
+    prompt: `Crie um fundo tipo aurora para hero ou seção full-width:
+- 3-4 divs absolute com blur-3xl, cores primary/secondary/accent em opacidade baixa; animar background-position ou transform com CSS @keyframes (30-60s loop).
+- Overlay escuro linear-gradient para manter contraste do texto.
+- Sem canvas; performance: will-change só se necessário; prefers-reduced-motion pausa animação.
+Exporte AuroraBackground({ className, children? }). Tailwind + cn().`,
+    preview: "geometric",
+  },
+  {
+    id: "bg-grid-dots-parallax",
+    title: "Grade de pontos + parallax leve",
+    description: "Pattern radial-repeat; camadas movem em velocidades diferentes no scroll.",
+    prompt: `Fundo abstrato com grid de pontos:
+- background-image com radial-gradient em repeat; máscara fade nas bordas.
+- useScroll + useTransform (framer-motion) em 2 camadas com offset Y diferentes para ilusão de profundidade.
+- Container relative min-h-[50vh]; pointer-events-none no fundo.
+Documente intensidade de parallax para não causar enjoo (reduzir em mobile).`,
+    preview: "paths",
+  },
+  {
+    id: "bg-noise-grain",
+    title: "Ruído film grain overlay",
+    description: "SVG filter ou PNG tile sutil; combina com qualquer cor de fundo.",
+    prompt: `Overlay de grain cinematográfico:
+- Opção A: SVG filter feTurbulence com mix-blend-overlay e opacity 5-12%.
+- Opção B: imagem noise tile repetida com repeat.
+- Props: intensity, blendMode; aplicar sobre bg sólido ou gradiente existente.
+useMemo para não recriar SVG a cada render; z-index acima do bg, abaixo do conteúdo.`,
+    preview: "falling",
+  },
+  {
+    id: "bg-mesh-blobs",
+    title: "Mesh orgânico (blobs SVG)",
+    description: "Curvas suaves com filter blur; paleta limitada alinhada ao tema.",
+    prompt: `Fundo com blobs orgânicos:
+- SVG com paths ou ellipses em defs + blur filter; animar cx/cy ou transform com CSS animation suave.
+- 3 cores do tema com opacidade; container viewBox fixo preserveAspectRatio slice.
+Componente BlobMeshBackground; altura full ou h-96 para seções.`,
+    preview: "beams",
+  },
+  {
+    id: "bg-hex-honeycomb",
+    title: "Colmeia hexagonal (CSS mask)",
+    description: "Pattern tech / sci-fi discreto atrás de dashboards.",
+    prompt: `Pattern hexagonal repetido:
+- Use mask-image com SVG hex tile OU linear-gradients encadeados para formar colmeia (ou pseudo-elementos rotacionados).
+- Stroke sutil em border-primary/20; animação opcional de brilho em uma linha (linear-gradient animado).
+Evitar excesso de contrast com texto; fundo base bg-background.`,
+    preview: "spiral",
+  },
+  {
+    id: "bg-diagonal-stripes",
+    title: "Listras diagonais sutis",
+    description: "repeating-linear-gradient 45deg; ótimo para CTAs ou faixas de destaque.",
+    prompt: `Background utilitário com listras:
+- repeating-linear-gradient com duas cores próximas (ex.: muted/30 e transparent).
+- Props angle, stripeWidth, colorA, colorB.
+- Opcional mix-blend-multiply em modo escuro para suavizar.
+Export DiagonalStripes({ className }) como wrapper ou classe Tailwind arbitrary.`,
+    preview: "particle",
+  },
+  {
+    id: "bg-vignette-spotlight",
+    title: "Vinheta + spotlight central",
+    description: "Escurece bordas e ilumina centro; foco em headline.",
+    prompt: `Camada radial-gradient fixa:
+- inset 0 com ellipse at center: transparente no meio ~40%, transição para bg-background nas bordas.
+- Combinar com imagem ou cor sólida atrás.
+Útil para landing com foto + texto central; garantir leitura em mobile (aumentar área clara).`,
+    preview: "smoke",
+  },
+  {
+    id: "bg-cyber-grid-perspective",
+    title: "Grade perspectiva (Tron-like)",
+    description: "Linhas em perspectiva CSS 3D ou SVG; neon discreto.",
+    prompt: `Fundo estilo grade infinita:
+- perspective no pai; rotateX no grid (transform-style preserve-3d) OU SVG com linhas horizontais mais próximas no topo.
+- Cor das linhas primary/40; animação opcional translateZ ou stroke-dashoffset.
+Performance: limitar blur; reduzir linhas em mobile.`,
+    preview: "radar",
+  },
+  {
+    id: "bg-watercaustics-fake",
+    title: "Cáusticas simuladas (SVG)",
+    description: "Ondas suaves animadas lembrando luz sob água - sem shader.",
+    prompt: `Efeito água leve:
+- SVG com paths orgânicos e animate em d ou opacity; blur leve no grupo.
+- Cores azul/cyan em baixa opacidade sobre fundo escuro.
+Sem WebGL; loop suave 6-12s; reduced motion = opacity estática.`,
+    preview: "paths",
+  },
+  {
+    id: "bg-gradient-mesh-css",
+    title: "Mesh gradient (só CSS variables)",
+    description: "Vários radial-gradient em uma div; troca de tema claro/escuro.",
+    prompt: `Mesh estático moderno:
+- background com 4+ radial-gradient em posições diferentes usando variáveis CSS (--mesh-1, --mesh-2).
+- Transição de cor ao trocar .dark via variáveis em :root.
+Sem JS obrigatório; export MeshCssBackground com tokens documentados para o design system.`,
+    preview: "geometric",
+  },
 ];
 
 type BorderPreviewId =
@@ -514,7 +730,7 @@ const borderPrompts: {
     id: "neon-button",
     title: "Botão neon (bordas em gradiente)",
     description: "Botão arredondado com linhas horizontais em gradiente no hover; variantes default/solid/ghost.",
-    prompt: `NeonButton em components/ui/neon-button.tsx — export NeonButton + neonButtonVariants (não colidir com Button do projeto).
+    prompt: `NeonButton em components/ui/neon-button.tsx - export NeonButton + neonButtonVariants (não colidir com Button do projeto).
 Props: neon?: boolean, variant, size, className. CVA + cn. "use client".`,
     preview: "neon",
   },
@@ -523,7 +739,7 @@ Props: neon?: boolean, variant, size, className. CVA + cn. "use client".`,
     title: "Shine border + timeline",
     description: "Borda animada com radial-gradient em ::before; timeline vertical com ícones Lucide.",
     prompt: `ShineBorder, ShineTimeline, ShineTimelineEvent em shine-border.tsx.
-Keyframes shine-pulse em globals.css. Timeline sem pacote dicons — usar Lucide (Layers, Send, Check, Repeat, Download).`,
+Keyframes shine-pulse em globals.css. Timeline sem pacote dicons - usar Lucide (Layers, Send, Check, Repeat, Download).`,
     preview: "shine",
   },
   {
@@ -538,7 +754,7 @@ Estender @theme com sombras ou usar shadow-[var(--shadow-tooltip-b)] etc.`,
     id: "ripple-button",
     title: "Botões com ripple (vários modos)",
     description: "Ripple JS + grelha para hover/hoverborder; variável --button-ripple-color em :root/.dark.",
-    prompt: `RippleButton em multi-type-ripple-buttons.tsx — variantes default | hover | ghost | hoverborder.
+    prompt: `RippleButton em multi-type-ripple-buttons.tsx - variantes default | hover | ghost | hoverborder.
 Keyframes js-ripple-animation inline; tema com --button-ripple-color em globals.css.`,
     preview: "ripple",
   },
@@ -554,7 +770,7 @@ Imagens externas: usar img ou next/image com domínios permitidos.`,
     id: "spotlight-card",
     title: "Borda spotlight (cursor)",
     description: "Card que segue o ponteiro com radial-gradient fixo e pseudo-elementos ::before/::after.",
-    prompt: `GlowCardSpotlight em spotlight-card.tsx — props glowColor, size, customSize, width/height.
+    prompt: `GlowCardSpotlight em spotlight-card.tsx - props glowColor, size, customSize, width/height.
 pointermove em document para atualizar --x/--y.`,
     preview: "spotlight",
   },
@@ -586,7 +802,7 @@ animationMode: auto-rotate | rotate-on-hover | stop-rotate-on-hover.`,
     id: "rainbow-border-button",
     title: "Botão com arco-íris animado",
     description: "::before/::after com linear-gradient e blur; keyframes em style injetado.",
-    prompt: `RainbowBordersButton em rainbow-borders-button.tsx — evitar nome Button exportado genérico.`,
+    prompt: `RainbowBordersButton em rainbow-borders-button.tsx - evitar nome Button exportado genérico.`,
     preview: "rainbow",
   },
   {
@@ -601,7 +817,7 @@ animationMode: auto-rotate | rotate-on-hover | stop-rotate-on-hover.`,
     id: "paper-shader-showcase",
     title: "Hero MeshGradient + PulsingBorder",
     description: "Paper Design shaders + framer-motion; borda pulsante circular no canto.",
-    prompt: `paper-shader-showcase.tsx — MeshGradient, PulsingBorder de @paper-design/shaders-react.
+    prompt: `paper-shader-showcase.tsx - MeshGradient, PulsingBorder de @paper-design/shaders-react.
 dynamic(..., { ssr: false }) em páginas; wireframe boolean no segundo MeshGradient.`,
     preview: "paper",
   },
@@ -609,16 +825,117 @@ dynamic(..., { ssr: false }) em páginas; wireframe boolean no segundo MeshGradi
     id: "wave-path",
     title: "Divisor ondulado interativo",
     description: "SVG path Q atualizado com movimento do rato; easing ao sair.",
-    prompt: `WavePath em wave-path.tsx — useRef para path e estado de animação; cleanup requestAnimationFrame.`,
+    prompt: `WavePath em wave-path.tsx - useRef para path e estado de animação; cleanup requestAnimationFrame.`,
     preview: "wave",
   },
   {
     id: "moving-border",
     title: "Borda em movimento (GSAP)",
     description: "Gradiente percorre perímetro com MotionPathPlugin; ResizeObserver.",
-    prompt: `MovingBorder em moving-border.tsx — gsap + @gsap/react useGSAP; register ScrollTrigger + MotionPathPlugin.
+    prompt: `MovingBorder em moving-border.tsx - gsap + @gsap/react useGSAP; register ScrollTrigger + MotionPathPlugin.
 Inner bg-background; props isCircle, colors[].`,
     preview: "moving",
+  },
+  {
+    id: "border-double-outline",
+    title: "Duplo contorno minimalista",
+    description: "Duas rings com gap; parece moldura física.",
+    prompt: `Componente DoubleOutlineCard:
+- Wrapper relativo rounded-2xl com border-2 border-muted; inner absolute inset-[3px] rounded-xl border border-border.
+- Hover: border-primary/40 + transição shadow-sm.
+- Opcional pseudo-element shine no hover (::after com gradient linear).
+Slots para children; preserve aspect ratio opcional.`,
+    preview: "neon",
+  },
+  {
+    id: "border-sketch-hand-drawn",
+    title: "Borda sketch / rabisco SVG",
+    description: "stroke irregular com roughen filter ou path hand-drawn fake.",
+    prompt: `Card com aparência desenhada à mão:
+- SVG rect com rx alto e stroke-dasharray irregular OU path com curvas Bézier ligando cantos \"imperfeitos\".
+- stroke-muted-foreground/60; opcional animate stroke-dashoffset só no hover.
+Biblioteca pode usar filtros SVG feTurbulence leve em displacement para irregularidade.`,
+    preview: "wave",
+  },
+  {
+    id: "border-notched-corner",
+    title: "Cantos recortados (engineering)",
+    description: "clip-path polygon nos cantos; vibe blueprint.",
+    prompt: `Card técnico com chanfros:
+- clip-path polygon com pontos calculados ou CSS mask; cantos cortados ~12px consistentes em todos os lados ou só dois.
+- Contraste com grid tracejado opcional (::before pattern).
+Tailwind arbitrary clip-path ou style inline.`,
+    preview: "bauhaus",
+  },
+  {
+    id: "border-stitched-dashed",
+    title: "Costura tracejada (dashed rhythm)",
+    description: "outline dashed com offset animado tipo loading card.",
+    prompt: `Estilo etiqueta cosida:
+- outline ou border dashed; animation stroke-offset em SVG rectangle por cima do card (preferível a border CSS para dash offset uniforme).
+- Radius rounded-lg; cores muted.
+Use case: badges \"Novo\", cards de changelog.`,
+    preview: "shine",
+  },
+  {
+    id: "border-neumorphic-soft",
+    title: "Soft UI / neumorphism leve",
+    description: "Sombras duplas convexo; alto contraste só onde fizer sentido.",
+    prompt: `Card neumorphic sutil (tendência controlada):
+- bg-muted; box-shadow inset highlight + shadow externa dupla para relevo.
+- Button press: inset maior no active.
+Advertência de acessibilidade: garantir contraste texto/fundo WCAG; não usar só sombra como único estado.`,
+    preview: "glow-x",
+  },
+  {
+    id: "border-chamfer-tech",
+    title: "Metal tech chamfer",
+    description: "Borda inferior grossa tipo painel HUD.",
+    prompt: `Painel HUD:
+- Borda inferior 3px gradiente horizontal primary → transparente; cantos superiores arredondados, inferiores retos ou leve ângulo.
+- Scanline opcional (::after linear-gradient repeating com opacity 5%).
+Ótimo para dashboards cyber sem exagerar neon.`,
+    preview: "spotlight",
+  },
+  {
+    id: "border-brass-antique",
+    title: "Moldura bronze / vintage",
+    description: "Gradiente cónico âmbar + inset shadow.",
+    prompt: `Moldura vintage:
+- border-image ou múltiplos box-shadow para simular metal oxidado (tons âmbar/marrom).
+- Cantos ornamentados opcionais com pseudo SVG corners pequenos.
+Combine com serif no título para editorial.`,
+    preview: "grad",
+  },
+  {
+    id: "border-inner-glow-ring",
+    title: "Anel interno luminoso",
+    description: "ring inset blur simulando LED por dentro do card.",
+    prompt: `Inner glow ring:
+- inset shadow com spread negativo + blur primary/30; segunda camada blur maior em primary/15.
+- Funciona bem em bg-card escuro.
+Sem overflow visible em lists para não cortar sombras.`,
+    preview: "ripple",
+  },
+  {
+    id: "border-dashed-label-tag",
+    title: "Tag de preço / label cortada",
+    description: "Forma etiqueta com triângulo circular no canto tipo tag de loja.",
+    prompt: `Tag component:
+- clip-path ou SVG path em formato de etiqueta com furo circular (opcional pseudo círculo bg-background).
+- Pequeno triângulo notch no lado direito tipo ticket.
+Ideal para badges de preço, promoções.`,
+    preview: "rainbow",
+  },
+  {
+    id: "border-divided-sections",
+    title: "Card dividido em faixas",
+    description: "Linhas verticais/horizontais como Japandi / brutalist soft.",
+    prompt: `Card com subdivisões:
+- grid grid-cols-3 com divisores border-r border-border último:border-0 ou rows com mesmo padrão.
+- Cada célula pode ter número + label.
+Micro-interação hover por célula com bg-muted/40.`,
+    preview: "search",
   },
 ];
 
@@ -660,7 +977,7 @@ const clientCarouselPrompts: {
     id: "logos3-embla",
     title: "Carrossel de logos (Embla + auto-scroll)",
     description: "Loop infinito com plugin embla-carousel-auto-scroll; fades nas bordas com gradiente do background.",
-    prompt: `Logos3 em components/ui/logos3.tsx — Carousel (shadcn) + AutoScroll({ playOnInit: true }).
+    prompt: `Logos3 em components/ui/logos3.tsx - Carousel (shadcn) + AutoScroll({ playOnInit: true }).
 Props: heading?, logos? (id, description, image, className?), className?.
 Dependências: embla-carousel-react, embla-carousel-auto-scroll.
 Gradientes: from-background (não bg-linear-to-r). Logos externos: img ou next/image com domínios em next.config.`,
@@ -670,7 +987,7 @@ Gradientes: from-background (não bg-linear-to-r). Logos externos: img ou next/i
     id: "gallery4-cases",
     title: "Galeria horizontal (cases / cards)",
     description: "Embla com dragFree no mobile, setas, dots e overlay em gradiente primary nos cards.",
-    prompt: `Gallery4 em gallery4.tsx — setApi no Carousel, estado canScrollPrev/Next e currentSlide.
+    prompt: `Gallery4 em gallery4.tsx - setApi no Carousel, estado canScrollPrev/Next e currentSlide.
 items: { id, title, description, href, image }[]. Overlay: bg-gradient-to-t from-primary/90 (oklch-friendly).
 Links externos: target="_blank" rel="noopener noreferrer".`,
     preview: "gallery4",
@@ -679,7 +996,7 @@ Links externos: target="_blank" rel="noopener noreferrer".`,
     id: "logo-cloud-3",
     title: "Faixa de logos infinita (máscara)",
     description: "InfiniteSlider + máscara linear nas laterais; hover opcional acelera/desacelera.",
-    prompt: `LogoCloud3 + InfiniteSlider — props logos: { src, alt, width?, height? }.
+    prompt: `LogoCloud3 + InfiniteSlider - props logos: { src, alt, width?, height? }.
 InfiniteSlider: gap, reverse, speed, speedOnHover (mapeados para duration) ou duration/durationOnHover.
 Exportar também LogoCloud como alias de LogoCloud3 se o projeto já importava LogoCloud.`,
     preview: "logo-cloud-3",
@@ -696,7 +1013,7 @@ Container: bg-gradient-to-r from-secondary via-transparent to-secondary.`,
     id: "customers-section",
     title: "Grelha de logos com hover (Framer)",
     description: "AnimatedGroup com stagger; ao hover, link 'Ver projetos' e blur leve na grelha.",
-    prompt: `CustomersSection — props customers: { src, alt, height }[], moreHref?, moreLabel?, className?.
+    prompt: `CustomersSection - props customers: { src, alt, height }[], moreHref?, moreLabel?, className?.
 AnimatedGroup com variants custom (blur + y). Substituir blur-xs por blur-sm se o tema não tiver blur-xs.`,
     preview: "customers",
   },
@@ -704,7 +1021,7 @@ AnimatedGroup com variants custom (blur + y). Substituir blur-xs por blur-sm se 
     id: "spinning-logos",
     title: "Anel de ícones a girar",
     description: "Ícones em órbita com animate-spin-slow + counter-spin nos filhos (animate-spin-reverse).",
-    prompt: `spinning-logos.tsx — lucide-react (Globe, PlayCircle em vez de Facebook/Youtube se o pacote não exportar).
+    prompt: `spinning-logos.tsx - lucide-react (Globe, PlayCircle em vez de Facebook/Youtube se o pacote não exportar).
 @theme: --animate-spin-reverse: spin-reverse 12s linear infinite; keyframes spin-reverse em globals.css.`,
     preview: "spinning",
   },
@@ -712,7 +1029,7 @@ AnimatedGroup com variants custom (blur + y). Substituir blur-xs por blur-sm se 
     id: "stack-feature-orbit",
     title: "Secção stack com órbitas de ícones",
     description: "react-icons (Fa*, Si*) em círculos concêntricos animados com keyframes orbit-rotate.",
-    prompt: `stack-feature-section.tsx — default export; CTAs com Link + buttonVariants (Base UI Button sem asChild).
+    prompt: `stack-feature-section.tsx - default export; CTAs com Link + buttonVariants (Base UI Button sem asChild).
 Animação: cada órbita usa style animation orbit-rotate com duração em segundos (ex.: 12s + índice * 6). globals.css @keyframes orbit-rotate.`,
     preview: "stack-orbit",
   },
@@ -720,10 +1037,111 @@ Animação: cada órbita usa style animation orbit-rotate com duração em segun
     id: "infinite-slider-primitive",
     title: "InfiniteSlider (primitivo)",
     description: "Base para marquees: framer-motion animate + useMeasure, conteúdo duplicado para loop.",
-    prompt: `infinite-slider.tsx — children renderizados duas vezes; translation em x ou y.
+    prompt: `infinite-slider.tsx - children renderizados duas vezes; translation em x ou y.
 Parâmetros: speed/speedOnHover ou duration; reverse; direction horizontal | vertical.
 Dependência: react-use-measure, framer-motion.`,
     preview: "infinite-slider",
+  },
+  {
+    id: "carousel-testimonial-quotes",
+    title: "Carrossel de depoimentos (quotes)",
+    description: "Cards com aspas, foto e cargo; autoplay pausável.",
+    prompt: `Carrossel de quotes para clientes:
+- Embla ou Carousel shadcn; um slide visível no desktop, stack ou dots no mobile.
+- Card: avatar, nome, cargo, logo empresa pequeno, texto com tipografia italic.
+- autoplay com pause on hover e botões prev/next acessíveis (aria-label).
+Dados em array tipado Testimonial[].`,
+    preview: "gallery4",
+  },
+  {
+    id: "carousel-logo-strip-brands",
+    title: "Faixa de marcas com pause no hover",
+    description: "Marquee infinito; velocidade reduz ao hover para leitura.",
+    prompt: `Faixa de logos clientes:
+- Use InfiniteSlider ou Embla com loop; logos em escala de cinza e color no hover (transition).
+- Prop speedOnHover maior duration (mais lento) para facilitar leitura do nome.
+Gradientes nas bordas from-background.`,
+    preview: "logo-cloud-3",
+  },
+  {
+    id: "carousel-feature-cards",
+    title: "Carrossel de cases (imagem + métrica)",
+    description: "Cada slide: screenshot, KPI \"+42% conversão\", link case study.",
+    prompt: `Carrossel de cases B2B:
+- Slides com imagem 16:9, título do projeto, métrica em destaque (tabular-nums), CTA \"Ver case\".
+- Progress indicador estilo fracionado (1/5) ou barra no topo.
+Embla + useCallback para scrollPrev/Next.`,
+    preview: "gallery4",
+  },
+  {
+    id: "carousel-partner-ecosystem",
+    title: "Órbita de integrações",
+    description: "Ícones em círculo rotacionando devagar + centro com copy.",
+    prompt: `Seção \"Integra com\":
+- Centro fixo com headline; ao redor ícones de integrações em órbita CSS (animation rotate) ou componente spinning-logos adaptado.
+- Reverse rotation em ícones para legibilidade (counter-spin).
+Reduzir velocidade em prefers-reduced-motion.`,
+    preview: "stack-orbit",
+  },
+  {
+    id: "carousel-press-mentions",
+    title: "Mídia / as seen on",
+    description: "Logos de veículos em carrossel + links para matérias.",
+    prompt: `Carrossel \"Na mídia\":
+- Logos monocromáticos (TechCrunch, etc. placeholders) com link opcional por item.
+- Layout compacto altura fixa; máscara fade nas laterais.
+SEO: links rel=\"noopener\" externos.`,
+    preview: "logo-cloud-4",
+  },
+  {
+    id: "carousel-team-avatars",
+    title: "Roda de equipe / investidores",
+    description: "Avatares em slider com nome ao expandir hover.",
+    prompt: `Carrossel horizontal de pessoas:
+- Slides estreitos com foto circular e nome sob hover (opacity transition).
+- Opcional badge \"Investidor\" ou \"Advisor\".
+Touch-friendly drag no mobile.`,
+    preview: "customers",
+  },
+  {
+    id: "carousel-product-cards-ecom",
+    title: "Vitrine produtos (snap)",
+    description: "Cards de produto com preço e estrela; scroll-snap.",
+    prompt: `Vitrine e-commerce em carrossel:
+- scroll-snap-x mandatory + cards w-64; imagem, título, preço, rating stars.
+- Botão carrinho rápido no card (stop propagation).
+Pode usar Embla com dragFree ou CSS scroll nativo.`,
+    preview: "gallery4",
+  },
+  {
+    id: "carousel-timeline-milestones",
+    title: "Linha do tempo horizontal",
+    description: "Marcos da empresa em carrossel com linha conectora.",
+    prompt: `Timeline horizontal scrollável:
+- Cada slide: ano, título, uma linha de descrição; linha SVG ou border-t conectando dots entre slides.
+- Centro slide ativo levemente maior (scale).
+Implementação com Embla ou scroll native + intersection para estado ativo.`,
+    preview: "logos3",
+  },
+  {
+    id: "carousel-certifications-badges",
+    title: "Selos e certificações",
+    description: "ISO, LGPD, SOC2 em faixa contínua com tooltips.",
+    prompt: `Faixa de certificações:
+- Ícones ou badges SVG em InfiniteSlider; Tooltip Radix explicando cada selo ao hover/focus.
+- Alt text descritivo para acessibilidade.
+Velocidade moderada; pause focus trap em modal se abrir detalhe.`,
+    preview: "infinite-slider",
+  },
+  {
+    id: "carousel-before-after",
+    title: "Antes / depois (slider reveal)",
+    description: "Handle arrastável revelando segunda imagem - ótimo para agências.",
+    prompt: `Comparação antes/depois:
+- Duas imagens sobrepostas; divisor vertical arrastável (pointer events) controlando clip-path ou width da camada superior.
+- Label \"Antes\" / \"Depois\" nas pontas.
+Client component; reset button opcional.`,
+    preview: "gallery4",
   },
 ];
 
@@ -753,7 +1171,7 @@ const imagePrompts: {
     id: "interactive-bento-gallery",
     title: "Grelha bento interativa + modal",
     description: "Embla implícito via drag; modal com dock arrastável; vídeo com IntersectionObserver.",
-    prompt: `interactive-bento-gallery.tsx — MediaItemType { id, type, title, desc, url, span }.
+    prompt: `interactive-bento-gallery.tsx - MediaItemType { id, type, title, desc, url, span }.
 Framer Motion + lucide X. Vídeo: muted, loop, play quando visível. Imagens: lazy. Grid com auto-rows e col-span/row-span Tailwind.
 next.config: remotePatterns para hosts de mídia (unsplash, pixabay, etc.).`,
     preview: "bento",
@@ -762,7 +1180,7 @@ next.config: remotePatterns para hosts de mídia (unsplash, pixabay, etc.).`,
     id: "stacked-cards-interaction",
     title: "Cartões empilhados ao hover",
     description: "Até 3 cards; spread horizontal com rotação via framer-motion spring.",
-    prompt: `stacked-cards-interaction.tsx — export StackedCardsInteraction, Card. Props: cards { image, title, description }[], spreadDistance?, rotationAngle?, animationDelay?.
+    prompt: `stacked-cards-interaction.tsx - export StackedCardsInteraction, Card. Props: cards { image, title, description }[], spreadDistance?, rotationAngle?, animationDelay?.
 Use tokens bg-card, border-border para dark mode.`,
     preview: "stacked",
   },
@@ -770,15 +1188,15 @@ Use tokens bg-card, border-border para dark mode.`,
     id: "scroll-expansion-hero",
     title: "Hero com média que expande ao scroll",
     description: "Wheel/touch acumulam progresso; fundo com next/image; vídeo MP4 ou YouTube embed.",
-    prompt: `scroll-expansion-hero.tsx — default export ScrollExpandMedia. Props: mediaType, mediaSrc, posterSrc?, bgImageSrc, title?, date?, scrollToExpand?, textBlend?, children.
-Listeners em window (wheel/touch): pode conflitar com scroll da página — usar só em página dedicada ou isolar.`,
+    prompt: `scroll-expansion-hero.tsx - default export ScrollExpandMedia. Props: mediaType, mediaSrc, posterSrc?, bgImageSrc, title?, date?, scrollToExpand?, textBlend?, children.
+Listeners em window (wheel/touch): pode conflitar com scroll da página - usar só em página dedicada ou isolar.`,
     preview: "scroll-expand",
   },
   {
     id: "scroll-cards-parallax",
     title: "Cards sticky em scroll vertical",
     description: "Cada item ocupa h-screen; imagem de fundo com next/image fill.",
-    prompt: `scroll-cards.tsx — export CardsParallax, tipo ScrollCardItem (title, description, tag, src, link, color, textColor). Card com sticky top-0.
+    prompt: `scroll-cards.tsx - export CardsParallax, tipo ScrollCardItem (title, description, tag, src, link, color, textColor). Card com sticky top-0.
 Image: fill + sizes; não usar layout="fill" legado.`,
     preview: "scroll-cards",
   },
@@ -786,7 +1204,7 @@ Image: fill + sizes; não usar layout="fill" legado.`,
     id: "interactive-selector",
     title: "Seletor de opções com imagem de fundo",
     description: "Faixas expansíveis; react-icons Fa*; animação de entrada escalonada.",
-    prompt: `interactive-selector.tsx — default export. Opções com title, description, image, icon. Estado activeIndex; flex animado.
+    prompt: `interactive-selector.tsx - default export. Opções com title, description, image, icon. Estado activeIndex; flex animado.
 Dependência: react-icons. Estilos: styled-jsx embutido para fade-in.`,
     preview: "selector",
   },
@@ -794,7 +1212,7 @@ Dependência: react-icons. Estilos: styled-jsx embutido para fade-in.`,
     id: "diced-hero-section",
     title: "Hero com grelha 2×2 e máscaras CSS",
     description: "ChronicleButton; gradiente no título; slides[0..3] mapeados para cantos; suporte RTL.",
-    prompt: `diced-hero-section.tsx + chronicle-button.tsx — variáveis CSS em globals :root e .dark (--diced-hero-section-*).
+    prompt: `diced-hero-section.tsx + chronicle-button.tsx - variáveis CSS em globals :root e .dark (--diced-hero-section-*).
 ChronicleButton injeta <style id="chronicle-button-style"> uma vez. DicedHeroSection: styled-jsx para classes .warped-image e máscaras.`,
     preview: "diced",
   },
@@ -802,7 +1220,7 @@ ChronicleButton injeta <style id="chronicle-button-style"> uma vez. DicedHeroSec
     id: "flip-reveal",
     title: "Reveal com GSAP Flip",
     description: "Alterna classes show/hide em filhos [data-flip]; animação Flip.from.",
-    prompt: `flip-reveal.tsx — FlipReveal + FlipRevealItem. useGSAP com scope no wrapper; querySelectorAll("[data-flip]").
+    prompt: `flip-reveal.tsx - FlipReveal + FlipRevealItem. useGSAP com scope no wrapper; querySelectorAll("[data-flip]").
 Dependências: gsap, Flip plugin, @gsap/react. Demo: shadcn ToggleGroup + ToggleGroupItem.`,
     preview: "flip",
   },
@@ -810,7 +1228,7 @@ Dependências: gsap, Flip plugin, @gsap/react. Demo: shadcn ToggleGroup + Toggle
     id: "interactive-image-accordion",
     title: "Acordeão horizontal de imagens",
     description: "Hover expande largura; título rotaciona quando colapsado.",
-    prompt: `interactive-image-accordion.tsx — LandingAccordionItem; props items opcional AccordionImageItem[]. Estado activeIndex.
+    prompt: `interactive-image-accordion.tsx - LandingAccordionItem; props items opcional AccordionImageItem[]. Estado activeIndex.
 Ajustar larguras em mobile (overflow-x-auto).`,
     preview: "accordion",
   },
@@ -818,7 +1236,7 @@ Ajustar larguras em mobile (overflow-x-auto).`,
     id: "arc-gallery-hero",
     title: "Galeria em arco (memórias)",
     description: "Imagens posicionadas em arco com trigonometria; resize responsivo.",
-    prompt: `arc-gallery-hero-component.tsx — ArcGalleryHero props: images[], startAngle, endAngle, radius*, cardSize*, className.
+    prompt: `arc-gallery-hero-component.tsx - ArcGalleryHero props: images[], startAngle, endAngle, radius*, cardSize*, className.
 Keyframes fade-in no <style> local. Substituir cores fixas por theme quando integrar.`,
     preview: "arc",
   },
@@ -826,7 +1244,7 @@ Keyframes fade-in no <style> local. Substituir cores fixas por theme quando inte
     id: "zoom-parallax",
     title: "Zoom parallax multi-camada",
     description: "useScroll + useTransform por camada; secção altura 300vh + sticky.",
-    prompt: `zoom-parallax.tsx — ZoomParallax({ images }). Máximo 7 imagens; scales ciclados.
+    prompt: `zoom-parallax.tsx - ZoomParallax({ images }). Máximo 7 imagens; scales ciclados.
 Demo com Lenis opcional (@studio-freight/lenis). Sem Lenis, scroll nativo funciona.`,
     preview: "zoom-parallax",
   },
@@ -834,7 +1252,7 @@ Demo com Lenis opcional (@studio-freight/lenis). Sem Lenis, scroll nativo funcio
     id: "image-tiles",
     title: "Três fotos sobrepostas (spring)",
     description: "Variants hover por cartão; rotação e offset em animate inicial.",
-    prompt: `image-tiles.tsx — default export ImageReveal({ leftImage, middleImage, rightImage }). framer-motion Variants.
+    prompt: `image-tiles.tsx - default export ImageReveal({ leftImage, middleImage, rightImage }). framer-motion Variants.
 Imagens externas: img ou configurar next/image com tamanhos fixos.`,
     preview: "image-tiles",
   },
@@ -843,7 +1261,7 @@ Imagens externas: img ou configurar next/image com tamanhos fixos.`,
     title: "Galeria curva infinita (OGL / WebGL)",
     description:
       "Faixa de cartões com textura, curvatura no eixo Y, títulos em canvas; arraste, roda do rato e loop infinito.",
-    prompt: `Componente em components/ui/circular-gallery-ogl.tsx — dependência npm: ogl (Camera, Mesh, Plane, Program, Renderer, Texture, Transform).
+    prompt: `Componente em components/ui/circular-gallery-ogl.tsx - dependência npm: ogl (Camera, Mesh, Plane, Program, Renderer, Texture, Transform).
 Classes GalleryApp + Media + Title; shaders com ondulação em Z, cantos arredondados via SDF no fragment.
 Props React: items?: { image, text }[], bend, textColor, borderRadius, font, scrollSpeed, scrollEase, className.
 Prévia compacta: className "circular-gallery--preview" no wrapper interno. next.config: remotePatterns para picsum.photos e hosts das imagens.
@@ -855,11 +1273,112 @@ Client-only ("use client"); destruir no unmount (cancelAnimationFrame, remove ca
     title: "Anel de fotos 3D (só CSS)",
     description:
       "Cartões empilhados em grid; rotateY + translateZ formam cilindro; animação linear; máscara gradiente nas laterais.",
-    prompt: `components/ui/rotating-photo-ring.tsx + rotating-photo-ring.css — lista de IDs Unsplash ou props para srcs.
+    prompt: `components/ui/rotating-photo-ring.tsx + rotating-photo-ring.css - lista de IDs Unsplash ou props para srcs.
 CSS: perspective no .rpr-scene, transform-style preserve-3d em .rpr-a3d, --n e --i para ângulo (--ba: 1turn/var(--n)).
 Variante preview: <RotatingPhotoRing variant="preview" /> para altura da biblioteca. prefers-reduced-motion: animação mais lenta.
 Usar <img> (não next/image) se precisar de transform 3D direto no elemento sem wrapper.`,
     preview: "css-photo-ring",
+  },
+  {
+    id: "image-masonry-lightbox",
+    title: "Masonry + lightbox",
+    description: "Grelha Pinterest-like; clique abre dialog fullscreen com navegação.",
+    prompt: `Galeria masonry responsiva:
+- CSS columns ou grid masonry (onde suportado) com cards de altura variável.
+- Lightbox Radix Dialog com next/image grande, prev/next keyboard, ESC fecha.
+- Lazy load imagens fora da viewport (loading lazy ou intersection).
+Tipar items: { src, alt, width, height, caption? }.`,
+    preview: "bento",
+  },
+  {
+    id: "image-compare-environment",
+    title: "Slider ambientes (interior)",
+    description: "Mesmo cômodo dia/noite ou estilos com divisor arrastável.",
+    prompt: `Comparação de ambientes:
+- Mesmo padrão clip do antes/depois mas com labels \"Dia\" / \"Noite\" ou \"Clássico\" / \"Moderno\".
+- Handle vertical opcional; motion smooth com requestAnimationFrame ou CSS.
+Acessível: role slider, aria-valuenow no percentual.`,
+    preview: "scroll-expand",
+  },
+  {
+    id: "image-kanban-board-screens",
+    title: "Quadro estilo Kanban com screenshots",
+    description: "Colunas com thumbs de produto / telas de app.",
+    prompt: `Seção produto tipo Kanban decorativo:
+- 3 colunas \"Planejar / Executar / Medir\" com cards contendo screenshot + título curto.
+- Drag opcional (@dnd-kit) só se necessário; senão estático para landing.
+Screenshots com border rounded-lg shadow-md.`,
+    preview: "stacked",
+  },
+  {
+    id: "image-polaroid-stack",
+    title: "Pilha Polaroid",
+    description: "Fotos levemente rotacionadas com sombra; hover desempilha.",
+    prompt: `Stack estilo Polaroid:
+- Cada card branco padding bottom grande (área \"Polaroid\"), img object-cover acima.
+- Rotacionar -6deg, 4deg, -3deg em camadas; hover z-index e scale.
+CSS only ou framer-motion para hover.`,
+    preview: "image-tiles",
+  },
+  {
+    id: "image-map-pins-gallery",
+    title: "Mapa + fotos por região",
+    description: "SVG mapa simplificado com pontos clicáveis trocando foto lateral.",
+    prompt: `Layout mapa interativo leve:
+- SVG world ou país com círculos clicáveis; estado selectedRegion muda imagem e texto ao lado.
+- Sem Mapbox obrigatório; pode ser SVG estático.
+Foco teclado nos pontos (button ou role tab).`,
+    preview: "selector",
+  },
+  {
+    id: "image-story-chapters",
+    title: "História em capítulos (scroll)",
+    description: "Fullbleed por capítulo com número romano e quote.",
+    prompt: `Storytelling scroll:
+- Seções full viewport com imagem de fundo fixa ou scroll parallax leve; capítulo I, II, III em tipografia display.
+- Transição entre capítulos com fade border via framer-motion whileInView.
+Reduzir altura em mobile para não cansar.`,
+    preview: "scroll-cards",
+  },
+  {
+    id: "image-avatar-wall",
+    title: "Mural de rostos (comunidade)",
+    description: "Grid denso de avatares com contador \"+2k membros\".",
+    prompt: `Mural de avatares:
+- Grid muito compacto (ex.: 8×4) com imagens 40px rounded-full sobrepostas levemente (negative margin).
+- Overlay gradiente + texto central \"Junte-se à comunidade\".
+Dados mock array de URLs; lazy load.`,
+    preview: "accordion",
+  },
+  {
+    id: "image-device-mockup-browser",
+    title: "Mockup browser + screenshot",
+    description: "Janela fake com traffic lights e URL bar; produto dentro.",
+    prompt: `Mockup browser:
+- Div rounded-xl border com barra superior (três círculos), URL fictícia, conteúdo iframe ou imagem do app.
+- Sombra xl; opcional reflexo CSS (gradiente invertido com mask).
+Export BrowserMockup({ children | imageSrc }).`,
+    preview: "diced",
+  },
+  {
+    id: "image-caption-newspaper",
+    title: "Legenda estilo jornal",
+    description: "Figura com legenda serif pequena e crédito do fotógrafo.",
+    prompt: `Figure semântico:
+- <figure> com next/image, <figcaption> com classe text-sm text-muted-foreground italic e span para crédito.
+- Layout article: imagem largura total ou float em desktop.
+Boas práticas SEO: alt descritivo longo quando necessário.`,
+    preview: "arc",
+  },
+  {
+    id: "image-neon-duotone",
+    title: "Duotone neon em camadas",
+    description: "Mix-blend-mode em duas cópias da imagem com cores primárias.",
+    prompt: `Efeito duotone criativo:
+- Duas camadas absolutas da mesma img com mix-blend-multiply/screen e filtros hue-rotate ou CSS mix duotone via SVG filter.
+- Limitar a seção hero para performance.
+Fallback: imagem normal se prefers-reduced-motion ou reduced data.`,
+    preview: "zoom-parallax",
   },
 ];
 
@@ -876,7 +1395,7 @@ const navigationPrompts: {
     id: "navbar-1-shadcnblocks",
     title: "Navbar com dropdown + sheet mobile",
     description: "Combina NavigationMenu, Accordion e Sheet com login/signup.",
-    prompt: `shadcnblocks-com-navbar1.tsx — usa accordion.tsx, navigation-menu.tsx, sheet.tsx e button.tsx.
+    prompt: `shadcnblocks-com-navbar1.tsx - usa accordion.tsx, navigation-menu.tsx, sheet.tsx e button.tsx.
 Props: logo, menu (com subitems + icon), mobileExtraLinks, auth.
 Desktop: NavigationMenu com dropdown. Mobile: Sheet + Accordion.`,
     preview: "navbar-1",
@@ -885,7 +1404,7 @@ Desktop: NavigationMenu com dropdown. Mobile: Sheet + Accordion.`,
     id: "header-1-simple",
     title: "Header sticky simples (mobile fullscreen)",
     description: "Menu mobile em portal, lock de scroll e MenuToggleIcon animado.",
-    prompt: `header-1.tsx — usa useScroll(threshold), MenuToggleIcon e createPortal.
+    prompt: `header-1.tsx - usa useScroll(threshold), MenuToggleIcon e createPortal.
 Quando open=true, body overflow hidden. Links via buttonVariants(ghost).`,
     preview: "header-1",
   },
@@ -893,9 +1412,111 @@ Quando open=true, body overflow hidden. Links via buttonVariants(ghost).`,
     id: "header-3-mega-menu",
     title: "Header com mega menu",
     description: "Dois dropdowns (Product/Company) com cartões de links e ícones Lucide.",
-    prompt: `header-3.tsx — NavigationMenu com content em grid e ListItem reutilizável.
+    prompt: `header-3.tsx - NavigationMenu com content em grid e ListItem reutilizável.
 Mobile: menu em portal com mesmas seções. Usa useScroll para backdrop após scroll.`,
     preview: "header-3",
+  },
+  {
+    id: "nav-sidebar-app-shell",
+    title: "Shell app - sidebar fixa",
+    description: "Nav vertical com ícones + labels colapsáveis; ideal SaaS.",
+    prompt: `Implemente layout dashboard com sidebar:
+- Nav fixa w-64 (colapsa para ícones só com toggle); items com Lucide + Link active state (bg-muted).
+- Header superior com breadcrumbs e user menu dropdown.
+- Main scrollável; respeitar min-h-screen.
+Next.js App Router: slot children; estado collapsed em localStorage opcional.`,
+    preview: "navbar-1",
+  },
+  {
+    id: "nav-tabs-url-sync",
+    title: "Tabs de navegação com URL",
+    description: "Abas sincronizadas com searchParams ou hash.",
+    prompt: `Navegação por tabs que atualiza URL:
+- useSearchParams para ?tab=pricing ou usePathname segmentos.
+- Lista de tabs acessível role tablist; keyboard arrows entre abas.
+- Evitar flash: default tab no servidor igual ao cliente (mesmo default).
+shadcn Tabs ou Radix Tabs.`,
+    preview: "header-1",
+  },
+  {
+    id: "nav-footer-mega",
+    title: "Rodapé mega (sitemap)",
+    description: "Colunas Produto, Empresa, Recursos, Legal + newsletter.",
+    prompt: `Footer grande estilo marketing site:
+- Grid 4-5 colunas links agrupados; newsletter com input + botão.
+- Linha inferior copyright + redes sociais Lucide.
+- Links externos rel noopener; contraste AA em texto muted.`,
+    preview: "header-3",
+  },
+  {
+    id: "nav-breadcrumb-dynamic",
+    title: "Breadcrumb dinâmico",
+    description: "Segmentos derivados da rota com ícone home.",
+    prompt: `Breadcrumb component:
+- usePathname split; último segmento sem link (aria-current page).
+- Separador ChevronRight ou slash; Home como primeiro item.
+- Truncate middle em URLs longas com dropdown \"...\" opcional.`,
+    preview: "navbar-1",
+  },
+  {
+    id: "nav-lang-switcher",
+    title: "Seletor de idioma",
+    description: "Dropdown com bandeiras + nome do idioma; persiste em cookie.",
+    prompt: `Language switcher:
+- Dropdown ou combobox com locales ['pt-BR','en']; ao trocar, router.push mesma path com prefixo /en se usar i18n routing (next-intl).
+- Sem bandeiras ofensivas erradas: preferir nome do idioma por extenso.
+Acessível: lang attribute no html atualizado se possível.`,
+    preview: "header-1",
+  },
+  {
+    id: "nav-command-radius",
+    title: "Paleta de comandos secundária",
+    description: "Atalhos para seções da página (scroll spy).",
+    prompt: `Mini-nav in-page:
+- Links âncora #pricing que fazem scroll-smooth; IntersectionObserver destaca item ativo conforme scroll (scroll spy).
+- Sticky top abaixo do header principal offset.
+Reduzir observers em mobile se performance precisar.`,
+    preview: "header-3",
+  },
+  {
+    id: "nav-mobile-bottom-bar",
+    title: "Bottom bar mobile (app-like)",
+    description: "4 ícones + centro destacado; safe-area inset.",
+    prompt: `Navigation inferior fixa:
+- fixed bottom-0 z-50; pb-safe para iOS (env(safe-area-inset-bottom)).
+- 4-5 itens com ícone + label 10px; item ativo primary.
+Esconder quando modal fullscreen aberto (context).`,
+    preview: "navbar-1",
+  },
+  {
+    id: "nav-notifications-inbox",
+    title: "Centro de notificações no header",
+    description: "Sino com badge count e popover lista.",
+    prompt: `Header com bell icon:
+- Popover Radix com lista de notificações (title, time, unread dot); botão \"Marcar todas lidas\".
+- Badge numérico máx 9+.
+Mock data primeiro; depois integrar API ou Supabase realtime opcional.`,
+    preview: "header-1",
+  },
+  {
+    id: "nav-search-global",
+    title: "Busca global no header",
+    description: "Input expande em modal ⌘K style simplificado.",
+    prompt: `Busca no header:
+- Input compacto que abre Dialog com campo grande e resultados agrupados (Páginas, Docs, Blog).
+- Atalho Ctrl+K / Cmd+K global listener com cleanup.
+Debounce fetch; estado loading skeleton.`,
+    preview: "header-3",
+  },
+  {
+    id: "nav-step-wizard-nav",
+    title: "Navegação de wizard (checkout)",
+    description: "Steps clicáveis só até o atual; futuros disabled.",
+    prompt: `Wizard nav para fluxo multi-passos:
+- Steps horizontais com número em círculo; completed check Lucide.
+- Clicável só steps já visitados ou atual; próximos disabled até validação.
+Integrar com react-hook-form + zod por step.`,
+    preview: "navbar-1",
   },
 ];
 
@@ -929,7 +1550,7 @@ const textPrompts: {
     id: "text-three",
     title: "Digitação letra a letra",
     description: "useState + setInterval; framer-motion fade-in no contêiner.",
-    prompt: `text-three.tsx — default export TextThree; texto fixo "Namaste World!"; speed 100ms no intervalo.
+    prompt: `text-three.tsx - default export TextThree; texto fixo "Namaste World!"; speed 100ms no intervalo.
 Dependência: framer-motion.`,
     preview: "text-three",
   },
@@ -937,7 +1558,7 @@ Dependência: framer-motion.`,
     id: "animated-text-letters",
     title: "Letras com stagger + sublinhado",
     description: "motion.span por letra; linha com gradiente animada (width/left).",
-    prompt: `animated-text.tsx — export AnimatedText; props text, duration, delay, replay, textClassName, underlineGradient.
+    prompt: `animated-text.tsx - export AnimatedText; props text, duration, delay, replay, textClassName, underlineGradient.
 framer-motion Variants + staggerChildren.`,
     preview: "animated-letters",
   },
@@ -945,49 +1566,49 @@ framer-motion Variants + staggerChildren.`,
     id: "hand-writing-text",
     title: "SVG path desenhado + título",
     description: "motion.path pathLength; título e subtítulo com delay.",
-    prompt: `hand-writing-text.tsx — HandWrittenTitle; props title?, subtitle?; stroke currentColor.`,
+    prompt: `hand-writing-text.tsx - HandWrittenTitle; props title?, subtitle?; stroke currentColor.`,
     preview: "hand-written",
   },
   {
     id: "animated-underline-text-one",
     title: "Título + SVG sublinhado (hover no path)",
     description: "motion.path pathLength; whileHover altera d do path.",
-    prompt: `animated-underline-text-one.tsx — AnimatedUnderlineTextOne; props underlinePath, underlineHoverPath, underlineDuration.`,
+    prompt: `animated-underline-text-one.tsx - AnimatedUnderlineTextOne; props underlinePath, underlineHoverPath, underlineDuration.`,
     preview: "underline-one",
   },
   {
     id: "animated-shiny-text",
     title: "Gradiente animado no texto",
     description: "background linear-gradient + backgroundPosition animado (framer-motion).",
-    prompt: `animated-shiny-text.tsx — AnimatedShinyText; gradientColors, gradientAnimationDuration, hoverEffect opcional.`,
+    prompt: `animated-shiny-text.tsx - AnimatedShinyText; gradientColors, gradientAnimationDuration, hoverEffect opcional.`,
     preview: "shiny",
   },
   {
     id: "blurred-stagger-text",
     title: "Letras com blur stagger",
     description: "motion/react; filter blur por letra.",
-    prompt: `blurred-stagger-text.tsx — BlurredStagger({ text? }); motion + staggerChildren.`,
+    prompt: `blurred-stagger-text.tsx - BlurredStagger({ text? }); motion + staggerChildren.`,
     preview: "blurred-stagger",
   },
   {
     id: "shining-text",
     title: "Brilho deslizante (gradiente)",
     description: "backgroundPosition animado em loop linear.",
-    prompt: `shining-text.tsx — ShiningText({ text, className? }); motion/react.`,
+    prompt: `shining-text.tsx - ShiningText({ text, className? }); motion/react.`,
     preview: "shining",
   },
   {
     id: "animated-underline-css",
     title: "Sublinhado CSS (hover)",
     description: "after: pseudo-elemento com scale-x e origin.",
-    prompt: `animated-underline.tsx — AnimatedUnderline; sem deps extra; usa token-primary.`,
+    prompt: `animated-underline.tsx - AnimatedUnderline; sem deps extra; usa token-primary.`,
     preview: "underline-css",
   },
   {
     id: "infinite-text-marquee",
     title: "Marquee infinito + tooltip opcional",
     description: "motion x loop; Link interno ou <a> externo; tooltip segue cursor.",
-    prompt: `infinite-text-marquee.tsx — InfiniteTextMarquee; props speed, fontSize, textColor, hoverColor, showTooltip.
+    prompt: `infinite-text-marquee.tsx - InfiniteTextMarquee; props speed, fontSize, textColor, hoverColor, showTooltip.
 Links externo: https:// com target _blank.`,
     preview: "marquee",
   },
@@ -995,7 +1616,7 @@ Links externo: https:// com target _blank.`,
     id: "text-color-neon",
     title: "Três palavras neon (máscara + before)",
     description: "Keyframes em globals.css; ícones Plus nos cantos (lucide-react).",
-    prompt: `text-color.tsx — TextColor; classes: animate-gradient-foreground-*, before:animate-gradient-background-*.
+    prompt: `text-color.tsx - TextColor; classes: animate-gradient-foreground-*, before:animate-gradient-background-*.
 Estender globals.css com keyframes e .from-gradient-* / .to-gradient-* (ver projeto).`,
     preview: "text-color",
   },
@@ -1003,7 +1624,7 @@ Estender globals.css com keyframes e .from-gradient-* / .to-gradient-* (ver proj
     id: "reveal-text",
     title: "Letras com imagem no hover + overlay",
     description: "URLs Unsplash padrão por letra; camada overlay após spring.",
-    prompt: `reveal-text.tsx — RevealText; props letterImages[], fontSize, letterDelay, overlayDelay.
+    prompt: `reveal-text.tsx - RevealText; props letterImages[], fontSize, letterDelay, overlayDelay.
 next.config: remotePatterns para images.unsplash.com.`,
     preview: "reveal",
   },
@@ -1011,14 +1632,14 @@ next.config: remotePatterns para images.unsplash.com.`,
     id: "vertical-text",
     title: "Texto vertical (writing-mode)",
     description: "vertical-rl + rotate; cn de @/lib/utils.",
-    prompt: `vertical-text.tsx — VerticalText (as polimórfico); writingMode vertical-rl.`,
+    prompt: `vertical-text.tsx - VerticalText (as polimórfico); writingMode vertical-rl.`,
     preview: "vertical",
   },
   {
     id: "interactive-text-particle",
     title: "Partículas do texto (hover repulsão)",
     description: "Canvas 2D; rasterizar texto; partículas regressam ao repouso.",
-    prompt: `interactive-text-particle.tsx — InteractiveParticleText; props text, colors, animationForce, particleDensity.
+    prompt: `interactive-text-particle.tsx - InteractiveParticleText; props text, colors, animationForce, particleDensity.
 Diferente de particle-text-effect.tsx (palavras + clique direito).`,
     preview: "interactive-particle",
   },
@@ -1026,28 +1647,28 @@ Diferente de particle-text-effect.tsx (palavras + clique direito).`,
     id: "vaporize-animation-text",
     title: "Texto a vaporizar (canvas)",
     description: "Fases static → vaporizing → fadingIn; ciclo entre texts[].",
-    prompt: `vaporize-animation-text.tsx — VaporizeAnimationText({ texts? }); canvas 2D; fundo preto.`,
+    prompt: `vaporize-animation-text.tsx - VaporizeAnimationText({ texts? }); canvas 2D; fundo preto.`,
     preview: "vaporize",
   },
   {
     id: "particle-text-effect",
     title: "Partículas formando palavras (ciclo)",
     description: "Canvas offscreen; palavras alternam; botão direito mata partículas.",
-    prompt: `particle-text-effect.tsx — ParticleTextEffect({ words?, className? }); já usado em Heroes; canvas 1000×500.`,
+    prompt: `particle-text-effect.tsx - ParticleTextEffect({ words?, className? }); já usado em Heroes; canvas 1000×500.`,
     preview: "particle-effect",
   },
   {
     id: "morphing-cursor-magnetic",
     title: "Círculo magnético (texto alternativo)",
     description: "cursor-none; lerp em requestAnimationFrame; círculo revela hoverText.",
-    prompt: `morphing-cursor.tsx — MagneticText; text, hoverText, className.`,
+    prompt: `morphing-cursor.tsx - MagneticText; text, hoverText, className.`,
     preview: "magnetic",
   },
   {
     id: "shimmer-text",
     title: "Shimmer em texto (motion)",
     description: "background linear-gradient em currentColor; backgroundPositionX loop.",
-    prompt: `shimmer-text.tsx — ShimmerText (default export); variantes de cor; motion/react.`,
+    prompt: `shimmer-text.tsx - ShimmerText (default export); variantes de cor; motion/react.`,
     preview: "shimmer",
   },
 ];

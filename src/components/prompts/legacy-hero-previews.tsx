@@ -114,7 +114,7 @@ export function PreviewForm8() {
           illustrationSrc={FORM_ILLUSTRATION}
           illustrationAlt="Equipe colaborando"
           title="Formulários lindos, sem fricção"
-          description="Fluxo simples em três passos — experimente sem criar conta."
+          description="Fluxo simples em três passos - experimente sem criar conta."
           buttonText="Criar formulário"
           buttonHref="#"
         />
@@ -152,7 +152,7 @@ export function PreviewAnimated() {
             </span>
           }
           title="Lidere a próxima geração"
-          description="Propósito, produto e escala — um hero fullscreen com imagem e CTAs em vidro."
+          description="Propósito, produto e escala - um hero fullscreen com imagem e CTAs em vidro."
           ctaButton={{ text: "Saiba mais", onClick: () => {} }}
           secondaryCta={{ text: "Fale conosco", onClick: () => {} }}
         />
@@ -252,7 +252,7 @@ export function PreviewBallpit() {
           sphereCount={24}
           brandName="21st"
           heroTitle="Hero interativo"
-          heroDescription="Esferas metálicas seguem o cursor — Three.js + tema."
+          heroDescription="Esferas metálicas seguem o cursor - Three.js + tema."
           className="min-h-[720px] h-[720px]"
         />
       </div>

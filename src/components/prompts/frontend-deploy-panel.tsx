@@ -28,7 +28,7 @@ const testPlaces: {
     title: "Local (localhost)",
     summary: "Loop mais rápido; ideal para UI e estado antes de subir rede.",
     bullets: [
-      "`npm run dev` / `pnpm dev` — hot reload no Next, Vite, CRA legado.",
+      "`npm run dev` / `pnpm dev` - hot reload no Next, Vite, CRA legado.",
       "Teste mobile com DevTools (responsive) ou USB com dispositivo real.",
       "Variáveis em `.env.local`; não commite segredos.",
     ],
@@ -40,7 +40,7 @@ const testPlaces: {
     summary: "Expose localhost com HTTPS para webhook, OAuth ou QA remota.",
     bullets: [
       "Útil quando o backend exige callback URL público ou cliente quer ver sua máquina.",
-      "Tunnel temporário — não use como produção; rotacione URL se vazar.",
+      "Tunnel temporário - não use como produção; rotacione URL se vazar.",
     ],
     accent: "from-violet-500/15 to-transparent",
   },
@@ -107,14 +107,14 @@ const deployPlatforms: {
     icon: ExternalLink,
     title: "GitHub Pages",
     summary: "Grátis para sites estáticos; ótimo para docs e landing simples.",
-    bullets: ["Geralmente branch `gh-pages` ou pasta `/docs` com Actions.", "Sem SSR nativo — use export estático ou outro host para apps dinâmicos."],
+    bullets: ["Geralmente branch `gh-pages` ou pasta `/docs` com Actions.", "Sem SSR nativo - use export estático ou outro host para apps dinâmicos."],
     accent: "from-muted-foreground/15 to-transparent",
   },
   {
     icon: Rocket,
     title: "Render / Railway (static)",
     summary: "Alternativas full-stack quando você já usa o mesmo provedor para API.",
-    bullets: ["Static site ou Docker; verifique cold start e limites do plano gratuito.", "Menos “zero-config Next” que Vercel — leia a doc do framework."],
+    bullets: ["Static site ou Docker; verifique cold start e limites do plano gratuito.", "Menos “zero-config Next” que Vercel - leia a doc do framework."],
     accent: "from-rose-500/12 to-transparent",
   },
 ];
@@ -230,7 +230,7 @@ export function FrontendDeployPanel() {
           </h3>
         </div>
         <p className="mb-3 max-w-3xl text-pretty text-sm leading-relaxed text-muted-foreground sm:mb-4">
-          Lista orientativa — times Next.js costumam começar por Vercel; SPAs puras dividem bem entre Netlify e Cloudflare.
+          Lista orientativa - times Next.js costumam começar por Vercel; SPAs puras dividem bem entre Netlify e Cloudflare.
           Avalie custo, região, compliance e lock-in antes de migrar.
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">

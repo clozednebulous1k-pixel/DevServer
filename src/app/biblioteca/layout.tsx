@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Biblioteca de prompts | DevServer",
-  description: "Prompts de front-end e prévias visuais — DevServer.",
+  description: "Prompts de front-end e prévias visuais - DevServer.",
 };
 
 export default function BibliotecaLayout({ children }: { children: ReactNode }) {

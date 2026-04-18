@@ -196,7 +196,7 @@ export function GeistMinimalHeroInner() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.7 }}
         >
-          Streamline workflows, async updates, and calm collaboration — without the noise.
+          Streamline workflows, async updates, and calm collaboration - without the noise.
         </motion.p>
         <motion.div
           className="mt-10 flex max-w-xl flex-col gap-3 rounded-[40px] border border-black/10 bg-[#fcfcfc] p-2 pl-5 shadow-[0px_10px_40px_5px_rgba(194,194,194,0.25)] sm:flex-row sm:items-center"
@@ -344,7 +344,7 @@ export function TasklyGlassHeroInner() {
             />
           </div>
         </div>
-        <p className="mt-24 text-center text-xs text-neutral-400">Trusted by Top-tier product companies — logos placeholder</p>
+        <p className="mt-24 text-center text-xs text-neutral-400">Trusted by Top-tier product companies - logos placeholder</p>
       </div>
     </div>
   );
@@ -384,7 +384,7 @@ export function BarlowAgencyHeroInner() {
             <span className="font-[family-name:Instrument_Serif,serif] italic">videos & reels viral</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl font-[family-name:Barlow,sans-serif] text-white/75">
-            High-impact short-form, performance creative, and always-on content — built for growth teams.
+            High-impact short-form, performance creative, and always-on content - built for growth teams.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <button

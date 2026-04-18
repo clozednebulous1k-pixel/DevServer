@@ -559,7 +559,7 @@ function PreviewRadarBg() {
   );
 }
 
-/** Prévias de Backgrounds, Borders e Carrosséis — chunk lazy separado da biblioteca. */
+/** Prévias de Backgrounds, Borders e Carrosséis - chunk lazy separado da biblioteca. */
 export function LibraryMiscPreviewRouter({ id }: { id: string }) {
   switch (id) {
     case "geometric":

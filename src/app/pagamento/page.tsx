@@ -56,7 +56,7 @@ export default function PagamentoPage() {
           </p>
           <p className="mt-3 rounded-xl border border-border/80 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
             Reembolsos e cancelamentos: use sempre fluxo autenticado no seu produto, confirme titularidade, idempotência
-            em webhooks e auditoria de alteração de assinatura — nunca confie só no front para liberar ou revogar
+            em webhooks e auditoria de alteração de assinatura - nunca confie só no front para liberar ou revogar
             acesso.
           </p>
 

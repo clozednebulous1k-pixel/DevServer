@@ -77,7 +77,7 @@ export function Logos3({
       <div className="container flex flex-col items-center text-center">
         <h2 className="my-4 text-balance text-2xl font-bold lg:text-3xl">{heading}</h2>
         <p className="max-w-xl text-sm text-muted-foreground">
-          Marcas de referência no ecossistema web moderno — o mesmo tipo de base técnica que usamos nos projetos.
+          Marcas de referência no ecossistema web moderno - o mesmo tipo de base técnica que usamos nos projetos.
         </p>
       </div>
       <div className="pt-8 md:pt-10 lg:pt-12">

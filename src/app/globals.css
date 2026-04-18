@@ -250,7 +250,7 @@
   }
 }
 
-/* TextColor (text-color.tsx) — gradientes neon + animações de opacidade */
+/* TextColor (text-color.tsx) - gradientes neon + animações de opacidade */
 @keyframes gradient-foreground-1 {
   from,
   16.667%,

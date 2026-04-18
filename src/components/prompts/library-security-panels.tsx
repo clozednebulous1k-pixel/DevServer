@@ -38,7 +38,7 @@ const websiteSteps: readonly { title: string; body: string }[] = [
   },
   {
     title: "Referrer, CORS e exposição de API",
-    body: "Referrer-Policy consistente (ex.: strict-origin-when-cross-origin). Em APIs chamadas pelo browser: CORS com origens explícitas — nunca combine Access-Control-Allow-Origin: * com credenciais. Não exponha endpoints internos ou documentação admin sem autenticação.",
+    body: "Referrer-Policy consistente (ex.: strict-origin-when-cross-origin). Em APIs chamadas pelo browser: CORS com origens explícitas - nunca combine Access-Control-Allow-Origin: * com credenciais. Não exponha endpoints internos ou documentação admin sem autenticação.",
   },
   {
     title: "Cookies e sessão no navegador",
@@ -98,7 +98,7 @@ const websiteSteps: readonly { title: string; body: string }[] = [
 const softwareSteps: readonly { title: string; body: string }[] = [
   {
     title: "Gestão de segredos e configuração",
-    body: "Cofre de secrets (Vault, cloud KMS) ou variáveis injetadas no runtime — nunca no Git. Rotação periódica; revogação imediata após vazamento. Configuração por ambiente separada; desative debug e stack traces em produção.",
+    body: "Cofre de secrets (Vault, cloud KMS) ou variáveis injetadas no runtime - nunca no Git. Rotação periódica; revogação imediata após vazamento. Configuração por ambiente separada; desative debug e stack traces em produção.",
   },
   {
     title: "Autenticação e credenciais",
@@ -174,11 +174,11 @@ const productQaSteps: readonly { title: string; body: string }[] = [
   },
   {
     title: "Autenticação: prefira IdP pronto",
-    body: "Evite implementar login completo do zero. Use serviços maduros: Clerk, Keycloak, Casdoor, Authentik, Auth0, Supabase Auth, etc. Eles cobrem fluxos, recuperação de senha, MFA e boa parte de ameaças comuns — você integra e customiza políticas.",
+    body: "Evite implementar login completo do zero. Use serviços maduros: Clerk, Keycloak, Casdoor, Authentik, Auth0, Supabase Auth, etc. Eles cobrem fluxos, recuperação de senha, MFA e boa parte de ameaças comuns - você integra e customiza políticas.",
   },
   {
     title: "Postgres / Supabase: RLS o mais restritivo possível",
-    body: "Padrão negar tudo; crie policies mínimas por tabela/ação. Não permita que o cliente atualize colunas sensíveis (ex.: library_access, role) via PostgREST — só leitura da própria linha ou updates via Service Role em backend confiável. Revise `anon` vs `authenticated` em cada policy.",
+    body: "Padrão negar tudo; crie policies mínimas por tabela/ação. Não permita que o cliente atualize colunas sensíveis (ex.: library_access, role) via PostgREST - só leitura da própria linha ou updates via Service Role em backend confiável. Revise `anon` vs `authenticated` em cada policy.",
   },
   {
     title: "Banco e segredos: nada exposto",
@@ -232,7 +232,7 @@ export function LibraryCatalogPanel({
             <h2 className="text-lg font-semibold">Conteúdo disponível</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Acesso exclusivo para assinantes com plano ativo (ou administradores). Todas as categorias de prompts
-              estão aqui — escolha uma para ver pré-visualizações e copiar o texto para sua IA ou equipe.
+              estão aqui - escolha uma para ver pré-visualizações e copiar o texto para sua IA ou equipe.
             </p>
           </div>
         </div>
@@ -250,7 +250,7 @@ export function LibraryCatalogPanel({
             <div className="flex items-start justify-between gap-2">
               <h3 className="font-semibold leading-tight">{cat.label}</h3>
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
-                {cat.soon ? "—" : cat.count}
+                {cat.soon ? "-" : cat.count}
               </span>
             </div>
             <p className="mt-2 flex-1 text-sm text-muted-foreground">
@@ -435,7 +435,7 @@ export function SecurityCheckPanel() {
           </Button>
 
           <div className="rounded-2xl border border-border bg-card/80 p-5 md:p-6">
-            <h3 className="text-base font-semibold md:text-lg">Passo a passo — {title}</h3>
+            <h3 className="text-base font-semibold md:text-lg">Passo a passo - {title}</h3>
             <ol className="mt-6 space-y-5">
               {steps.map((step, index) => (
                 <li key={step.title} className="flex gap-4">

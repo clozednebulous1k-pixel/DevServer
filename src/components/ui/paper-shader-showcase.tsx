@@ -186,7 +186,7 @@ export default function PaperShaderShowcase() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
-            Gradientes MeshGradient e PulsingBorder da Paper Design — ideal para heroes com bordas vivas.
+            Gradientes MeshGradient e PulsingBorder da Paper Design - ideal para heroes com bordas vivas.
           </motion.p>
 
           <motion.div

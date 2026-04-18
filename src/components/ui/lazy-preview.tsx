@@ -12,7 +12,7 @@ type LazyPreviewProps = {
 };
 
 /**
- * Só monta `children` quando o bloco entra no viewport — evita 10+ WebGL/canvas/Spline ao mesmo tempo.
+ * Só monta `children` quando o bloco entra no viewport - evita 10+ WebGL/canvas/Spline ao mesmo tempo.
  */
 export function LazyPreview({
   children,

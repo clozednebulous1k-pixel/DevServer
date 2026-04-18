@@ -1,6 +1,6 @@
 -- Roles e acesso por usuario (assinatura / biblioteca).
 -- RLS restrito: o cliente autenticado só LÊ a própria linha.
--- Não há policy de INSERT/UPDATE para authenticated — quem cria a linha é o trigger (security definer);
+-- Não há policy de INSERT/UPDATE para authenticated - quem cria a linha é o trigger (security definer);
 -- library_access e role só devem mudar via Service Role (webhook de pagamento, job interno) ou SQL admin.
 -- Nunca exponha a service_role key no browser.
 create table if not exists public.profiles (

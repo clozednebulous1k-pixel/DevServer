@@ -60,7 +60,7 @@ const dockerSteps: InfraStep[] = [
   },
   {
     title: "Run: portas e variáveis",
-    body: "Mapeie `-p host:container`, injete segredos com `-e` ou `--env-file` (nunca commitar `.env`). `--rm` remove o container ao sair — útil em dev.",
+    body: "Mapeie `-p host:container`, injete segredos com `-e` ou `--env-file` (nunca commitar `.env`). `--rm` remove o container ao sair - útil em dev.",
     command: "docker run --rm -p 3000:3000 --env-file .env minha-app:1.0",
     icon: Network,
   },
@@ -107,7 +107,7 @@ const vpsSteps: InfraStep[] = [
   },
   {
     title: "Leve o código ou a imagem",
-    body: "Opção A: `git clone` + `docker compose up -d` na VPS. Opção B: `docker pull` da registry com tag fixa. Nunca deixe `.env` no repositório — use variáveis no servidor ou secrets do provedor.",
+    body: "Opção A: `git clone` + `docker compose up -d` na VPS. Opção B: `docker pull` da registry com tag fixa. Nunca deixe `.env` no repositório - use variáveis no servidor ou secrets do provedor.",
     icon: Container,
   },
   {

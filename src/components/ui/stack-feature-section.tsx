@@ -59,7 +59,7 @@ export default function StackFeatureSection() {
           Da ideia ao ar
         </h2>
         <p className="mb-6 max-w-lg text-muted-foreground">
-          Stack moderna com React, Next.js e infraestrutura cloud — o mesmo tipo de base que usamos para sites e sistemas
+          Stack moderna com React, Next.js e infraestrutura cloud - o mesmo tipo de base que usamos para sites e sistemas
           que precisam escalar.
         </p>
         <div className="flex flex-wrap items-center gap-3">

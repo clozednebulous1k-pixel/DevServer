@@ -32,7 +32,7 @@ export function wrap(scale: number, children: React.ReactNode, className?: strin
   );
 }
 
-/** Stellar.ai — Inter, tabs, vídeo + overlays */
+/** Stellar.ai - Inter, tabs, vídeo + overlays */
 export function StellarAiHeroInner() {
   const [tab, setTab] = useState<"analyse" | "train" | "testing" | "deploy">("analyse");
   useEffect(() => {
@@ -256,7 +256,7 @@ export function StellarAiHeroInner() {
   );
 }
 
-/** Power AI — escuro, vídeo com fade, General Sans */
+/** Power AI - escuro, vídeo com fade, General Sans */
 export function PowerAiHeroInner() {
   return (
     <div
@@ -343,7 +343,7 @@ export function PowerAiHeroInner() {
   );
 }
 
-/** Aethera — vídeo + Instrument Serif */
+/** Aethera - vídeo + Instrument Serif */
 export function AetheraHeroInner() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-white">

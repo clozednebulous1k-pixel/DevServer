@@ -69,7 +69,7 @@ export function CTASection({ preview = false, className }: CTASectionProps) {
                 preview ? "text-xs md:text-sm" : "text-base md:text-xl"
               }`}
             >
-              Hero com shader dithering animado (Paper Design), CTA e tipografia editorial — combine com tema claro/escuro.
+              Hero com shader dithering animado (Paper Design), CTA e tipografia editorial - combine com tema claro/escuro.
             </p>
 
             <button

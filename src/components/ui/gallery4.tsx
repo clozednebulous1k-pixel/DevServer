@@ -65,7 +65,7 @@ const defaultItems: Gallery4Item[] = [
     id: "nextjs",
     title: "Next.js: React pronto para produção",
     description:
-      "Routing, otimização de imagens e APIs no mesmo projeto — ideal para lançar e escalar com confiança.",
+      "Routing, otimização de imagens e APIs no mesmo projeto - ideal para lançar e escalar com confiança.",
     href: "https://nextjs.org",
     image:
       "https://images.unsplash.com/photo-1550070881-a5d71eda5800?auto=format&fit=crop&w=1080&q=80",

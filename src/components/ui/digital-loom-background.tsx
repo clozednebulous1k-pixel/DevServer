@@ -54,7 +54,7 @@ export function DigitalLoomHeroDemo() {
           custom={2}
           className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/60 sm:text-lg"
         >
-          Hero com fundo animado de fios digitais entrelaçados — ideal para landing tech e produtos SaaS.
+          Hero com fundo animado de fios digitais entrelaçados - ideal para landing tech e produtos SaaS.
         </motion.p>
 
         <motion.div

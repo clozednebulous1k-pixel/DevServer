@@ -129,7 +129,7 @@ const defaultTimeline: ShineTimelineEventData[] = [
   },
   {
     label: "Request Revisions",
-    message: "We're committed to perfection—request revisions until you're satisfied.",
+    message: "We're committed to perfection - request revisions until you're satisfied.",
     icon: { name: "Repeat", textColor: "text-green-500", borderColor: "border-green-500/40" },
   },
   {

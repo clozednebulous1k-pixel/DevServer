@@ -23,7 +23,7 @@ const securityTopics: {
   {
     icon: Shield,
     title: "RLS e permissões mínimas",
-    summary: "Cada conexão enxerga só o que precisa — principalmente em Postgres no modelo multi-tenant.",
+    summary: "Cada conexão enxerga só o que precisa - principalmente em Postgres no modelo multi-tenant.",
     bullets: [
       "No Postgres (Supabase, Neon, etc.): habilite RLS e escreva policies explícitas; teste com dois usuários.",
       "Usuário da aplicação sem SUPERUSER, sem CREATE em schemas públicos e sem DROP em produção.",
@@ -77,7 +77,7 @@ const securityTopics: {
   },
 ];
 
-/** Tiers orientativos — ordem reflete adoção comum em prod vs prototipagem, não “melhor motor absoluto”. */
+/** Tiers orientativos - ordem reflete adoção comum em prod vs prototipagem, não “melhor motor absoluto”. */
 const contextTiers: {
   badge: string;
   title: string;
@@ -90,9 +90,9 @@ const contextTiers: {
     title: "Sistemas transacionais em escala",
     description: "Relacional ACID, ecossistema maduro, equipes e ferramentas abundantes.",
     ranked: [
-      "1 · PostgreSQL gerenciado — Neon, Supabase (Postgres), AWS RDS/Aurora Postgres, Azure Flexible, Crunchy Bridge.",
-      "2 · MySQL / MariaDB gerenciado — RDS MySQL, Cloud SQL, PlanetScale (MySQL compatível, fluxo serverless).",
-      "3 · SQL Server gerenciado — quando o stack corporativo já é Microsoft.",
+      "1 · PostgreSQL gerenciado - Neon, Supabase (Postgres), AWS RDS/Aurora Postgres, Azure Flexible, Crunchy Bridge.",
+      "2 · MySQL / MariaDB gerenciado - RDS MySQL, Cloud SQL, PlanetScale (MySQL compatível, fluxo serverless).",
+      "3 · SQL Server gerenciado - quando o stack corporativo já é Microsoft.",
     ],
     borderClass: "border-teal-500/30 bg-teal-500/[0.04]",
   },
@@ -101,9 +101,9 @@ const contextTiers: {
     title: "Auth, storage e APIs prontas",
     description: "Acelera MVP com custo de vendor lock-in e modelo de preço a acompanhar.",
     ranked: [
-      "1 · Supabase (Postgres + Auth + Storage + Realtime) — ótimo para web/mobile com RLS bem feita.",
-      "2 · Firebase / Firestore — rápido para apps Google; regras de segurança precisam revisão constante.",
-      "3 · Appwrite, Convex, PocketBase — avalie self-host vs cloud e limites de escala.",
+      "1 · Supabase (Postgres + Auth + Storage + Realtime) - ótimo para web/mobile com RLS bem feita.",
+      "2 · Firebase / Firestore - rápido para apps Google; regras de segurança precisam revisão constante.",
+      "3 · Appwrite, Convex, PocketBase - avalie self-host vs cloud e limites de escala.",
     ],
     borderClass: "border-amber-500/30 bg-amber-500/[0.05]",
   },
@@ -112,21 +112,21 @@ const contextTiers: {
     title: "Barato, rápido de subir e descartável",
     description: "Não use dados reais de clientes; anonimize seeds.",
     ranked: [
-      "1 · SQLite ou libSQL (Turso) — zero ops local; Turso para DB por branch em equipes pequenas.",
-      "2 · Postgres em Docker Compose — espelha produção; volumes nomeados para não perder estado entre runs.",
-      "3 · Bancos em memória (H2, etc.) — só para testes unitários de repositório, nunca como fonte única de verdade.",
+      "1 · SQLite ou libSQL (Turso) - zero ops local; Turso para DB por branch em equipes pequenas.",
+      "2 · Postgres em Docker Compose - espelha produção; volumes nomeados para não perder estado entre runs.",
+      "3 · Bancos em memória (H2, etc.) - só para testes unitários de repositório, nunca como fonte única de verdade.",
     ],
     borderClass: "border-slate-500/30 bg-muted/30",
   },
   {
     badge: "Especialistas",
     title: "Cache, busca, documentos, séries temporais",
-    description: "Complementam o OLTP principal — não substituem validação transacional sem desenho explícito.",
+    description: "Complementam o OLTP principal - não substituem validação transacional sem desenho explícito.",
     ranked: [
-      "Cache / fila: Redis, Valkey, Dragonfly — sessão, rate limit, pub/sub; persistência opcional com cuidado.",
-      "Documentos: MongoDB Atlas, Couchbase — quando o modelo de dados é realmente documento-first.",
-      "Busca: OpenSearch, Elasticsearch, Meilisearch, Typesense — índices separados da fonte transacional.",
-      "Time-series: TimescaleDB, InfluxDB, ClickHouse — métricas, IoT, analytics de alto volume.",
+      "Cache / fila: Redis, Valkey, Dragonfly - sessão, rate limit, pub/sub; persistência opcional com cuidado.",
+      "Documentos: MongoDB Atlas, Couchbase - quando o modelo de dados é realmente documento-first.",
+      "Busca: OpenSearch, Elasticsearch, Meilisearch, Typesense - índices separados da fonte transacional.",
+      "Time-series: TimescaleDB, InfluxDB, ClickHouse - métricas, IoT, analytics de alto volume.",
     ],
     borderClass: "border-rose-500/25 bg-rose-500/[0.04]",
   },
@@ -146,7 +146,7 @@ export function DatabasePanel() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">Dados</p>
         <h2 className="mt-2 text-xl font-semibold tracking-tight md:text-2xl">Bancos de dados seguros e quando usar cada um</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          Primeiro endureça o acesso, backup e auditoria. Depois escolha o motor pelo tipo de carga — relacional para a
+          Primeiro endureça o acesso, backup e auditoria. Depois escolha o motor pelo tipo de carga - relacional para a
           maioria dos negócios, BaaS para velocidade de produto, e engines especializados só com necessidade clara.
         </p>
       </div>

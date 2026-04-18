@@ -16,7 +16,7 @@ const topics: {
     summary: "Deploy contínuo a partir do Git, SSL automático e escala de leitura.",
     bullets: [
       "Vercel, Netlify ou Cloudflare Pages para Next.js/React estático ou SSR edge.",
-      "Variáveis de ambiente só no painel do provedor — nunca chaves privadas no repositório.",
+      "Variáveis de ambiente só no painel do provedor - nunca chaves privadas no repositório.",
       "Preview por branch para validar antes de ir para produção.",
     ],
     accent: "from-sky-500/20 to-transparent",
