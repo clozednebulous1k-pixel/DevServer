@@ -15,6 +15,7 @@ import { TextScramble } from "@/components/ui/text-scramble";
 import { TextDisperse } from "@/components/ui/text-disperse";
 import { SiteNav } from "@/components/site-nav";
 import { Hero3DRibbon } from "@/components/ui/hero-3d-ribbon";
+import { HomeLibraryTeaser } from "@/components/home-library-teaser";
 
 export default function Home() {
   const screenSize = useScreenSize();
@@ -147,6 +148,7 @@ export default function Home() {
         </section>
 
         <ScrollHorizontalDevServer />
+        <HomeLibraryTeaser />
         <section className="mx-auto w-full max-w-6xl px-4 pb-2">
           <ContainerScroll
             titleComponent={

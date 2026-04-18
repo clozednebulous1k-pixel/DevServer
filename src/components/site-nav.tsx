@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BriefcaseBusiness, HomeIcon, Rocket, User } from "lucide-react";
+import { BookOpen, BriefcaseBusiness, HomeIcon, Rocket, User } from "lucide-react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -11,6 +11,7 @@ export function SiteNav() {
     { name: "Início", url: "/", icon: HomeIcon },
     { name: "Sobre", url: "/sobre", icon: User },
     { name: "Projetos", url: "/projetos", icon: BriefcaseBusiness },
+    { name: "Biblioteca", url: "/#biblioteca", icon: BookOpen },
     { name: "Contato", url: "/contato", icon: Rocket },
   ];
 

@@ -64,7 +64,7 @@ export default function ScrollHorizontalDevServer() {
   const x = useTransform(scrollYProgress, [0, 1], [0, -totalDistance]);
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 pb-0">
+    <section id="planos" className="mx-auto w-full max-w-6xl px-4 pb-0">
       <div className="sh-intro">
         <p className="sh-kicker">Vitrine DevServer</p>
         <h2 className="sh-impact">Projetos que vendem</h2>
