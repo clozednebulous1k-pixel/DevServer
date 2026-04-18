@@ -65,10 +65,13 @@ export function HomeLibraryTeaser() {
           </div>
 
           <div className="relative">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1 lg:gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
               <LibraryConceptPreview seed="home-lib-hero" tone="hero" />
               <LibraryConceptPreview seed="home-lib-carousel" tone="carousel" />
               <LibraryConceptPreview seed="home-lib-nav" tone="navigation" />
+              <LibraryConceptPreview seed="home-lib-image" tone="image" />
+              <LibraryConceptPreview seed="home-lib-border" tone="border" />
+              <LibraryConceptPreview seed="home-lib-bg" tone="background" />
             </div>
             <div className="pointer-events-none absolute inset-x-0 bottom-8 h-28 bg-gradient-to-t from-background via-background/85 to-transparent" />
             <p className="relative z-10 mt-3 text-center text-xs text-muted-foreground">
