@@ -40,6 +40,7 @@ import { CustomersSection } from "@/components/ui/customers-section";
 import { SpinningLogos } from "@/components/ui/spinning-logos";
 import StackFeatureSection from "@/components/ui/stack-feature-section";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
+import { LibraryConceptPreview, isAbstractPreviewId } from "@/components/prompts/library-concept-preview";
 
 const BeamsBackgroundClient = dynamic(
   () => import("@/components/ui/beams-background").then((m) => m.BeamsBackground),
@@ -561,6 +562,15 @@ function PreviewRadarBg() {
 
 /** Prévias de Backgrounds, Borders e Carrosséis - chunk lazy separado da biblioteca. */
 export function LibraryMiscPreviewRouter({ id }: { id: string }) {
+  if (isAbstractPreviewId(id)) {
+    const tone =
+      id.includes("-carousel") || id.includes("carousel-")
+        ? "carousel"
+        : id.includes("-border") || id.includes("border-")
+          ? "border"
+          : "background";
+    return <LibraryConceptPreview seed={id} tone={tone} />;
+  }
   switch (id) {
     case "geometric":
       return <PreviewGeometricBg />;

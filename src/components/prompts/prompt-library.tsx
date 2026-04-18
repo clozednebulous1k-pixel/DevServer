@@ -388,7 +388,7 @@ O prompt original com classes X/W/Z completas pode ser expandido para física co
 - Headline forte + subtítulo; CTA primário e secundário (outline).
 - Opcional: linha de logos em escala de cinza abaixo (trust).
 Stack: Next.js, Tailwind, framer-motion para contadores e entrada stagger. Prefira tokens theme (primary, muted).`,
-    preview: "stellar" as const,
+    preview: "abstract-hero-saas-metrics-live" as const,
   },
   {
     id: "hero-podcast-wave",
@@ -400,7 +400,7 @@ Stack: Next.js, Tailwind, framer-motion para contadores e entrada stagger. Prefi
 - Botão play circular grande; links Spotify/Apple/Youtube como ícones ghost.
 - Tipografia contrastante (display + sans legível).
 Next.js client onde necessário; reduza bundle (sem libs pesadas de áudio se não precisar).`,
-    preview: "power-ai" as const,
+    preview: "abstract-hero-podcast-wave" as const,
   },
   {
     id: "hero-event-countdown",
@@ -411,7 +411,7 @@ Next.js client onde necessário; reduza bundle (sem libs pesadas de áudio se n�
 - Bloco inferior com avatares empilhados + \"+120 palestrantes\" e link para grade.
 - Navbar mínima com logo e botão \"Garantir ingresso\".
 Acessível: números com aria-live polite ao tick; prefers-reduced-motion reduz pulsação decorativa.`,
-    preview: "rubik-era" as const,
+    preview: "abstract-hero-event-countdown" as const,
   },
   {
     id: "hero-product-hotspots",
@@ -422,7 +422,7 @@ Acessível: números com aria-live polite ao tick; prefers-reduced-motion reduz 
 - Lista de bullets ao lado sincronizada ao hotspot ativo (estado lifted).
 - Preço, parcelamento e CTA \"Adicionar\"; selo de garantia.
 Use cn(), motion só no hover dos pontos (scale). Evite CLS: width/height na imagem.`,
-    preview: "bloom-glass" as const,
+    preview: "abstract-hero-product-hotspots" as const,
   },
   {
     id: "hero-nonprofit-story",
@@ -433,7 +433,7 @@ Use cn(), motion só no hover dos pontos (scale). Evite CLS: width/height na ima
 - Headline curta + subtítulo factual; linha com 3 métricas grandes (número + label).
 - CTAs: \"Doar\" (primário) e \"Conhecer projetos\" (outline branco/semi-transparente).
 Tom respeitoso; contraste WCAG AA no texto sobre foto.`,
-    preview: "animated" as const,
+    preview: "abstract-hero-nonprofit-story" as const,
   },
   {
     id: "hero-crypto-ticker",
@@ -444,7 +444,7 @@ Tom respeitoso; contraste WCAG AA no texto sobre foto.`,
 - Painel glass central: headline, subtítulo, dois CTAs (\"Criar conta\" / \"Ver taxas\").
 - Disclaimer pequeno abaixo sobre volatilidade.
 Tailwind glass (backdrop-blur, border-white/10); motion reduzida se prefers-reduced-motion.`,
-    preview: "web3-eos" as const,
+    preview: "abstract-hero-crypto-ticker" as const,
   },
   {
     id: "hero-fitness-rings",
@@ -455,7 +455,7 @@ Tailwind glass (backdrop-blur, border-white/10); motion reduzida se prefers-redu
 - Texto motivacional + progresso \"Hoje: 72% da meta\".
 - CTA \"Começar treino\" e link secundário para planos.
 Cores vibrantes mas consistentes com tema; preview compacto deve funcionar em altura fixa.`,
-    preview: "particle" as const,
+    preview: "abstract-hero-fitness-rings" as const,
   },
   {
     id: "hero-editorial-split",
@@ -466,7 +466,7 @@ Cores vibrantes mas consistentes com tema; preview compacto deve funcionar em al
 - Metadados: categoria pill, tempo de leitura, autor com avatar.
 - Sem carrossel automático; foco tipográfico.
 Tailwind typography opcional para lead paragraph.`,
-    preview: "geist-minimal" as const,
+    preview: "abstract-hero-editorial-split" as const,
   },
   {
     id: "hero-weather-glass",
@@ -477,7 +477,7 @@ Tailwind typography opcional para lead paragraph.`,
 - Temperatura principal \"24°\" + sensação + vento em linhas secundárias.
 - Campo de busca cidade estilizado (combobox shadcn).
 Fundo: gradiente dinâmico por tema (dia/noite) via classe dark ou prop.`,
-    preview: "glass-hls" as const,
+    preview: "abstract-hero-weather-glass" as const,
   },
   {
     id: "hero-onboarding-steps",
@@ -488,7 +488,7 @@ Fundo: gradiente dinâmico por tema (dia/noite) via classe dark ou prop.`,
 - Área principal: headline + lista curta de benefícios com ícones Lucide.
 - CTA \"Continuar\" + link \"Já tenho conta\".
 Componentes acessíveis: aria-current no passo ativo; foco visível nos botões.`,
-    preview: "form8" as const,
+    preview: "abstract-hero-onboarding-steps" as const,
   },
 ];
 
@@ -500,7 +500,8 @@ type BackgroundPreviewId =
   | "falling"
   | "particle"
   | "spiral"
-  | "radar";
+  | "radar"
+  | `abstract-${string}`;
 
 const backgroundPrompts: {
   id: string;
@@ -606,7 +607,7 @@ Stack: framer-motion, lucide-react (Circle no badge), cn de @/lib/utils.`,
 - Overlay escuro linear-gradient para manter contraste do texto.
 - Sem canvas; performance: will-change só se necessário; prefers-reduced-motion pausa animação.
 Exporte AuroraBackground({ className, children? }). Tailwind + cn().`,
-    preview: "geometric",
+    preview: "abstract-bg-aurora-gradient",
   },
   {
     id: "bg-grid-dots-parallax",
@@ -617,7 +618,7 @@ Exporte AuroraBackground({ className, children? }). Tailwind + cn().`,
 - useScroll + useTransform (framer-motion) em 2 camadas com offset Y diferentes para ilusão de profundidade.
 - Container relative min-h-[50vh]; pointer-events-none no fundo.
 Documente intensidade de parallax para não causar enjoo (reduzir em mobile).`,
-    preview: "paths",
+    preview: "abstract-bg-grid-dots-parallax",
   },
   {
     id: "bg-noise-grain",
@@ -628,7 +629,7 @@ Documente intensidade de parallax para não causar enjoo (reduzir em mobile).`,
 - Opção B: imagem noise tile repetida com repeat.
 - Props: intensity, blendMode; aplicar sobre bg sólido ou gradiente existente.
 useMemo para não recriar SVG a cada render; z-index acima do bg, abaixo do conteúdo.`,
-    preview: "falling",
+    preview: "abstract-bg-noise-grain",
   },
   {
     id: "bg-mesh-blobs",
@@ -638,7 +639,7 @@ useMemo para não recriar SVG a cada render; z-index acima do bg, abaixo do cont
 - SVG com paths ou ellipses em defs + blur filter; animar cx/cy ou transform com CSS animation suave.
 - 3 cores do tema com opacidade; container viewBox fixo preserveAspectRatio slice.
 Componente BlobMeshBackground; altura full ou h-96 para seções.`,
-    preview: "beams",
+    preview: "abstract-bg-mesh-blobs",
   },
   {
     id: "bg-hex-honeycomb",
@@ -648,7 +649,7 @@ Componente BlobMeshBackground; altura full ou h-96 para seções.`,
 - Use mask-image com SVG hex tile OU linear-gradients encadeados para formar colmeia (ou pseudo-elementos rotacionados).
 - Stroke sutil em border-primary/20; animação opcional de brilho em uma linha (linear-gradient animado).
 Evitar excesso de contrast com texto; fundo base bg-background.`,
-    preview: "spiral",
+    preview: "abstract-bg-hex-honeycomb",
   },
   {
     id: "bg-diagonal-stripes",
@@ -659,7 +660,7 @@ Evitar excesso de contrast com texto; fundo base bg-background.`,
 - Props angle, stripeWidth, colorA, colorB.
 - Opcional mix-blend-multiply em modo escuro para suavizar.
 Export DiagonalStripes({ className }) como wrapper ou classe Tailwind arbitrary.`,
-    preview: "particle",
+    preview: "abstract-bg-diagonal-stripes",
   },
   {
     id: "bg-vignette-spotlight",
@@ -669,7 +670,7 @@ Export DiagonalStripes({ className }) como wrapper ou classe Tailwind arbitrary.
 - inset 0 com ellipse at center: transparente no meio ~40%, transição para bg-background nas bordas.
 - Combinar com imagem ou cor sólida atrás.
 Útil para landing com foto + texto central; garantir leitura em mobile (aumentar área clara).`,
-    preview: "smoke",
+    preview: "abstract-bg-vignette-spotlight",
   },
   {
     id: "bg-cyber-grid-perspective",
@@ -679,7 +680,7 @@ Export DiagonalStripes({ className }) como wrapper ou classe Tailwind arbitrary.
 - perspective no pai; rotateX no grid (transform-style preserve-3d) OU SVG com linhas horizontais mais próximas no topo.
 - Cor das linhas primary/40; animação opcional translateZ ou stroke-dashoffset.
 Performance: limitar blur; reduzir linhas em mobile.`,
-    preview: "radar",
+    preview: "abstract-bg-cyber-grid-perspective",
   },
   {
     id: "bg-watercaustics-fake",
@@ -689,7 +690,7 @@ Performance: limitar blur; reduzir linhas em mobile.`,
 - SVG com paths orgânicos e animate em d ou opacity; blur leve no grupo.
 - Cores azul/cyan em baixa opacidade sobre fundo escuro.
 Sem WebGL; loop suave 6-12s; reduced motion = opacity estática.`,
-    preview: "paths",
+    preview: "abstract-bg-watercaustics-fake",
   },
   {
     id: "bg-gradient-mesh-css",
@@ -699,7 +700,7 @@ Sem WebGL; loop suave 6-12s; reduced motion = opacity estática.`,
 - background com 4+ radial-gradient em posições diferentes usando variáveis CSS (--mesh-1, --mesh-2).
 - Transição de cor ao trocar .dark via variáveis em :root.
 Sem JS obrigatório; export MeshCssBackground com tokens documentados para o design system.`,
-    preview: "geometric",
+    preview: "abstract-bg-gradient-mesh-css",
   },
 ];
 
@@ -717,7 +718,8 @@ type BorderPreviewId =
   | "omni"
   | "paper"
   | "wave"
-  | "moving";
+  | "moving"
+  | `abstract-${string}`;
 
 const borderPrompts: {
   id: string;
@@ -845,7 +847,7 @@ Inner bg-background; props isCircle, colors[].`,
 - Hover: border-primary/40 + transição shadow-sm.
 - Opcional pseudo-element shine no hover (::after com gradient linear).
 Slots para children; preserve aspect ratio opcional.`,
-    preview: "neon",
+    preview: "abstract-border-double-outline",
   },
   {
     id: "border-sketch-hand-drawn",
@@ -855,7 +857,7 @@ Slots para children; preserve aspect ratio opcional.`,
 - SVG rect com rx alto e stroke-dasharray irregular OU path com curvas Bézier ligando cantos \"imperfeitos\".
 - stroke-muted-foreground/60; opcional animate stroke-dashoffset só no hover.
 Biblioteca pode usar filtros SVG feTurbulence leve em displacement para irregularidade.`,
-    preview: "wave",
+    preview: "abstract-border-sketch-hand-drawn",
   },
   {
     id: "border-notched-corner",
@@ -865,7 +867,7 @@ Biblioteca pode usar filtros SVG feTurbulence leve em displacement para irregula
 - clip-path polygon com pontos calculados ou CSS mask; cantos cortados ~12px consistentes em todos os lados ou só dois.
 - Contraste com grid tracejado opcional (::before pattern).
 Tailwind arbitrary clip-path ou style inline.`,
-    preview: "bauhaus",
+    preview: "abstract-border-notched-corner",
   },
   {
     id: "border-stitched-dashed",
@@ -875,7 +877,7 @@ Tailwind arbitrary clip-path ou style inline.`,
 - outline ou border dashed; animation stroke-offset em SVG rectangle por cima do card (preferível a border CSS para dash offset uniforme).
 - Radius rounded-lg; cores muted.
 Use case: badges \"Novo\", cards de changelog.`,
-    preview: "shine",
+    preview: "abstract-border-stitched-dashed",
   },
   {
     id: "border-neumorphic-soft",
@@ -885,7 +887,7 @@ Use case: badges \"Novo\", cards de changelog.`,
 - bg-muted; box-shadow inset highlight + shadow externa dupla para relevo.
 - Button press: inset maior no active.
 Advertência de acessibilidade: garantir contraste texto/fundo WCAG; não usar só sombra como único estado.`,
-    preview: "glow-x",
+    preview: "abstract-border-neumorphic-soft",
   },
   {
     id: "border-chamfer-tech",
@@ -895,7 +897,7 @@ Advertência de acessibilidade: garantir contraste texto/fundo WCAG; não usar s
 - Borda inferior 3px gradiente horizontal primary → transparente; cantos superiores arredondados, inferiores retos ou leve ângulo.
 - Scanline opcional (::after linear-gradient repeating com opacity 5%).
 Ótimo para dashboards cyber sem exagerar neon.`,
-    preview: "spotlight",
+    preview: "abstract-border-chamfer-tech",
   },
   {
     id: "border-brass-antique",
@@ -905,7 +907,7 @@ Advertência de acessibilidade: garantir contraste texto/fundo WCAG; não usar s
 - border-image ou múltiplos box-shadow para simular metal oxidado (tons âmbar/marrom).
 - Cantos ornamentados opcionais com pseudo SVG corners pequenos.
 Combine com serif no título para editorial.`,
-    preview: "grad",
+    preview: "abstract-border-brass-antique",
   },
   {
     id: "border-inner-glow-ring",
@@ -915,7 +917,7 @@ Combine com serif no título para editorial.`,
 - inset shadow com spread negativo + blur primary/30; segunda camada blur maior em primary/15.
 - Funciona bem em bg-card escuro.
 Sem overflow visible em lists para não cortar sombras.`,
-    preview: "ripple",
+    preview: "abstract-border-inner-glow-ring",
   },
   {
     id: "border-dashed-label-tag",
@@ -925,7 +927,7 @@ Sem overflow visible em lists para não cortar sombras.`,
 - clip-path ou SVG path em formato de etiqueta com furo circular (opcional pseudo círculo bg-background).
 - Pequeno triângulo notch no lado direito tipo ticket.
 Ideal para badges de preço, promoções.`,
-    preview: "rainbow",
+    preview: "abstract-border-dashed-label-tag",
   },
   {
     id: "border-divided-sections",
@@ -935,7 +937,7 @@ Ideal para badges de preço, promoções.`,
 - grid grid-cols-3 com divisores border-r border-border último:border-0 ou rows com mesmo padrão.
 - Cada célula pode ter número + label.
 Micro-interação hover por célula com bg-muted/40.`,
-    preview: "search",
+    preview: "abstract-border-divided-sections",
   },
 ];
 
@@ -964,7 +966,8 @@ type CarouselPreviewId =
   | "customers"
   | "spinning"
   | "stack-orbit"
-  | "infinite-slider";
+  | "infinite-slider"
+  | `abstract-${string}`;
 
 const clientCarouselPrompts: {
   id: string;
@@ -1051,7 +1054,7 @@ Dependência: react-use-measure, framer-motion.`,
 - Card: avatar, nome, cargo, logo empresa pequeno, texto com tipografia italic.
 - autoplay com pause on hover e botões prev/next acessíveis (aria-label).
 Dados em array tipado Testimonial[].`,
-    preview: "gallery4",
+    preview: "abstract-carousel-testimonial-quotes",
   },
   {
     id: "carousel-logo-strip-brands",
@@ -1061,7 +1064,7 @@ Dados em array tipado Testimonial[].`,
 - Use InfiniteSlider ou Embla com loop; logos em escala de cinza e color no hover (transition).
 - Prop speedOnHover maior duration (mais lento) para facilitar leitura do nome.
 Gradientes nas bordas from-background.`,
-    preview: "logo-cloud-3",
+    preview: "abstract-carousel-logo-strip-brands",
   },
   {
     id: "carousel-feature-cards",
@@ -1071,7 +1074,7 @@ Gradientes nas bordas from-background.`,
 - Slides com imagem 16:9, título do projeto, métrica em destaque (tabular-nums), CTA \"Ver case\".
 - Progress indicador estilo fracionado (1/5) ou barra no topo.
 Embla + useCallback para scrollPrev/Next.`,
-    preview: "gallery4",
+    preview: "abstract-carousel-feature-cards",
   },
   {
     id: "carousel-partner-ecosystem",
@@ -1081,7 +1084,7 @@ Embla + useCallback para scrollPrev/Next.`,
 - Centro fixo com headline; ao redor ícones de integrações em órbita CSS (animation rotate) ou componente spinning-logos adaptado.
 - Reverse rotation em ícones para legibilidade (counter-spin).
 Reduzir velocidade em prefers-reduced-motion.`,
-    preview: "stack-orbit",
+    preview: "abstract-carousel-partner-ecosystem",
   },
   {
     id: "carousel-press-mentions",
@@ -1091,7 +1094,7 @@ Reduzir velocidade em prefers-reduced-motion.`,
 - Logos monocromáticos (TechCrunch, etc. placeholders) com link opcional por item.
 - Layout compacto altura fixa; máscara fade nas laterais.
 SEO: links rel=\"noopener\" externos.`,
-    preview: "logo-cloud-4",
+    preview: "abstract-carousel-press-mentions",
   },
   {
     id: "carousel-team-avatars",
@@ -1101,7 +1104,7 @@ SEO: links rel=\"noopener\" externos.`,
 - Slides estreitos com foto circular e nome sob hover (opacity transition).
 - Opcional badge \"Investidor\" ou \"Advisor\".
 Touch-friendly drag no mobile.`,
-    preview: "customers",
+    preview: "abstract-carousel-team-avatars",
   },
   {
     id: "carousel-product-cards-ecom",
@@ -1111,7 +1114,7 @@ Touch-friendly drag no mobile.`,
 - scroll-snap-x mandatory + cards w-64; imagem, título, preço, rating stars.
 - Botão carrinho rápido no card (stop propagation).
 Pode usar Embla com dragFree ou CSS scroll nativo.`,
-    preview: "gallery4",
+    preview: "abstract-carousel-product-cards-ecom",
   },
   {
     id: "carousel-timeline-milestones",
@@ -1121,7 +1124,7 @@ Pode usar Embla com dragFree ou CSS scroll nativo.`,
 - Cada slide: ano, título, uma linha de descrição; linha SVG ou border-t conectando dots entre slides.
 - Centro slide ativo levemente maior (scale).
 Implementação com Embla ou scroll native + intersection para estado ativo.`,
-    preview: "logos3",
+    preview: "abstract-carousel-timeline-milestones",
   },
   {
     id: "carousel-certifications-badges",
@@ -1131,7 +1134,7 @@ Implementação com Embla ou scroll native + intersection para estado ativo.`,
 - Ícones ou badges SVG em InfiniteSlider; Tooltip Radix explicando cada selo ao hover/focus.
 - Alt text descritivo para acessibilidade.
 Velocidade moderada; pause focus trap em modal se abrir detalhe.`,
-    preview: "infinite-slider",
+    preview: "abstract-carousel-certifications-badges",
   },
   {
     id: "carousel-before-after",
@@ -1141,7 +1144,7 @@ Velocidade moderada; pause focus trap em modal se abrir detalhe.`,
 - Duas imagens sobrepostas; divisor vertical arrastável (pointer events) controlando clip-path ou width da camada superior.
 - Label \"Antes\" / \"Depois\" nas pontas.
 Client component; reset button opcional.`,
-    preview: "gallery4",
+    preview: "abstract-carousel-before-after",
   },
 ];
 
@@ -1158,7 +1161,8 @@ type ImagePreviewId =
   | "zoom-parallax"
   | "image-tiles"
   | "ogl-circular-gallery"
-  | "css-photo-ring";
+  | "css-photo-ring"
+  | `abstract-${string}`;
 
 const imagePrompts: {
   id: string;
@@ -1288,7 +1292,7 @@ Usar <img> (não next/image) se precisar de transform 3D direto no elemento sem 
 - Lightbox Radix Dialog com next/image grande, prev/next keyboard, ESC fecha.
 - Lazy load imagens fora da viewport (loading lazy ou intersection).
 Tipar items: { src, alt, width, height, caption? }.`,
-    preview: "bento",
+    preview: "abstract-image-masonry-lightbox",
   },
   {
     id: "image-compare-environment",
@@ -1298,7 +1302,7 @@ Tipar items: { src, alt, width, height, caption? }.`,
 - Mesmo padrão clip do antes/depois mas com labels \"Dia\" / \"Noite\" ou \"Clássico\" / \"Moderno\".
 - Handle vertical opcional; motion smooth com requestAnimationFrame ou CSS.
 Acessível: role slider, aria-valuenow no percentual.`,
-    preview: "scroll-expand",
+    preview: "abstract-image-compare-environment",
   },
   {
     id: "image-kanban-board-screens",
@@ -1308,7 +1312,7 @@ Acessível: role slider, aria-valuenow no percentual.`,
 - 3 colunas \"Planejar / Executar / Medir\" com cards contendo screenshot + título curto.
 - Drag opcional (@dnd-kit) só se necessário; senão estático para landing.
 Screenshots com border rounded-lg shadow-md.`,
-    preview: "stacked",
+    preview: "abstract-image-kanban-board-screens",
   },
   {
     id: "image-polaroid-stack",
@@ -1318,7 +1322,7 @@ Screenshots com border rounded-lg shadow-md.`,
 - Cada card branco padding bottom grande (área \"Polaroid\"), img object-cover acima.
 - Rotacionar -6deg, 4deg, -3deg em camadas; hover z-index e scale.
 CSS only ou framer-motion para hover.`,
-    preview: "image-tiles",
+    preview: "abstract-image-polaroid-stack",
   },
   {
     id: "image-map-pins-gallery",
@@ -1328,7 +1332,7 @@ CSS only ou framer-motion para hover.`,
 - SVG world ou país com círculos clicáveis; estado selectedRegion muda imagem e texto ao lado.
 - Sem Mapbox obrigatório; pode ser SVG estático.
 Foco teclado nos pontos (button ou role tab).`,
-    preview: "selector",
+    preview: "abstract-image-map-pins-gallery",
   },
   {
     id: "image-story-chapters",
@@ -1338,7 +1342,7 @@ Foco teclado nos pontos (button ou role tab).`,
 - Seções full viewport com imagem de fundo fixa ou scroll parallax leve; capítulo I, II, III em tipografia display.
 - Transição entre capítulos com fade border via framer-motion whileInView.
 Reduzir altura em mobile para não cansar.`,
-    preview: "scroll-cards",
+    preview: "abstract-image-story-chapters",
   },
   {
     id: "image-avatar-wall",
@@ -1348,7 +1352,7 @@ Reduzir altura em mobile para não cansar.`,
 - Grid muito compacto (ex.: 8×4) com imagens 40px rounded-full sobrepostas levemente (negative margin).
 - Overlay gradiente + texto central \"Junte-se à comunidade\".
 Dados mock array de URLs; lazy load.`,
-    preview: "accordion",
+    preview: "abstract-image-avatar-wall",
   },
   {
     id: "image-device-mockup-browser",
@@ -1358,7 +1362,7 @@ Dados mock array de URLs; lazy load.`,
 - Div rounded-xl border com barra superior (três círculos), URL fictícia, conteúdo iframe ou imagem do app.
 - Sombra xl; opcional reflexo CSS (gradiente invertido com mask).
 Export BrowserMockup({ children | imageSrc }).`,
-    preview: "diced",
+    preview: "abstract-image-device-mockup-browser",
   },
   {
     id: "image-caption-newspaper",
@@ -1368,7 +1372,7 @@ Export BrowserMockup({ children | imageSrc }).`,
 - <figure> com next/image, <figcaption> com classe text-sm text-muted-foreground italic e span para crédito.
 - Layout article: imagem largura total ou float em desktop.
 Boas práticas SEO: alt descritivo longo quando necessário.`,
-    preview: "arc",
+    preview: "abstract-image-caption-newspaper",
   },
   {
     id: "image-neon-duotone",
@@ -1378,11 +1382,11 @@ Boas práticas SEO: alt descritivo longo quando necessário.`,
 - Duas camadas absolutas da mesma img com mix-blend-multiply/screen e filtros hue-rotate ou CSS mix duotone via SVG filter.
 - Limitar a seção hero para performance.
 Fallback: imagem normal se prefers-reduced-motion ou reduced data.`,
-    preview: "zoom-parallax",
+    preview: "abstract-image-neon-duotone",
   },
 ];
 
-type NavigationPreviewId = "navbar-1" | "header-1" | "header-3";
+type NavigationPreviewId = "navbar-1" | "header-1" | "header-3" | `abstract-${string}`;
 
 const navigationPrompts: {
   id: string;
@@ -1425,7 +1429,7 @@ Mobile: menu em portal com mesmas seções. Usa useScroll para backdrop após sc
 - Header superior com breadcrumbs e user menu dropdown.
 - Main scrollável; respeitar min-h-screen.
 Next.js App Router: slot children; estado collapsed em localStorage opcional.`,
-    preview: "navbar-1",
+    preview: "abstract-nav-sidebar-app-shell",
   },
   {
     id: "nav-tabs-url-sync",
@@ -1436,7 +1440,7 @@ Next.js App Router: slot children; estado collapsed em localStorage opcional.`,
 - Lista de tabs acessível role tablist; keyboard arrows entre abas.
 - Evitar flash: default tab no servidor igual ao cliente (mesmo default).
 shadcn Tabs ou Radix Tabs.`,
-    preview: "header-1",
+    preview: "abstract-nav-tabs-url-sync",
   },
   {
     id: "nav-footer-mega",
@@ -1446,7 +1450,7 @@ shadcn Tabs ou Radix Tabs.`,
 - Grid 4-5 colunas links agrupados; newsletter com input + botão.
 - Linha inferior copyright + redes sociais Lucide.
 - Links externos rel noopener; contraste AA em texto muted.`,
-    preview: "header-3",
+    preview: "abstract-nav-footer-mega",
   },
   {
     id: "nav-breadcrumb-dynamic",
@@ -1456,7 +1460,7 @@ shadcn Tabs ou Radix Tabs.`,
 - usePathname split; último segmento sem link (aria-current page).
 - Separador ChevronRight ou slash; Home como primeiro item.
 - Truncate middle em URLs longas com dropdown \"...\" opcional.`,
-    preview: "navbar-1",
+    preview: "abstract-nav-breadcrumb-dynamic",
   },
   {
     id: "nav-lang-switcher",
@@ -1466,7 +1470,7 @@ shadcn Tabs ou Radix Tabs.`,
 - Dropdown ou combobox com locales ['pt-BR','en']; ao trocar, router.push mesma path com prefixo /en se usar i18n routing (next-intl).
 - Sem bandeiras ofensivas erradas: preferir nome do idioma por extenso.
 Acessível: lang attribute no html atualizado se possível.`,
-    preview: "header-1",
+    preview: "abstract-nav-lang-switcher",
   },
   {
     id: "nav-command-radius",
@@ -1476,7 +1480,7 @@ Acessível: lang attribute no html atualizado se possível.`,
 - Links âncora #pricing que fazem scroll-smooth; IntersectionObserver destaca item ativo conforme scroll (scroll spy).
 - Sticky top abaixo do header principal offset.
 Reduzir observers em mobile se performance precisar.`,
-    preview: "header-3",
+    preview: "abstract-nav-command-radius",
   },
   {
     id: "nav-mobile-bottom-bar",
@@ -1486,7 +1490,7 @@ Reduzir observers em mobile se performance precisar.`,
 - fixed bottom-0 z-50; pb-safe para iOS (env(safe-area-inset-bottom)).
 - 4-5 itens com ícone + label 10px; item ativo primary.
 Esconder quando modal fullscreen aberto (context).`,
-    preview: "navbar-1",
+    preview: "abstract-nav-mobile-bottom-bar",
   },
   {
     id: "nav-notifications-inbox",
@@ -1496,7 +1500,7 @@ Esconder quando modal fullscreen aberto (context).`,
 - Popover Radix com lista de notificações (title, time, unread dot); botão \"Marcar todas lidas\".
 - Badge numérico máx 9+.
 Mock data primeiro; depois integrar API ou Supabase realtime opcional.`,
-    preview: "header-1",
+    preview: "abstract-nav-notifications-inbox",
   },
   {
     id: "nav-search-global",
@@ -1506,7 +1510,7 @@ Mock data primeiro; depois integrar API ou Supabase realtime opcional.`,
 - Input compacto que abre Dialog com campo grande e resultados agrupados (Páginas, Docs, Blog).
 - Atalho Ctrl+K / Cmd+K global listener com cleanup.
 Debounce fetch; estado loading skeleton.`,
-    preview: "header-3",
+    preview: "abstract-nav-search-global",
   },
   {
     id: "nav-step-wizard-nav",
@@ -1516,7 +1520,7 @@ Debounce fetch; estado loading skeleton.`,
 - Steps horizontais com número em círculo; completed check Lucide.
 - Clicável só steps já visitados ou atual; próximos disabled até validação.
 Integrar com react-hook-form + zod por step.`,
-    preview: "navbar-1",
+    preview: "abstract-nav-step-wizard-nav",
   },
 ];
 

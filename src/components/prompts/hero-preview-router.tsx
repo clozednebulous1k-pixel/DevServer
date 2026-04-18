@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { LibraryConceptPreview, isAbstractPreviewId } from "@/components/prompts/library-concept-preview";
 
 function PreviewSkeleton() {
   return (
@@ -157,9 +158,13 @@ export type HeroPreviewId =
   | "synapse-hls"
   | "ai-unlock-hls"
   | "clear-invoice-hls"
-  | "webfluin-calculator";
+  | "webfluin-calculator"
+  | `abstract-${string}`;
 
 export function HeroPreviewRouter({ id }: { id: HeroPreviewId }) {
+  if (isAbstractPreviewId(id)) {
+    return <LibraryConceptPreview seed={id} tone="hero" />;
+  }
   switch (id) {
     case "myna":
       return <LegacyMyna />;

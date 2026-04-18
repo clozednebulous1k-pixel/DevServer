@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { ImageIcon } from "lucide-react";
+import { isAbstractPreviewId, LibraryConceptPreview } from "@/components/prompts/library-concept-preview";
 
 function ImagePreviewSkeleton() {
   return <div className="h-[168px] animate-pulse rounded-lg bg-muted/30 sm:h-[180px]" />;
@@ -18,6 +19,10 @@ const ImageRouter = dynamic(
  */
 export function GatedImagePreview({ id }: { id: string }) {
   const [live, setLive] = useState(false);
+
+  if (isAbstractPreviewId(id)) {
+    return <LibraryConceptPreview seed={id} tone="image" />;
+  }
 
   if (!live) {
     return (

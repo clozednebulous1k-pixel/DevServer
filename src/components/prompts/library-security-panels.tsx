@@ -249,9 +249,11 @@ export function LibraryCatalogPanel({
           >
             <div className="flex items-start justify-between gap-2">
               <h3 className="font-semibold leading-tight">{cat.label}</h3>
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
-                {cat.soon ? "-" : cat.count}
-              </span>
+              {!cat.soon && (
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
+                  {cat.count}
+                </span>
+              )}
             </div>
             <p className="mt-2 flex-1 text-sm text-muted-foreground">
               {cat.soon
