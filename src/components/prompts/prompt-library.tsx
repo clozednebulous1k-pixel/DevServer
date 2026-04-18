@@ -13,6 +13,10 @@ import { HeroPreviewRouter, type HeroPreviewId } from "@/components/prompts/hero
 import { GatedImagePreview } from "@/components/prompts/image-preview-gated";
 import { HostingPanel, HOSTING_TOPIC_COUNT } from "@/components/prompts/hosting-panel";
 import { DatabasePanel, DATABASE_PANEL_SECTION_COUNT } from "@/components/prompts/database-panel";
+import {
+  FrontendDeployPanel,
+  FRONTEND_DEPLOY_PIPELINE_STEPS,
+} from "@/components/prompts/frontend-deploy-panel";
 import { SpeedPanel, SPEED_TOPIC_COUNT } from "@/components/prompts/speed-panel";
 import {
   LibraryCatalogPanel,
@@ -49,7 +53,14 @@ type PromptCategoryId =
   | "texts"
   | "announcements";
 
-type CategoryId = PromptCategoryId | "library" | "security" | "hosting" | "speed" | "databases";
+type CategoryId =
+  | PromptCategoryId
+  | "library"
+  | "security"
+  | "hosting"
+  | "speed"
+  | "databases"
+  | "frontend_deploy";
 
 const promptCategories: readonly {
   id: PromptCategoryId;
@@ -81,6 +92,7 @@ const navCategories: readonly {
   { id: "hosting", label: "Hospedagem", count: HOSTING_TOPIC_COUNT },
   { id: "speed", label: "Velocidade", count: SPEED_TOPIC_COUNT },
   { id: "databases", label: "Bancos de dados", count: DATABASE_PANEL_SECTION_COUNT },
+  { id: "frontend_deploy", label: "Deploy front-end", count: FRONTEND_DEPLOY_PIPELINE_STEPS },
 ];
 
 const heroPrompts = [
@@ -624,6 +636,7 @@ const categoryLabels: Record<CategoryId, string> = {
   hosting: "Hospedagem",
   speed: "Velocidade",
   databases: "Bancos de dados",
+  frontend_deploy: "Deploy front-end",
 };
 
 type CarouselPreviewId =
@@ -1113,7 +1126,8 @@ export function PromptLibrary() {
     active !== "security" &&
     active !== "hosting" &&
     active !== "speed" &&
-    active !== "databases";
+    active !== "databases" &&
+    active !== "frontend_deploy";
 
   async function copyPrompt(text: string, id: string) {
     await navigator.clipboard.writeText(text);
@@ -1154,15 +1168,9 @@ export function PromptLibrary() {
             </p>
             {navCategories.map((cat) => {
               const isActive =
-                cat.id === "security"
-                  ? active === "security"
-                  : cat.id === "hosting"
-                    ? active === "hosting"
-                    : cat.id === "speed"
-                      ? active === "speed"
-                      : cat.id === "databases"
-                        ? active === "databases"
-                        : active === "library" || browsingFromLibrary;
+                cat.id === "library"
+                  ? active === "library" || browsingFromLibrary
+                  : active === cat.id;
               return (
                 <button
                   key={cat.id}
@@ -1205,30 +1213,10 @@ export function PromptLibrary() {
                 </Button>
               )}
               <p className="text-sm text-muted-foreground">
-                {browsingFromLibrary ? (
+                {active !== "library" ? (
                   <>
                     Biblioteca /{" "}
                     <span className="font-medium text-foreground">{categoryLabels[active]}</span>
-                  </>
-                ) : active === "security" ? (
-                  <>
-                    Biblioteca /{" "}
-                    <span className="font-medium text-foreground">Segurança</span>
-                  </>
-                ) : active === "hosting" ? (
-                  <>
-                    Biblioteca /{" "}
-                    <span className="font-medium text-foreground">Hospedagem</span>
-                  </>
-                ) : active === "speed" ? (
-                  <>
-                    Biblioteca /{" "}
-                    <span className="font-medium text-foreground">Velocidade</span>
-                  </>
-                ) : active === "databases" ? (
-                  <>
-                    Biblioteca /{" "}
-                    <span className="font-medium text-foreground">Bancos de dados</span>
                   </>
                 ) : (
                   <span className="font-medium text-foreground">Biblioteca</span>
@@ -1237,11 +1225,7 @@ export function PromptLibrary() {
               <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
                 {categoryLabels[active]}
               </h1>
-              {(browsingFromLibrary ||
-                active === "security" ||
-                active === "hosting" ||
-                active === "speed" ||
-                active === "databases") && (
+              {active !== "library" && (
                 <Button
                   type="button"
                   variant="link"
@@ -1617,6 +1601,8 @@ export function PromptLibrary() {
 
           {active === "databases" && <DatabasePanel />}
 
+          {active === "frontend_deploy" && <FrontendDeployPanel />}
+
           {active !== "heroes" &&
             active !== "backgrounds" &&
             active !== "borders" &&
@@ -1628,7 +1614,8 @@ export function PromptLibrary() {
             active !== "security" &&
             active !== "hosting" &&
             active !== "speed" &&
-            active !== "databases" && (
+            active !== "databases" &&
+            active !== "frontend_deploy" && (
             <div className="rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center text-muted-foreground">
               Em breve nesta categoria.
             </div>
