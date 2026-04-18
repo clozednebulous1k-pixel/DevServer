@@ -55,9 +55,11 @@ export function isAbstractPreviewId(id: string): boolean {
 export function LibraryConceptPreview({
   seed,
   tone = "default",
+  className,
 }: {
   seed: string;
   tone?: LibraryConceptTone;
+  className?: string;
 }) {
   const h = hashSeed(seed) + TONE_NUDGE[tone];
   const gi = h % GRADIENT_CLASS.length;
@@ -67,7 +69,10 @@ export function LibraryConceptPreview({
 
   return (
     <div
-      className="relative h-[168px] overflow-hidden rounded-lg border border-border/70 bg-muted/20 sm:h-[180px]"
+      className={cn(
+        "relative h-[168px] overflow-hidden rounded-lg border border-border/70 bg-muted/20 sm:h-[180px]",
+        className,
+      )}
       aria-hidden
     >
       <div className={cn("absolute inset-0 bg-gradient-to-br opacity-95", GRADIENT_CLASS[gi])} />

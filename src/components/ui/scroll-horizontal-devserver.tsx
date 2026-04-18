@@ -3,50 +3,26 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import type { CSSProperties } from "react";
 import { useRef } from "react";
+import {
+  LibraryConceptPreview,
+  type LibraryConceptTone,
+} from "@/components/prompts/library-concept-preview";
 
 type ShowcaseItem = {
   id: number;
   color: string;
   label: string;
-  image: string;
+  /** Mesmo padrão da biblioteca: seed + tom definem a prévia abstrata. */
+  seed: string;
+  tone: LibraryConceptTone;
 };
 
 const items: ShowcaseItem[] = [
-  {
-    id: 1,
-    color: "#5bf68b",
-    label: "Landing de Conversao",
-    image:
-      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 2,
-    color: "#7ee8ff",
-    label: "Painel de Gestao",
-    image:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 3,
-    color: "#c38bff",
-    label: "App Comercial",
-    image:
-      "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 4,
-    color: "#60a5fa",
-    label: "Site Institucional",
-    image:
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: 5,
-    color: "#22d3ee",
-    label: "Sistema com IA",
-    image:
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80",
-  },
+  { id: 1, color: "#5bf68b", label: "Landing de Conversao", seed: "vitrine-landing-conversao", tone: "hero" },
+  { id: 2, color: "#7ee8ff", label: "Painel de Gestao", seed: "vitrine-painel-gestao", tone: "navigation" },
+  { id: 3, color: "#c38bff", label: "App Comercial", seed: "vitrine-app-comercial", tone: "carousel" },
+  { id: 4, color: "#60a5fa", label: "Site Institucional", seed: "vitrine-site-institucional", tone: "background" },
+  { id: 5, color: "#22d3ee", label: "Sistema com IA", seed: "vitrine-sistema-ia", tone: "image" },
 ];
 
 const ITEM_WIDTH = 400;
@@ -80,10 +56,16 @@ export default function ScrollHorizontalDevServer() {
                 style={
                   {
                     "--item-color": item.color,
-                    "--item-image": `url(${item.image})`,
                   } as CSSProperties
                 }
               >
+                <div className="sh-gallery-visual">
+                  <LibraryConceptPreview
+                    seed={item.seed}
+                    tone={item.tone}
+                    className="h-full w-full min-h-full rounded-none border-0"
+                  />
+                </div>
                 <div className="sh-item-content">
                   <span className="sh-item-number">{String(item.id).padStart(2, "0")}</span>
                   <h3>{item.label}</h3>
@@ -146,6 +128,12 @@ export default function ScrollHorizontalDevServer() {
           will-change: transform;
         }
 
+        .sh-gallery-visual {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+        }
+
         .sh-gallery-item {
           flex-shrink: 0;
           width: ${ITEM_WIDTH}px;
@@ -153,9 +141,6 @@ export default function ScrollHorizontalDevServer() {
           border-radius: 16px;
           position: relative;
           overflow: hidden;
-          background-image: var(--item-image);
-          background-size: cover;
-          background-position: center;
           border: 1px solid color-mix(in oklab, var(--foreground), transparent 85%);
         }
 

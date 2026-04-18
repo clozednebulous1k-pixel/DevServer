@@ -16,6 +16,7 @@ import { TextDisperse } from "@/components/ui/text-disperse";
 import { SiteNav } from "@/components/site-nav";
 import { Hero3DRibbon } from "@/components/ui/hero-3d-ribbon";
 import { HomeLibraryTeaser } from "@/components/home-library-teaser";
+import { LibraryConceptPreview } from "@/components/prompts/library-concept-preview";
 
 export default function Home() {
   const screenSize = useScreenSize();
@@ -168,14 +169,31 @@ export default function Home() {
               </>
             }
           >
-            <Image
-              src="https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=1600&q=80"
-              alt="Interface moderna de sistema"
-              height={720}
-              width={1400}
-              className="mx-auto h-full rounded-2xl object-cover object-center"
-              draggable={false}
-            />
+            <div
+              className="mx-auto grid h-full min-h-0 w-full grid-cols-2 grid-rows-2 gap-1.5 rounded-xl md:gap-2 [&>*]:min-h-0"
+              aria-label="Prévias visuais no mesmo estilo da biblioteca DevServer"
+            >
+              <LibraryConceptPreview
+                seed="home-impact-marquee-hero"
+                tone="hero"
+                className="h-full w-full rounded-lg border-0 md:rounded-xl"
+              />
+              <LibraryConceptPreview
+                seed="home-impact-marquee-carousel"
+                tone="carousel"
+                className="h-full w-full rounded-lg border-0 md:rounded-xl"
+              />
+              <LibraryConceptPreview
+                seed="home-impact-marquee-image"
+                tone="image"
+                className="h-full w-full rounded-lg border-0 md:rounded-xl"
+              />
+              <LibraryConceptPreview
+                seed="home-impact-marquee-nav"
+                tone="navigation"
+                className="h-full w-full rounded-lg border-0 md:rounded-xl"
+              />
+            </div>
           </ContainerScroll>
         </section>
 
