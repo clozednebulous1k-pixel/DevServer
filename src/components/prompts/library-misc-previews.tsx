@@ -738,6 +738,169 @@ function PreviewScrollFluidWords() {
   );
 }
 
+function PreviewScrollAxisToggleMarquee() {
+  const [vertical, setVertical] = useState(false);
+  const rowA = ["M", "J", "AWS", "SP", "BK", "H", "N", "HU"];
+  const rowB = [...rowA].reverse();
+
+  return (
+    <div
+      className={cn(
+        "relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#0f1630] p-2 text-[#f8ecd7] sm:h-[180px]",
+        vertical ? "flex flex-row gap-2" : "flex flex-col gap-2",
+      )}
+    >
+      <button
+        type="button"
+        onClick={() => setVertical((v) => !v)}
+        className={cn(
+          "absolute left-2 top-2 z-10 inline-flex h-6 items-center justify-center rounded-full bg-[#2c3e90] px-2 text-[9px] font-semibold",
+          vertical && "bg-[#4361ee]",
+        )}
+      >
+        Toggle axis
+      </button>
+
+      {[rowA, rowB].map((row, idx) => (
+        <div
+          key={idx}
+          className={cn(
+            "relative mt-7 overflow-hidden rounded-md bg-[#1b2758]/65",
+            vertical ? "h-full w-1/2 mt-8" : "h-1/2 w-full",
+          )}
+        >
+          <div
+            className={cn(
+              "absolute inset-0 opacity-50",
+              vertical
+                ? "bg-[linear-gradient(to_bottom,transparent,#000_20%,#000_80%,transparent)]"
+                : "bg-[linear-gradient(to_right,transparent,#000_20%,#000_80%,transparent)]",
+            )}
+          />
+          <div
+            className={cn(
+              "marquee-track absolute flex gap-2 px-2 py-2",
+              vertical ? "left-0 top-0 flex-col" : "left-0 top-0",
+              idx === 1 && !vertical && "marquee-x-reverse",
+              idx === 1 && vertical && "marquee-y-reverse",
+              idx === 0 && !vertical && "marquee-x",
+              idx === 0 && vertical && "marquee-y",
+            )}
+          >
+            {[...row, ...row].map((logo, i) => (
+              <span
+                key={`${logo}-${i}`}
+                className={cn(
+                  "inline-flex min-h-7 min-w-9 items-center justify-center rounded-md bg-[#2d428f] px-2 text-[9px] font-bold",
+                  vertical && "min-h-8 min-w-8",
+                )}
+              >
+                {logo}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+      <style jsx>{`
+        .marquee-track {
+          animation-duration: 12s;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+        }
+        .marquee-x {
+          animation-name: scroll-x;
+        }
+        .marquee-x-reverse {
+          animation-name: scroll-x-reverse;
+        }
+        .marquee-y {
+          animation-name: scroll-y;
+        }
+        .marquee-y-reverse {
+          animation-name: scroll-y-reverse;
+        }
+        @keyframes scroll-x {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+        @keyframes scroll-x-reverse {
+          from {
+            transform: translateX(-50%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+        @keyframes scroll-y {
+          from {
+            transform: translateY(0);
+          }
+          to {
+            transform: translateY(-50%);
+          }
+        }
+        @keyframes scroll-y-reverse {
+          from {
+            transform: translateY(-50%);
+          }
+          to {
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function PreviewScrollSkewedOnePage() {
+  const [page, setPage] = useState(1);
+  const total = 5;
+
+  useEffect(() => {
+    const onWheel = (ev: WheelEvent) => {
+      setPage((curr) => {
+        if (ev.deltaY > 0) return Math.min(total, curr + 1);
+        return Math.max(1, curr - 1);
+      });
+    };
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === "ArrowDown") setPage((curr) => Math.min(total, curr + 1));
+      if (ev.key === "ArrowUp") setPage((curr) => Math.max(1, curr - 1));
+    };
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  return (
+    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#15181a] sm:h-[180px]">
+      {Array.from({ length: total }).map((_, i) => {
+        const current = i + 1;
+        const active = current === page;
+        return (
+          <div key={current} className={cn("absolute inset-0 transition-opacity duration-500", active ? "opacity-100" : "opacity-35")}>
+            <div className="absolute left-0 top-0 h-full w-1/2 -translate-x-3 skew-x-[18deg] bg-[#232629]" />
+            <div className="absolute right-0 top-0 h-full w-1/2 translate-x-3 -skew-x-[18deg] bg-[#2f3438]" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-center text-[10px] text-white">
+                <p className="font-semibold">Page {current}</p>
+                <p className="text-[9px] text-white/70">Scroll / ArrowUp / ArrowDown</p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function PreviewAbstractBackground({ id }: { id: string }) {
   if (id === "abstract-bg-grid-dots-parallax") {
     return (
@@ -963,6 +1126,10 @@ export function LibraryMiscPreviewRouter({ id }: { id: string }) {
       return <PreviewScrollHorizontalPin />;
     case "scroll-fluid-words":
       return <PreviewScrollFluidWords />;
+    case "scroll-axis-toggle-marquee":
+      return <PreviewScrollAxisToggleMarquee />;
+    case "scroll-skewed-onepage":
+      return <PreviewScrollSkewedOnePage />;
     default:
       return null;
   }

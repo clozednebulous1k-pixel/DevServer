@@ -1677,7 +1677,7 @@ Diferente de particle-text-effect.tsx (palavras + clique direito).`,
   },
 ];
 
-type ScrollPreviewId = "scroll-sticky-tabs" | "scroll-horizontal-pin" | "scroll-fluid-words";
+type ScrollPreviewId = "scroll-axis-toggle-marquee" | "scroll-skewed-onepage";
 
 const scrollPrompts: {
   id: string;
@@ -1687,59 +1687,60 @@ const scrollPrompts: {
   preview: ScrollPreviewId;
 }[] = [
   {
-    id: "scroll-sticky-slider-nav",
-    title: "Sticky slider nav (tabs fixas no scroll)",
+    id: "scroll-axis-toggle-marquee",
+    title: "Marquee com toggle de eixo (X/Y)",
     description:
-      "Hero com tabs que grudam no topo, slider indicador e navegação suave para seções.",
-    prompt: `Crie uma seção "Sticky Slider Nav" com:
-- Hero inicial + barra de tabs na base (ES6, Flexbox, React, Angular, Other).
-- Ao rolar, a barra vira sticky no topo (classe --top).
-- Slider indicador acompanha tab ativa (width/left dinâmicos).
-- Clique na tab faz scroll suave até a seção correspondente.
-- Estrutura:
-  - <section class="et-hero-tabs">...
-  - <main class="et-main"> com <section class="et-slide" id="tab-...">
-- Em React/Next, substitua jQuery por hooks:
-  - scroll spy com IntersectionObserver ou listener de scroll
-  - smooth scroll via window.scrollTo({ behavior: "smooth" })
-- Estilo base: altura full viewport por slide, barra com 70px, hover nas tabs, slider inferior animado.`,
-    preview: "scroll-sticky-tabs",
+      "Faixas de logos infinitas com botao para alternar entre rolagem horizontal e vertical.",
+    prompt: `<button class="toggle" id="direction-toggle">Toggle scroll axis</button>
+<article class="wrapper">
+  <div class="marquee">...</div>
+  <div class="marquee marquee--reverse">...</div>
+</article>
+
+/* CSS */
+.marquee__group { animation: scroll-x var(--duration) linear infinite; }
+.marquee--vertical .marquee__group { animation-name: scroll-y; }
+.wrapper--vertical { flex-direction: row; height: 100vh; }
+
+/* JS */
+const control = document.getElementById("direction-toggle");
+const marquees = document.querySelectorAll(".marquee");
+const wrapper = document.querySelector(".wrapper");
+control.addEventListener("click", () => {
+  control.classList.toggle("toggle--vertical");
+  wrapper.classList.toggle("wrapper--vertical");
+  [...marquees].forEach((marquee) => marquee.classList.toggle("marquee--vertical"));
+});`,
+    preview: "scroll-axis-toggle-marquee",
   },
   {
-    id: "scroll-horizontal-pin-gsap",
-    title: "Horizontal pin section (GSAP ScrollTrigger)",
+    id: "scroll-skewed-onepage",
+    title: "Skewed one-page scroll",
     description:
-      "Seção pinada com rolagem horizontal de conteúdo (texto + imagens) enquanto o usuário rola verticalmente.",
-    prompt: `Crie um bloco "Horizontal Scroll Section" com GSAP:
-- Estrutura:
-  - <section id="sectionPin"><div class="pin-wrap"> ... cards/imagens ... </div></section>
-- Com ScrollTrigger:
-  - pin da seção em start "top top"
-  - scrub true
-  - anima x da .pin-wrap para -horizontalScrollLength
-- horizontalScrollLength = pinWrap.offsetWidth - window.innerWidth
-- Adicione sections antes/depois para contexto (intro e fechamento).
-- Opcional: integração com smooth scroll (Locomotive) usando scrollerProxy.
-- Em mobile, reduza distância horizontal e altura de imagens para manter performance.`,
-    preview: "scroll-horizontal-pin",
-  },
-  {
-    id: "scroll-fluid-word-stack",
-    title: "Word stack fluido no scroll",
-    description:
-      "Lista de palavras em destaque com sticky heading, snap opcional e variação de cor/opacity conforme scroll.",
-    prompt: `Implemente seção com texto fluido e lista vertical:
-- Header: "you can scroll."
-- Seção principal: heading sticky + lista de verbos (design, prototype, solve, build...).
-- Cada item ganha destaque ao cruzar o centro da viewport:
-  - opacity/brightness/hue variando com scroll
-- Recursos:
-  - CSS fluid type (clamp)
-  - scroll-snap opcional
-  - animações com animation-timeline (fallback em GSAP ScrollTrigger)
-- Acrescente controles booleanos de demo:
-  - animate, snap, sync-scrollbar, debug.`,
-    preview: "scroll-fluid-words",
+      "Troca de paginas em camadas inclinadas com navegacao por roda do mouse e setas.",
+    prompt: `<div class="skw-pages">
+  <div class="skw-page skw-page-1 active">...</div>
+  <div class="skw-page skw-page-2">...</div>
+  <div class="skw-page skw-page-3">...</div>
+  <div class="skw-page skw-page-4">...</div>
+  <div class="skw-page skw-page-5">...</div>
+</div>
+
+/* CSS */
+.skw-page__half--left { transform: translate3d(-32.4vh, 100%, 0); }
+.skw-page__half--right { transform: translate3d(32.4vh, -100%, 0); }
+.skw-page.active .skw-page__half { transform: translate3d(0,0,0); }
+
+/* JS (jQuery) */
+var curPage = 1;
+var numOfPages = $(".skw-page").length;
+function navigateUp() { if (curPage === 1) return; curPage--; pagination(); }
+function navigateDown() { if (curPage === numOfPages) return; curPage++; pagination(); }
+$(document).on("mousewheel DOMMouseScroll", function(e) {
+  if (e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) navigateUp();
+  else navigateDown();
+});`,
+    preview: "scroll-skewed-onepage",
   },
 ];
 
