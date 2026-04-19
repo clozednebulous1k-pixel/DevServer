@@ -11,7 +11,7 @@ export function SiteNav() {
     { name: "Início", url: "/", icon: HomeIcon },
     { name: "Sobre", url: "/sobre", icon: User },
     { name: "Projetos", url: "/projetos", icon: BriefcaseBusiness },
-    { name: "Biblioteca", url: "/#biblioteca", icon: BookOpen },
+    { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
     { name: "Contato", url: "/contato", icon: Rocket },
   ];
 

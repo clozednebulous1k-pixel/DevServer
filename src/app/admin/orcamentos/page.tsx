@@ -1,5 +1,6 @@
 import { SiteNav } from "@/components/site-nav";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AccessManager } from "@/components/admin/access-manager";
 
 type Orcamento = {
   id: string;
@@ -81,6 +82,8 @@ export default async function AdminOrcamentosPage() {
             </tbody>
           </table>
         </div>
+
+        <AccessManager />
       </main>
     </div>
   );
