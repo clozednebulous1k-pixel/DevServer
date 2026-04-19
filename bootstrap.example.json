@@ -1,0 +1,5 @@
+{
+  "email": "admin@seudominio.com",
+  "password": "SenhaCom8CharsNoMinimo",
+  "secret": "COPIE_ADMIN_BOOTSTRAP_SECRET_DA_VERCEL_AQUI"
+}

@@ -87,12 +87,50 @@ async function handleBootstrapPost(request: Request) {
     );
   }
 
-  let body: { email?: string; password?: string; secret?: string };
-  try {
-    body = (await request.json()) as { email?: string; password?: string; secret?: string };
-  } catch {
-    return NextResponse.json({ code: "INVALID_JSON", error: "JSON invalido no body." }, { status: 400 });
+  const contentType = request.headers.get("content-type") ?? "";
+  const rawBody = await request.text();
+
+  if (!rawBody.trim()) {
+    return NextResponse.json(
+      {
+        code: "EMPTY_BODY",
+        error: "Corpo da requisicao vazio.",
+        hint:
+          "PowerShell: salve o JSON em bootstrap.json e use curl.exe ... --data-binary @bootstrap.json -H \"Content-Type: application/json\". Ou uma linha: curl.exe ... -d '{\"email\":\"a@b.com\",\"password\":\"Senha12345\",\"secret\":\"SEU_SECRET\"}' (aspas simples por fora).",
+        debug: { contentType },
+      },
+      { status: 400 },
+    );
   }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawBody);
+  } catch {
+    return NextResponse.json(
+      {
+        code: "INVALID_JSON",
+        error: "JSON invalido no body.",
+        hint:
+          "Confira aspas e virgulas. No PowerShell use aspas simples envolvendo o JSON no -d do curl, ou arquivo .json com --data-binary @arquivo.json.",
+        debug: {
+          contentType,
+          bodyLength: rawBody.length,
+          startsWithBrace: rawBody.trimStart().startsWith("{"),
+        },
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return NextResponse.json(
+      { code: "INVALID_JSON", error: "Body deve ser um objeto JSON com email, password e secret." },
+      { status: 400 },
+    );
+  }
+
+  const body = parsed as { email?: string; password?: string; secret?: string };
 
   const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
   const secret = (body.secret ?? bearer ?? "").trim();
