@@ -75,7 +75,7 @@ const promptCategories: readonly {
   { id: "images", label: "Imagens", count: 23 },
   { id: "navigation", label: "Navigation Menus", count: 13 },
   { id: "texts", label: "Textos", count: 16 },
-  { id: "scroll", label: "Scroll", count: 2 },
+  { id: "scroll", label: "Scroll", count: 5 },
 ];
 
 const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
@@ -1677,7 +1677,12 @@ Diferente de particle-text-effect.tsx (palavras + clique direito).`,
   },
 ];
 
-type ScrollPreviewId = "scroll-axis-toggle-marquee" | "scroll-skewed-onepage";
+type ScrollPreviewId =
+  | "scroll-sticky-tabs"
+  | "scroll-horizontal-pin"
+  | "scroll-fluid-words"
+  | "scroll-axis-toggle-marquee"
+  | "scroll-skewed-onepage";
 
 const scrollPrompts: {
   id: string;
@@ -1686,6 +1691,70 @@ const scrollPrompts: {
   prompt: string;
   preview: ScrollPreviewId;
 }[] = [
+  {
+    id: "scroll-sticky-slider-nav",
+    title: "Sticky slider nav (tabs fixas no scroll)",
+    description:
+      "Hero com tabs que grudam no topo, indicador que acompanha a tab ativa e scroll suave para secoes.",
+    prompt: `<section class="et-hero-tabs">...</section>
+<main class="et-main">
+  <section class="et-slide" id="tab-es6">...</section>
+  <section class="et-slide" id="tab-flexbox">...</section>
+  <section class="et-slide" id="tab-react">...</section>
+  <section class="et-slide" id="tab-angular">...</section>
+  <section class="et-slide" id="tab-other">...</section>
+</main>
+
+/* JS */
+onTabClick -> scroll suave para id da tab;
+onScroll -> fixa .et-hero-tabs-container no topo;
+findCurrentTabSelector -> detecta secao visivel;
+setSliderCss -> ajusta width/left do indicador.`,
+    preview: "scroll-sticky-tabs",
+  },
+  {
+    id: "scroll-horizontal-pin-gsap",
+    title: "Horizontal pin section (GSAP ScrollTrigger)",
+    description:
+      "Secao pinada no meio da pagina enquanto o conteudo interno desloca na horizontal conforme o scroll vertical.",
+    prompt: `gsap.registerPlugin(ScrollTrigger);
+const pinWrap = document.querySelector(".pin-wrap");
+const horizontalScrollLength = pinWrap.offsetWidth - window.innerWidth;
+
+gsap.to(".pin-wrap", {
+  x: -horizontalScrollLength,
+  ease: "none",
+  scrollTrigger: {
+    trigger: "#sectionPin",
+    start: "top top",
+    end: pinWrap.offsetWidth,
+    pin: true,
+    scrub: true
+  }
+});`,
+    preview: "scroll-horizontal-pin",
+  },
+  {
+    id: "scroll-fluid-word-stack",
+    title: "Word stack fluido no scroll",
+    description:
+      "Lista vertical de palavras com destaque no centro; heading sticky; suporte para snap e variacao de opacidade/cor.",
+    prompt: `<section class="content fluid">
+  <h2><span>you can&nbsp;</span></h2>
+  <ul style="--count: 22">
+    <li style="--i: 0">design.</li>
+    ...
+  </ul>
+</section>
+
+/* CSS */
+section:first-of-type h2 { position: sticky; top: calc(50% - 0.5lh); }
+li { animation-range: cover calc(50% - 1lh) calc(50% + 1lh); }
+
+/* fallback JS */
+ScrollTrigger para opacidade + hue quando animation-timeline nao existir.`,
+    preview: "scroll-fluid-words",
+  },
   {
     id: "scroll-axis-toggle-marquee",
     title: "Marquee com toggle de eixo (X/Y)",
@@ -2021,7 +2090,7 @@ export function PromptLibrary() {
                     </LazyPreview>
 
                     <div className="mt-4 flex flex-1 flex-col gap-3">
-                      <div className="max-h-28 overflow-y-auto rounded-xl border border-border/80 bg-background/50 p-3 text-xs leading-relaxed text-muted-foreground">
+                      <div className="rounded-xl border border-border/80 bg-background/50 p-3 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">
                         {item.prompt}
                       </div>
                       <div className="grid grid-cols-2 gap-2">
