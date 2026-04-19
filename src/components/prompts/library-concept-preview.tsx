@@ -163,7 +163,7 @@ function BorderLayout({ variant }: { variant: number }) {
 
 function BackgroundLayout({ variant }: { variant: number }) {
   return (
-    <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden p-3">
       <div
         className="absolute inset-0 opacity-35"
         style={{
@@ -174,7 +174,27 @@ function BackgroundLayout({ variant }: { variant: number }) {
       />
       <div className="absolute -left-8 top-6 size-24 rounded-full bg-primary/26 blur-2xl" />
       <div className="absolute bottom-0 right-0 size-28 rounded-full bg-cyan-400/24 blur-2xl" />
-      <div className="absolute inset-x-6 top-8 h-16 rounded-xl border border-foreground/10 bg-background/20" />
+      <div className="relative z-10 space-y-2 rounded-lg border border-foreground/12 bg-background/28 p-2.5">
+        <div className="flex items-center justify-between">
+          <div className="h-2 w-14 rounded-full bg-foreground/22" />
+          <div className="h-1.5 w-10 rounded-full bg-foreground/18" />
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="col-span-2 h-10 rounded-md bg-foreground/10" />
+          <div className="h-10 rounded-md bg-foreground/12" />
+        </div>
+      </div>
+      <div className="relative z-10 mt-2 grid grid-cols-4 gap-2">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className={cn(
+              "h-6 rounded-md border border-foreground/10 bg-background/22",
+              i === variant % 4 && "border-primary/40 bg-primary/15",
+            )}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -182,8 +202,15 @@ function BackgroundLayout({ variant }: { variant: number }) {
 function DefaultLayout({ variant }: { variant: number }) {
   return (
     <div className="absolute inset-0 p-3">
-      <div className="mb-2 h-2 w-20 rounded-full bg-foreground/20" />
+      <div className="mb-2 flex items-center justify-between">
+        <div className="h-2 w-20 rounded-full bg-foreground/20" />
+        <div className="h-5 w-14 rounded-full bg-primary/25" />
+      </div>
       <div className="space-y-2 rounded-md border border-foreground/10 bg-background/26 p-3">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="h-8 rounded-md bg-foreground/10" />
+          <div className="h-8 rounded-md bg-foreground/12" />
+        </div>
         <UiBar w={variant % 2 ? "w-4/5" : "w-3/4"} />
         <UiBar w="w-2/3" />
         <UiBar w="w-1/2" />
