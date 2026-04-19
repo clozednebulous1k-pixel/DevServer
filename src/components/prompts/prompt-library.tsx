@@ -1986,16 +1986,27 @@ export function PromptLibrary() {
                       <div className="max-h-28 overflow-y-auto rounded-xl border border-border/80 bg-background/50 p-3 text-xs leading-relaxed text-muted-foreground">
                         {item.prompt}
                       </div>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        className="w-full rounded-full"
-                        onClick={() => copyPrompt(item.prompt, item.id)}
-                      >
-                        <Copy className="mr-2 size-4" />
-                        {copiedId === item.id ? "Copiado!" : "Copiar prompt"}
-                      </Button>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="w-full rounded-full"
+                          onClick={() => copyPrompt(item.prompt, item.id)}
+                        >
+                          <Copy className="mr-2 size-4" />
+                          {copiedId === item.id ? "Copiado!" : "Copiar prompt"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full rounded-full"
+                          onClick={() => alert(item.prompt)}
+                        >
+                          Ver código
+                        </Button>
+                      </div>
                     </div>
                   </article>
                 </div>

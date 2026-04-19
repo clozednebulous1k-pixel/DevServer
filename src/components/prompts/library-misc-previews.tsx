@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BarChart3,
   CircleDollarSign,
@@ -561,63 +561,176 @@ function PreviewRadarBg() {
 }
 
 function PreviewScrollStickyTabs() {
+  const [active, setActive] = useState("es6");
+  const ref = useRef<HTMLDivElement>(null);
+
+  const tabs = [
+    { id: "es6", label: "ES6" },
+    { id: "flexbox", label: "Flexbox" },
+    { id: "react", label: "React" },
+    { id: "angular", label: "Angular" },
+    { id: "other", label: "Other" },
+  ] as const;
+
+  useEffect(() => {
+    const host = ref.current;
+    if (!host) return;
+
+    const targets = tabs
+      .map((t) => host.querySelector<HTMLElement>(`[data-scroll-id="${t.id}"]`))
+      .filter(Boolean) as HTMLElement[];
+    if (!targets.length) return;
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target) setActive((visible.target as HTMLElement).dataset.scrollId ?? "es6");
+      },
+      { root: host, threshold: [0.55, 0.7] },
+    );
+
+    targets.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const activeIndex = Math.max(0, tabs.findIndex((t) => t.id === active));
+
   return (
-    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#0b111a] sm:h-[180px]">
-      <div className="absolute inset-x-3 top-3 rounded-md border border-white/10 bg-white/5 p-2">
-        <div className="h-2 w-24 rounded-full bg-white/30" />
-        <div className="mt-2 h-1.5 w-40 rounded-full bg-white/15" />
-      </div>
-      <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-[#0f1726]/95">
-        <div className="relative flex h-10 items-center justify-between px-2">
-          {["ES6", "Flex", "React", "Angular", "Other"].map((tab) => (
-            <span key={tab} className="text-[9px] text-white/70">
-              {tab}
-            </span>
+    <div
+      ref={ref}
+      className="relative h-[168px] overflow-y-auto rounded-lg border border-border bg-[#0b111a] text-white/90 sm:h-[180px]"
+    >
+      <section className="flex min-h-[108px] items-center justify-center px-3 text-center">
+        <div>
+          <p className="text-xs font-semibold tracking-wide">STICKY SLIDER NAV</p>
+          <p className="mt-1 text-[10px] text-white/70">tabs fixas + slider ativo</p>
+        </div>
+      </section>
+      <div className="sticky top-0 z-10 border-y border-white/10 bg-[#0f1726]/95 backdrop-blur">
+        <div className="relative flex h-8 items-center px-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() =>
+                ref.current
+                  ?.querySelector<HTMLElement>(`[data-scroll-id="${tab.id}"]`)
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" })
+              }
+              className="flex-1 text-[9px] text-white/75"
+            >
+              {tab.label}
+            </button>
           ))}
-          <span className="absolute bottom-0 left-[43%] h-0.5 w-10 rounded-full bg-cyan-300/90" />
+          <span
+            className="absolute bottom-0 h-0.5 w-[20%] rounded-full bg-cyan-300 transition-all"
+            style={{ left: `${activeIndex * 20}%` }}
+          />
         </div>
       </div>
+      {tabs.map((tab) => (
+        <section
+          key={tab.id}
+          data-scroll-id={tab.id}
+          className="flex min-h-[88px] items-center justify-center border-b border-white/5 px-3"
+        >
+          <div className="text-center">
+            <p className="text-[10px] font-semibold">{tab.label}</p>
+            <p className="text-[9px] text-white/60">conteúdo da seção {tab.label.toLowerCase()}</p>
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
 
 function PreviewScrollHorizontalPin() {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [x, setX] = useState(0);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+
+    const onScroll = () => {
+      const max = host.scrollHeight - host.clientHeight;
+      const progress = max > 0 ? host.scrollTop / max : 0;
+      setX(progress);
+    };
+
+    onScroll();
+    host.addEventListener("scroll", onScroll, { passive: true });
+    return () => host.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#111] sm:h-[180px]">
-      <div className="absolute left-0 top-0 h-full w-[140%]">
-        <div className="flex h-full items-center gap-3 px-3">
-          <div className="h-14 w-36 rounded-lg border border-white/10 bg-white/10 p-2">
-            <div className="h-2 w-24 rounded-full bg-white/25" />
-            <div className="mt-2 h-1.5 w-20 rounded-full bg-white/18" />
+    <div
+      ref={hostRef}
+      className="relative h-[168px] overflow-y-auto rounded-lg border border-border bg-[#111] text-white/90 sm:h-[180px]"
+    >
+      <div className="h-[300px]">
+        <section className="flex h-[76px] items-center justify-center text-center text-[10px] text-white/75">
+          Scroll vertical
+        </section>
+        <section className="sticky top-0 flex h-[92px] items-center overflow-hidden border-y border-white/10 bg-black/70">
+          <div
+            className="flex w-[180%] items-center gap-3 px-3 transition-transform"
+            style={{ transform: `translateX(${-x * 46}%)` }}
+          >
+            <div className="h-14 w-36 rounded-lg border border-white/10 bg-white/10 p-2">
+              <div className="h-2 w-24 rounded-full bg-white/25" />
+              <div className="mt-2 h-1.5 w-20 rounded-full bg-white/18" />
+            </div>
+            <div className="h-14 w-24 rounded-lg bg-amber-200/20" />
+            <div className="h-14 w-24 rounded-lg bg-cyan-200/20" />
+            <div className="h-14 w-24 rounded-lg bg-fuchsia-200/20" />
+            <div className="h-14 w-24 rounded-lg bg-lime-200/20" />
           </div>
-          <div className="h-14 w-24 rounded-lg bg-amber-200/20" />
-          <div className="h-14 w-24 rounded-lg bg-cyan-200/20" />
-          <div className="h-14 w-24 rounded-lg bg-fuchsia-200/20" />
-        </div>
+        </section>
+        <section className="flex h-[132px] items-center justify-center text-center text-[10px] text-white/75">
+          ...continua após o pin
+        </section>
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/35" />
-      <span className="absolute right-2 top-2 rounded bg-black/45 px-2 py-0.5 text-[9px] uppercase tracking-wide text-white/70">
-        pin + scrub
-      </span>
     </div>
   );
 }
 
 function PreviewScrollFluidWords() {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [focus, setFocus] = useState(0);
+  const words = ["design.", "prototype.", "build.", "debug.", "ship."] as const;
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    const onScroll = () => {
+      const step = (host.scrollHeight - host.clientHeight) / words.length || 1;
+      setFocus(Math.min(words.length - 1, Math.max(0, Math.round(host.scrollTop / step))));
+    };
+    onScroll();
+    host.addEventListener("scroll", onScroll, { passive: true });
+    return () => host.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-background sm:h-[180px]">
-      <div className="absolute left-3 top-3 h-8 w-24 rounded-md border border-border bg-card/70" />
-      <div className="absolute right-3 top-3 space-y-1 text-right text-[10px] font-semibold">
-        <p className="text-primary/90">design.</p>
-        <p className="text-primary/75">build.</p>
-        <p className="text-primary/60">ship.</p>
-        <p className="text-primary/45">scale.</p>
-      </div>
-      <div className="absolute inset-x-3 bottom-4 rounded-lg border border-border bg-card/55 p-2">
-        <div className="h-1.5 w-20 rounded-full bg-foreground/20" />
-        <div className="mt-2 flex items-center gap-1.5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <span key={i} className={cn("h-1.5 flex-1 rounded-full", i === 2 ? "bg-primary/60" : "bg-foreground/15")} />
+    <div ref={hostRef} className="relative h-[168px] overflow-y-auto rounded-lg border border-border bg-background sm:h-[180px]">
+      <div className="h-[280px] p-3">
+        <div className="sticky top-2 rounded-md border border-border bg-card/75 px-2 py-1 text-[10px] font-semibold">
+          you can
+        </div>
+        <div className="mt-6 space-y-5 text-right text-[11px] font-semibold">
+          {words.map((word, i) => (
+            <p
+              key={word}
+              className={cn(
+                "transition-all",
+                i === focus ? "scale-105 text-primary opacity-100" : "opacity-30",
+              )}
+            >
+              {word}
+            </p>
           ))}
         </div>
       </div>
