@@ -1,0 +1,59 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { getAdminDb } from "@/lib/firebase/admin";
+import { loadUserProfile } from "@/lib/auth/load-profile";
+import { verifySessionFromRequest } from "@/lib/auth/verify-session";
+
+export async function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const isBibliotecaRoute = pathname.startsWith("/biblioteca");
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isLoginRoute = pathname.startsWith("/login");
+
+  if (!isBibliotecaRoute && !isAdminRoute && !isLoginRoute) {
+    return NextResponse.next();
+  }
+
+  const db = getAdminDb();
+  const { decoded } = await verifySessionFromRequest(request);
+
+  if (!db) {
+    if (isBibliotecaRoute || isAdminRoute) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  if (!decoded && (isBibliotecaRoute || isAdminRoute)) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/login";
+    redirectUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (!decoded) {
+    return NextResponse.next();
+  }
+
+  const profile = await loadUserProfile(db, decoded.uid);
+  const isAdmin = profile?.role === "admin";
+  const hasBibliotecaAccess = isAdmin || !!profile?.libraryAccess;
+
+  if (isAdminRoute && !isAdmin) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (isBibliotecaRoute && !hasBibliotecaAccess) {
+    return NextResponse.redirect(new URL("/pagamento", request.url));
+  }
+
+  if (isLoginRoute) {
+    const target = isAdmin ? "/admin/orcamentos" : hasBibliotecaAccess ? "/biblioteca" : "/pagamento";
+    return NextResponse.redirect(new URL(target, request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/biblioteca/:path*", "/admin/:path*", "/login"],
+};

@@ -1,85 +1,46 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { verifySessionFromRequest } from "@/lib/auth/verify-session";
+import { loadUserProfile } from "@/lib/auth/load-profile";
+import { loadUsersDirectory } from "@/lib/admin/users-directory";
+import { firestoreHelpers, getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 
-type AdminProfile = {
-  role: "admin" | "user";
-};
-
-async function ensureAdmin() {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) {
-    return { error: NextResponse.json({ error: "Supabase nao configurado." }, { status: 500 }) };
+async function ensureAdmin(request: Request) {
+  const db = getAdminDb();
+  const authAdmin = getAdminAuth();
+  if (!db || !authAdmin) {
+    return { error: NextResponse.json({ error: "Firebase Admin nao configurado." }, { status: 500 }) };
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const { decoded } = await verifySessionFromRequest(request);
+  if (!decoded) {
     return { error: NextResponse.json({ error: "Nao autenticado." }, { status: 401 }) };
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single<AdminProfile>();
-
+  const profile = await loadUserProfile(db, decoded.uid);
   if (profile?.role !== "admin") {
     return { error: NextResponse.json({ error: "Acesso negado." }, { status: 403 }) };
   }
 
-  return { user };
+  return { db, authAdmin };
 }
 
-export async function GET() {
-  const guard = await ensureAdmin();
+export async function GET(request: Request) {
+  const guard = await ensureAdmin(request);
   if ("error" in guard) return guard.error;
 
-  const adminClient = createSupabaseAdminClient();
-  if (!adminClient) {
-    return NextResponse.json(
-      { error: "Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY." },
-      { status: 500 },
-    );
-  }
-
-  const [{ data: authUsers, error: authErr }, { data: profiles, error: profileErr }] = await Promise.all([
-    adminClient.auth.admin.listUsers({ page: 1, perPage: 200 }),
-    adminClient.from("profiles").select("id, role, library_access, created_at").order("created_at", { ascending: false }),
-  ]);
-
-  if (authErr || profileErr) {
+  const users = await loadUsersDirectory();
+  if (!users) {
     return NextResponse.json({ error: "Falha ao carregar usuarios." }, { status: 500 });
   }
-
-  const authMap = new Map((authUsers.users ?? []).map((u) => [u.id, u]));
-  const users = (profiles ?? []).map((profile) => {
-    const authUser = authMap.get(profile.id);
-    return {
-      id: profile.id,
-      email: authUser?.email ?? "(sem e-mail)",
-      role: profile.role,
-      libraryAccess: profile.library_access,
-      createdAt: profile.created_at,
-      lastSignInAt: authUser?.last_sign_in_at ?? null,
-    };
-  });
 
   return NextResponse.json({ users });
 }
 
 export async function POST(request: Request) {
-  const guard = await ensureAdmin();
+  const guard = await ensureAdmin(request);
   if ("error" in guard) return guard.error;
 
-  const adminClient = createSupabaseAdminClient();
-  if (!adminClient) {
-    return NextResponse.json(
-      { error: "Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY." },
-      { status: 500 },
-    );
-  }
+  const { db, authAdmin } = guard;
 
   const body = (await request.json()) as {
     email?: string;
@@ -98,30 +59,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Senha deve ter ao menos 8 caracteres." }, { status: 400 });
   }
 
-  const { data: created, error: createErr } = await adminClient.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-  });
-
-  if (createErr || !created.user) {
-    return NextResponse.json({ error: createErr?.message ?? "Nao foi possivel criar usuario." }, { status: 400 });
+  let created;
+  try {
+    created = await authAdmin.createUser({
+      email,
+      password,
+      emailVerified: true,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Nao foi possivel criar usuario.";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
-  const { error: upsertErr } = await adminClient.from("profiles").upsert({
-    id: created.user.id,
-    role: "user",
-    library_access: libraryAccess,
-  });
-
-  if (upsertErr) {
-    return NextResponse.json({ error: "Usuario criado, mas falhou ao salvar acesso." }, { status: 500 });
-  }
+  await db
+    .collection("users")
+    .doc(created.uid)
+    .set({
+      role: "user",
+      libraryAccess,
+      email,
+      createdAt: firestoreHelpers.serverTimestamp(),
+      updatedAt: firestoreHelpers.serverTimestamp(),
+    });
 
   return NextResponse.json({
     user: {
-      id: created.user.id,
-      email: created.user.email,
+      id: created.uid,
+      email: created.email,
       role: "user",
       libraryAccess,
     },
@@ -129,16 +93,10 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const guard = await ensureAdmin();
+  const guard = await ensureAdmin(request);
   if ("error" in guard) return guard.error;
 
-  const adminClient = createSupabaseAdminClient();
-  if (!adminClient) {
-    return NextResponse.json(
-      { error: "Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY." },
-      { status: 500 },
-    );
-  }
+  const { db } = guard;
 
   const body = (await request.json()) as {
     userId?: string;
@@ -149,14 +107,21 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "userId obrigatorio." }, { status: 400 });
   }
 
-  const { error } = await adminClient
-    .from("profiles")
-    .update({ library_access: !!body.libraryAccess })
-    .eq("id", body.userId);
-
-  if (error) {
-    return NextResponse.json({ error: "Falha ao atualizar acesso." }, { status: 500 });
+  const userRef = db.collection("users").doc(body.userId);
+  const snap = await userRef.get();
+  if (!snap.exists) {
+    return NextResponse.json({ error: "Perfil nao encontrado." }, { status: 404 });
   }
+
+  const role = (snap.data() as { role?: string }).role;
+  if (role === "admin") {
+    return NextResponse.json({ error: "Nao e possivel alterar administrador." }, { status: 400 });
+  }
+
+  await userRef.update({
+    libraryAccess: !!body.libraryAccess,
+    updatedAt: firestoreHelpers.serverTimestamp(),
+  });
 
   return NextResponse.json({ ok: true });
 }

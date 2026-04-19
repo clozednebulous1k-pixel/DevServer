@@ -1,12 +1,13 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useScreenSize } from "@/components/hooks/use-screen-size";
 import { SiteNav } from "@/components/site-nav";
 import { PixelTrail } from "@/components/ui/pixel-trail";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getFirebaseAuth } from "@/lib/firebase/client";
 
 export default function LoginPage() {
   const screenSize = useScreenSize();
@@ -19,32 +20,40 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const auth = useMemo(() => getFirebaseAuth(), []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    if (!supabase) {
+    if (!auth) {
       setLoading(false);
-      setError("Login indisponivel: configure o Supabase no ambiente.");
+      setError("Login indisponivel: configure o Firebase no ambiente.");
       return;
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    try {
+      const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+      const idToken = await credential.user.getIdToken();
+      const sessionResponse = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (!sessionResponse.ok) {
+        setError("Nao foi possivel criar sessao. Tente novamente.");
+        setLoading(false);
+        return;
+      }
+
+      router.replace(redirect);
+      router.refresh();
+    } catch {
+      setError("Nao foi possivel entrar. Verifique email e senha.");
+    }
 
     setLoading(false);
-
-    if (signInError) {
-      setError("Nao foi possivel entrar. Verifique email e senha.");
-      return;
-    }
-
-    router.replace(redirect);
-    router.refresh();
   }
 
   return (

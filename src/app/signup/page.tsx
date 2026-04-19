@@ -22,7 +22,7 @@ export default function SignUpPage() {
         <section className="w-full rounded-3xl border bg-card/80 p-6 text-center backdrop-blur md:p-8">
           <h1 className="text-2xl font-semibold">Cadastro fechado</h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Os logins sao criados manualmente pelo admin no Supabase.
+            Os logins sao criados manualmente pelo administrador no painel interno (Firebase Auth).
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Se voce ja comprou a biblioteca, fale com a DevServer para receber seu acesso.

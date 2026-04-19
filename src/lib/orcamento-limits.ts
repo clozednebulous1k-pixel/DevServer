@@ -1,4 +1,4 @@
-/** Limites alinhados ao RLS em `supabase/schema.sql` (policy orcamentos_insert_public). */
+/** Limites de tamanho para reduzir abuso no formulario publico de orcamento. */
 export const ORCAMENTO_FIELD_MAX = {
   full_name: 200,
   email: 254,

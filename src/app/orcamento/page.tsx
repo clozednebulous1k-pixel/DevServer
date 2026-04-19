@@ -1,13 +1,12 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useMemo, useState } from "react";
+import { type FormEvent, type ReactNode, useState } from "react";
 import { ClipboardList, Clock3, FileText, PhoneCall } from "lucide-react";
 import { useScreenSize } from "@/components/hooks/use-screen-size";
 import { SiteNav } from "@/components/site-nav";
 import { PixelTrail } from "@/components/ui/pixel-trail";
 import { GlowCard } from "@/components/ui/spotlight-card";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { clampOrcamentoField, ORCAMENTO_FIELD_MAX } from "@/lib/orcamento-limits";
 
 export default function OrcamentoPage() {
@@ -15,18 +14,12 @@ export default function OrcamentoPage() {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSent(false);
     setErrorMessage(null);
     setSending(true);
-    if (!supabase) {
-      setSending(false);
-      setErrorMessage("Envio indisponivel: configure o Supabase no ambiente.");
-      return;
-    }
 
     const formData = new FormData(event.currentTarget);
     const payload = {
@@ -44,10 +37,14 @@ export default function OrcamentoPage() {
       additional_notes: clampOrcamentoField("additional_notes", String(formData.get("additional_notes") ?? "")),
     };
 
-    const { error } = await supabase.from("orcamentos").insert(payload);
+    const response = await fetch("/api/orcamentos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
     setSending(false);
 
-    if (error) {
+    if (!response.ok) {
       setErrorMessage("Falha ao enviar. Tente novamente em alguns instantes.");
       return;
     }

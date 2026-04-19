@@ -1,6 +1,7 @@
 import { SiteNav } from "@/components/site-nav";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAdminDb } from "@/lib/firebase/admin";
 import { AccessManager } from "@/components/admin/access-manager";
+import { loadUsersDirectory } from "@/lib/admin/users-directory";
 
 type Orcamento = {
   id: string;
@@ -14,27 +15,48 @@ type Orcamento = {
 };
 
 export default async function AdminOrcamentosPage() {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) {
+  const db = getAdminDb();
+  if (!db) {
     return (
       <div className="flex min-h-screen flex-col">
         <SiteNav />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-12 pt-28">
           <h1 className="text-3xl font-semibold md:text-4xl">Painel Admin - Orcamentos</h1>
           <p className="mt-3 text-sm text-destructive">
-            Supabase nao configurado no ambiente.
+            Firebase Admin / Firestore nao configurado no ambiente.
           </p>
         </main>
       </div>
     );
   }
-  const { data } = await supabase
-    .from("orcamentos")
-    .select("id, full_name, email, whatsapp, project_type, budget_range, desired_deadline, created_at")
-    .order("created_at", { ascending: false })
-    .limit(200);
 
-  const orcamentos = (data ?? []) as Orcamento[];
+  const snap = await db.collection("orcamentos").orderBy("createdAt", "desc").limit(200).get();
+  const initialUsers = (await loadUsersDirectory()) ?? [];
+
+  const orcamentos: Orcamento[] = snap.docs.map((doc) => {
+    const row = doc.data() as {
+      full_name?: string;
+      email?: string;
+      whatsapp?: string;
+      project_type?: string;
+      budget_range?: string;
+      desired_deadline?: string;
+      createdAt?: { toDate?: () => Date };
+    };
+
+    const createdAt = row.createdAt?.toDate?.() ?? new Date();
+
+    return {
+      id: doc.id,
+      full_name: row.full_name ?? "",
+      email: row.email ?? "",
+      whatsapp: row.whatsapp ?? null,
+      project_type: row.project_type ?? "",
+      budget_range: row.budget_range ?? "",
+      desired_deadline: row.desired_deadline ?? "",
+      created_at: createdAt.toISOString(),
+    };
+  });
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -83,7 +105,7 @@ export default async function AdminOrcamentosPage() {
           </table>
         </div>
 
-        <AccessManager />
+        <AccessManager initialUsers={initialUsers} />
       </main>
     </div>
   );

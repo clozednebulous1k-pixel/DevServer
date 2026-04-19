@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type AccessUser = {
@@ -12,8 +12,8 @@ type AccessUser = {
   lastSignInAt: string | null;
 };
 
-export function AccessManager() {
-  const [users, setUsers] = useState<AccessUser[]>([]);
+export function AccessManager({ initialUsers }: { initialUsers: AccessUser[] }) {
+  const [users, setUsers] = useState<AccessUser[]>(initialUsers);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [libraryAccess, setLibraryAccess] = useState(true);
@@ -29,10 +29,6 @@ export function AccessManager() {
     }
     setUsers(data.users ?? []);
   }
-
-  useEffect(() => {
-    void loadUsers();
-  }, []);
 
   async function handleCreateUser(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
