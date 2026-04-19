@@ -23,6 +23,7 @@ import {
   SECURITY_ENV_CHECKS_COUNT,
   SecurityCheckPanel,
 } from "@/components/prompts/library-security-panels";
+import { SeoGuiaPratico } from "@/components/biblioteca/seo-guia-pratico";
 
 function CategoryPreviewSkeleton() {
   return <div className="h-[168px] animate-pulse rounded-lg bg-muted/30 sm:h-[180px]" />;
@@ -2451,10 +2452,13 @@ export function PromptLibrary() {
           )}
 
           {active === "library" && (
-            <LibraryCatalogPanel
-              categories={filteredLibraryNavCategories}
-              onPickCategory={(id) => setActive(id as CategoryId)}
-            />
+            <>
+              <SeoGuiaPratico />
+              <LibraryCatalogPanel
+                categories={filteredLibraryNavCategories}
+                onPickCategory={(id) => setActive(id as CategoryId)}
+              />
+            </>
           )}
 
           {active === "security" && <SecurityCheckPanel />}
