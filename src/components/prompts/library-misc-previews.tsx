@@ -560,6 +560,71 @@ function PreviewRadarBg() {
   );
 }
 
+function PreviewScrollStickyTabs() {
+  return (
+    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#0b111a] sm:h-[180px]">
+      <div className="absolute inset-x-3 top-3 rounded-md border border-white/10 bg-white/5 p-2">
+        <div className="h-2 w-24 rounded-full bg-white/30" />
+        <div className="mt-2 h-1.5 w-40 rounded-full bg-white/15" />
+      </div>
+      <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-[#0f1726]/95">
+        <div className="relative flex h-10 items-center justify-between px-2">
+          {["ES6", "Flex", "React", "Angular", "Other"].map((tab) => (
+            <span key={tab} className="text-[9px] text-white/70">
+              {tab}
+            </span>
+          ))}
+          <span className="absolute bottom-0 left-[43%] h-0.5 w-10 rounded-full bg-cyan-300/90" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewScrollHorizontalPin() {
+  return (
+    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#111] sm:h-[180px]">
+      <div className="absolute left-0 top-0 h-full w-[140%]">
+        <div className="flex h-full items-center gap-3 px-3">
+          <div className="h-14 w-36 rounded-lg border border-white/10 bg-white/10 p-2">
+            <div className="h-2 w-24 rounded-full bg-white/25" />
+            <div className="mt-2 h-1.5 w-20 rounded-full bg-white/18" />
+          </div>
+          <div className="h-14 w-24 rounded-lg bg-amber-200/20" />
+          <div className="h-14 w-24 rounded-lg bg-cyan-200/20" />
+          <div className="h-14 w-24 rounded-lg bg-fuchsia-200/20" />
+        </div>
+      </div>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/35" />
+      <span className="absolute right-2 top-2 rounded bg-black/45 px-2 py-0.5 text-[9px] uppercase tracking-wide text-white/70">
+        pin + scrub
+      </span>
+    </div>
+  );
+}
+
+function PreviewScrollFluidWords() {
+  return (
+    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-background sm:h-[180px]">
+      <div className="absolute left-3 top-3 h-8 w-24 rounded-md border border-border bg-card/70" />
+      <div className="absolute right-3 top-3 space-y-1 text-right text-[10px] font-semibold">
+        <p className="text-primary/90">design.</p>
+        <p className="text-primary/75">build.</p>
+        <p className="text-primary/60">ship.</p>
+        <p className="text-primary/45">scale.</p>
+      </div>
+      <div className="absolute inset-x-3 bottom-4 rounded-lg border border-border bg-card/55 p-2">
+        <div className="h-1.5 w-20 rounded-full bg-foreground/20" />
+        <div className="mt-2 flex items-center gap-1.5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span key={i} className={cn("h-1.5 flex-1 rounded-full", i === 2 ? "bg-primary/60" : "bg-foreground/15")} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PreviewAbstractBackground({ id }: { id: string }) {
   if (id === "abstract-bg-grid-dots-parallax") {
     return (
@@ -779,6 +844,12 @@ export function LibraryMiscPreviewRouter({ id }: { id: string }) {
       return <PreviewStackOrbitLib />;
     case "infinite-slider":
       return <PreviewInfiniteSliderLib />;
+    case "scroll-sticky-tabs":
+      return <PreviewScrollStickyTabs />;
+    case "scroll-horizontal-pin":
+      return <PreviewScrollHorizontalPin />;
+    case "scroll-fluid-words":
+      return <PreviewScrollFluidWords />;
     default:
       return null;
   }
