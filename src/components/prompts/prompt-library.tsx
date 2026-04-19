@@ -57,6 +57,7 @@ type PromptCategoryId =
 type CategoryId =
   | PromptCategoryId
   | "library"
+  | "seo"
   | "security"
   | "hosting"
   | "speed"
@@ -89,6 +90,7 @@ const navCategories: readonly {
   soon?: boolean;
 }[] = [
   { id: "library", label: "Biblioteca", count: totalLibraryPromptItems },
+  { id: "seo", label: "SEO", count: 6 },
   { id: "security", label: "Segurança", count: SECURITY_ENV_CHECKS_COUNT },
   { id: "hosting", label: "Hospedagem", count: HOSTING_TOPIC_COUNT },
   { id: "speed", label: "Velocidade", count: SPEED_TOPIC_COUNT },
@@ -952,6 +954,7 @@ const categoryLabels: Record<CategoryId, string> = {
   texts: "Textos",
   scroll: "Scroll",
   library: "Biblioteca",
+  seo: "SEO",
   security: "Segurança",
   hosting: "Hospedagem",
   speed: "Velocidade",
@@ -1930,6 +1933,7 @@ export function PromptLibrary() {
 
   const browsingFromLibrary =
     active !== "library" &&
+    active !== "seo" &&
     active !== "security" &&
     active !== "hosting" &&
     active !== "speed" &&
@@ -2452,14 +2456,13 @@ export function PromptLibrary() {
           )}
 
           {active === "library" && (
-            <>
-              <SeoGuiaPratico />
-              <LibraryCatalogPanel
-                categories={filteredLibraryNavCategories}
-                onPickCategory={(id) => setActive(id as CategoryId)}
-              />
-            </>
+            <LibraryCatalogPanel
+              categories={filteredLibraryNavCategories}
+              onPickCategory={(id) => setActive(id as CategoryId)}
+            />
           )}
+
+          {active === "seo" && <SeoGuiaPratico />}
 
           {active === "security" && <SecurityCheckPanel />}
 
@@ -2480,6 +2483,7 @@ export function PromptLibrary() {
             active !== "texts" &&
             active !== "scroll" &&
             active !== "library" &&
+            active !== "seo" &&
             active !== "security" &&
             active !== "hosting" &&
             active !== "speed" &&

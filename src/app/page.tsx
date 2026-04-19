@@ -17,7 +17,6 @@ import { SiteNav } from "@/components/site-nav";
 import { Hero3DRibbon } from "@/components/ui/hero-3d-ribbon";
 import { HomeLibraryCatalogShowcase } from "@/components/home-library-catalog-showcase";
 import { HomeLibraryTeaser } from "@/components/home-library-teaser";
-import { HomeSeoGuide } from "@/components/home-seo-guide";
 
 export default function Home() {
   const screenSize = useScreenSize();
@@ -152,7 +151,6 @@ export default function Home() {
         <ScrollHorizontalDevServer />
         <HomeLibraryTeaser />
         <HomeLibraryCatalogShowcase />
-        <HomeSeoGuide />
         <section className="mx-auto w-full max-w-6xl px-4 pb-2">
           <ContainerScroll
             titleComponent={
@@ -268,11 +266,6 @@ export default function Home() {
                 <li>
                   <a href="#catalogo-biblioteca" className="transition-colors hover:text-foreground">
                     Catálogo da biblioteca
-                  </a>
-                </li>
-                <li>
-                  <a href="#seo" className="transition-colors hover:text-foreground">
-                    Guia de SEO
                   </a>
                 </li>
                 <li>
