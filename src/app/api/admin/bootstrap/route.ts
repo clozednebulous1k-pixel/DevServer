@@ -79,7 +79,7 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as { email?: string; password?: string; secret?: string };
   } catch {
-    return NextResponse.json({ error: "JSON invalido." }, { status: 400 });
+    return NextResponse.json({ code: "INVALID_JSON", error: "JSON invalido no body." }, { status: 400 });
   }
 
   const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
@@ -91,10 +91,13 @@ export async function POST(request: Request) {
   const email = body.email?.trim().toLowerCase() ?? "";
   const password = body.password ?? "";
   if (!email.includes("@")) {
-    return NextResponse.json({ error: "E-mail invalido." }, { status: 400 });
+    return NextResponse.json({ code: "INVALID_EMAIL", error: "E-mail invalido." }, { status: 400 });
   }
   if (password.length < 8) {
-    return NextResponse.json({ error: "Senha deve ter ao menos 8 caracteres." }, { status: 400 });
+    return NextResponse.json(
+      { code: "PASSWORD_TOO_SHORT", error: "Senha deve ter ao menos 8 caracteres." },
+      { status: 400 },
+    );
   }
 
   const adminsSnap = await db.collection("users").where("role", "==", "admin").limit(1).get();
@@ -124,7 +127,14 @@ export async function POST(request: Request) {
       uid = existing.uid;
     } else {
       const message = err instanceof Error ? err.message : "Falha ao criar usuario.";
-      return NextResponse.json({ error: message }, { status: 400 });
+      return NextResponse.json(
+        {
+          code: "FIREBASE_CREATE_USER_FAILED",
+          error: message,
+          firebaseAuthCode: code || undefined,
+        },
+        { status: 400 },
+      );
     }
   }
 
