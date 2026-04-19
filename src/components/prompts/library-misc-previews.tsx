@@ -560,8 +560,155 @@ function PreviewRadarBg() {
   );
 }
 
+function PreviewAbstractBackground({ id }: { id: string }) {
+  if (id === "abstract-bg-grid-dots-parallax") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#090d12] sm:h-[180px]">
+        <div
+          className="absolute inset-0 opacity-45"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(148,163,184,.34) 1px, transparent 1px), radial-gradient(circle, rgba(34,211,238,.2) 1px, transparent 1px)",
+            backgroundSize: "16px 16px, 24px 24px",
+            backgroundPosition: "0 0, 8px 12px",
+          }}
+        />
+        <div className="absolute inset-x-4 top-4 h-20 rounded-xl border border-white/10 bg-white/5 backdrop-blur-[1px]" />
+        <div className="absolute inset-x-4 bottom-4 grid grid-cols-4 gap-2">
+          {[0, 1, 2, 3].map((n) => (
+            <div key={n} className="h-6 rounded-md border border-white/12 bg-white/5" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (id === "abstract-bg-aurora-gradient") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#070a11] sm:h-[180px]">
+        <div className="absolute -left-10 top-0 h-24 w-36 rounded-full bg-emerald-400/30 blur-2xl" />
+        <div className="absolute right-0 top-8 h-24 w-36 rounded-full bg-violet-400/30 blur-2xl" />
+        <div className="absolute bottom-0 left-10 h-20 w-40 rounded-full bg-cyan-300/25 blur-2xl" />
+        <div className="absolute inset-x-4 top-5 rounded-xl border border-white/10 bg-black/25 p-3">
+          <div className="h-2 w-2/3 rounded-full bg-white/30" />
+          <div className="mt-2 h-2 w-1/2 rounded-full bg-white/20" />
+          <div className="mt-3 h-7 w-24 rounded-md bg-emerald-300/35" />
+        </div>
+      </div>
+    );
+  }
+  if (id === "abstract-bg-noise-grain") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-zinc-900 sm:h-[180px]">
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-700/35 via-zinc-900 to-zinc-950" />
+        <div
+          className="absolute inset-0 opacity-20 mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 15% 20%, rgba(255,255,255,.16) 1px, transparent 1px), radial-gradient(circle at 80% 60%, rgba(255,255,255,.12) 1px, transparent 1px)",
+            backgroundSize: "5px 5px, 7px 7px",
+          }}
+        />
+        <div className="absolute inset-x-4 bottom-4 h-8 rounded-md border border-white/10 bg-white/5" />
+      </div>
+    );
+  }
+  if (id === "abstract-bg-mesh-blobs") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#0a0e16] sm:h-[180px]">
+        <div className="absolute -left-8 top-6 h-24 w-32 rounded-[40%] bg-fuchsia-400/30 blur-2xl" />
+        <div className="absolute right-2 top-4 h-20 w-28 rounded-[45%] bg-cyan-400/28 blur-2xl" />
+        <div className="absolute bottom-1 left-1/2 h-20 w-36 -translate-x-1/2 rounded-[50%] bg-emerald-400/25 blur-2xl" />
+        <div className="absolute inset-x-5 top-6 h-14 rounded-xl border border-white/10 bg-black/20" />
+      </div>
+    );
+  }
+  if (id === "abstract-bg-hex-honeycomb") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#0b1017] sm:h-[180px]">
+        <div
+          className="absolute inset-0 opacity-45"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 25% 25%, rgba(148,163,184,.2) 0 1px, transparent 1px), linear-gradient(30deg, rgba(56,189,248,.12) 12%, transparent 12.5%, transparent 87%, rgba(56,189,248,.12) 87.5%, rgba(56,189,248,.12)), linear-gradient(150deg, rgba(56,189,248,.12) 12%, transparent 12.5%, transparent 87%, rgba(56,189,248,.12) 87.5%, rgba(56,189,248,.12))",
+            backgroundSize: "18px 18px, 22px 38px, 22px 38px",
+          }}
+        />
+        <div className="absolute inset-x-4 bottom-4 h-8 rounded-md border border-cyan-300/30 bg-cyan-300/10" />
+      </div>
+    );
+  }
+  if (id === "abstract-bg-diagonal-stripes") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#0a0d14] sm:h-[180px]">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(135deg, rgba(148,163,184,.16) 0 2px, transparent 2px 12px)",
+          }}
+        />
+        <div className="absolute inset-x-4 top-6 h-12 rounded-lg border border-white/10 bg-black/25" />
+      </div>
+    );
+  }
+  if (id === "abstract-bg-vignette-spotlight") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#080b11] sm:h-[180px]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(56,189,248,.35),rgba(12,16,24,.95)_62%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(3,6,12,.82)_90%)]" />
+        <div className="absolute inset-x-6 bottom-5 h-8 rounded-md border border-white/10 bg-white/5" />
+      </div>
+    );
+  }
+  if (id === "abstract-bg-cyber-grid-perspective") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#060911] sm:h-[180px]">
+        <div
+          className="absolute inset-0 opacity-50"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(34,211,238,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,.18) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+            transform: "perspective(180px) rotateX(50deg) translateY(22px)",
+            transformOrigin: "center bottom",
+          }}
+        />
+        <div className="absolute inset-x-5 top-5 h-12 rounded-lg border border-cyan-300/20 bg-cyan-300/5" />
+      </div>
+    );
+  }
+  if (id === "abstract-bg-watercaustics-fake") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#07101a] sm:h-[180px]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(56,189,248,.28),transparent_45%),radial-gradient(circle_at_70%_60%,rgba(59,130,246,.26),transparent_45%)]" />
+        <div
+          className="absolute inset-0 opacity-35"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(120deg, rgba(255,255,255,.14) 0 1px, transparent 1px 9px)",
+          }}
+        />
+      </div>
+    );
+  }
+  if (id === "abstract-bg-gradient-mesh-css") {
+    return (
+      <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#090e16] sm:h-[180px]">
+        <div className="absolute -left-8 top-4 h-24 w-28 rounded-full bg-indigo-400/30 blur-2xl" />
+        <div className="absolute right-0 top-0 h-24 w-32 rounded-full bg-cyan-400/28 blur-2xl" />
+        <div className="absolute bottom-0 left-1/3 h-20 w-32 rounded-full bg-fuchsia-400/20 blur-2xl" />
+        <div className="absolute inset-x-4 bottom-4 h-10 rounded-md border border-white/10 bg-black/20" />
+      </div>
+    );
+  }
+  return <LibraryConceptPreview seed={id} tone="background" />;
+}
+
 /** Prévias de Backgrounds, Borders e Carrosséis - chunk lazy separado da biblioteca. */
 export function LibraryMiscPreviewRouter({ id }: { id: string }) {
+  if (id.startsWith("abstract-bg-")) {
+    return <PreviewAbstractBackground id={id} />;
+  }
   if (isAbstractPreviewId(id)) {
     const tone =
       id.includes("-carousel") || id.includes("carousel-")
