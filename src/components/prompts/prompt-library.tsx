@@ -75,7 +75,7 @@ const promptCategories: readonly {
   { id: "images", label: "Imagens", count: 23 },
   { id: "navigation", label: "Navigation Menus", count: 13 },
   { id: "texts", label: "Textos", count: 16 },
-  { id: "scroll", label: "Scroll", count: 3 },
+  { id: "scroll", label: "Scroll", count: 2 },
 ];
 
 const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
@@ -1690,17 +1690,33 @@ const scrollPrompts: {
     id: "scroll-axis-toggle-marquee",
     title: "Marquee com toggle de eixo (X/Y)",
     description:
-      "Faixas de logos infinitas com botao para alternar entre rolagem horizontal e vertical.",
-    prompt: `<button class="toggle" id="direction-toggle">Toggle scroll axis</button>
+      "Mostra duas faixas infinitas de logos; no clique, alterna horizontal/vertical e rotaciona o icone do botao.",
+    prompt: `<button class="toggle" id="direction-toggle">
+  <span>Toggle scroll axis</span>
+  <svg aria-hidden="true" viewBox="0 0 512 512" width="100" title="arrows-alt-h">
+    <path d="M377.941 169.941V216H134.059v-46.059c0-21.382-25.851-32.09-40.971-16.971L7.029 239.029c-9.373 9.373-9.373 24.568 0 33.941l86.059 86.059c15.119 15.119 40.971 4.411 40.971-16.971V296h243.882v46.059c0 21.382 25.851 32.09 40.971 16.971l86.059-86.059c9.373-9.373 9.373-24.568 0-33.941l-86.059-86.059c-15.119-15.12-40.971-4.412-40.971 16.97z" />
+  </svg>
+</button>
 <article class="wrapper">
-  <div class="marquee">...</div>
-  <div class="marquee marquee--reverse">...</div>
+  <div class="marquee">
+    <div class="marquee__group">logos...</div>
+    <div aria-hidden="true" class="marquee__group">logos...</div>
+  </div>
+  <div class="marquee marquee--reverse">
+    <div class="marquee__group">logos invertidos...</div>
+    <div aria-hidden="true" class="marquee__group">logos invertidos...</div>
+  </div>
 </article>
+<svg style="display:none"><defs>symbols dos logos...</defs></svg>
 
 /* CSS */
+.marquee { display: flex; overflow: hidden; gap: var(--gap); }
 .marquee__group { animation: scroll-x var(--duration) linear infinite; }
 .marquee--vertical .marquee__group { animation-name: scroll-y; }
 .wrapper--vertical { flex-direction: row; height: 100vh; }
+.marquee--reverse .marquee__group { animation-direction: reverse; animation-delay: -3s; }
+@keyframes scroll-x { from { transform: translateX(var(--scroll-start)); } to { transform: translateX(var(--scroll-end)); } }
+@keyframes scroll-y { from { transform: translateY(var(--scroll-start)); } to { transform: translateY(var(--scroll-end)); } }
 
 /* JS */
 const control = document.getElementById("direction-toggle");
@@ -1717,7 +1733,7 @@ control.addEventListener("click", () => {
     id: "scroll-skewed-onepage",
     title: "Skewed one-page scroll",
     description:
-      "Troca de paginas em camadas inclinadas com navegacao por roda do mouse e setas.",
+      "Cinco paginas inclinadas; mouse wheel e setas navegam uma pagina por vez com transicao de 1s.",
     prompt: `<div class="skw-pages">
   <div class="skw-page skw-page-1 active">...</div>
   <div class="skw-page skw-page-2">...</div>
@@ -1726,19 +1742,40 @@ control.addEventListener("click", () => {
   <div class="skw-page skw-page-5">...</div>
 </div>
 
-/* CSS */
+/* CSS (SCSS original simplificado) */
+.skw-pages { overflow: hidden; position: relative; height: 100vh; }
 .skw-page__half--left { transform: translate3d(-32.4vh, 100%, 0); }
 .skw-page__half--right { transform: translate3d(32.4vh, -100%, 0); }
 .skw-page.active .skw-page__half { transform: translate3d(0,0,0); }
+.skw-page__half { transition: transform 1s; }
+.skw-page__skewed { width: 140%; transform: skewX(-18deg); }
+.skw-page__content { transform: skewX(18deg); transition: transform 1s, opacity 1s; }
+.skw-page.inactive .skw-page__content { opacity: 0.5; transform: skewX(18deg) scale(0.95); }
 
 /* JS (jQuery) */
 var curPage = 1;
 var numOfPages = $(".skw-page").length;
+var animTime = 1000;
+var scrolling = false;
+var pgPrefix = ".skw-page-";
+function pagination() {
+  scrolling = true;
+  $(pgPrefix + curPage).removeClass("inactive").addClass("active");
+  $(pgPrefix + (curPage - 1)).addClass("inactive");
+  $(pgPrefix + (curPage + 1)).removeClass("active");
+  setTimeout(function() { scrolling = false; }, animTime);
+}
 function navigateUp() { if (curPage === 1) return; curPage--; pagination(); }
 function navigateDown() { if (curPage === numOfPages) return; curPage++; pagination(); }
 $(document).on("mousewheel DOMMouseScroll", function(e) {
+  if (scrolling) return;
   if (e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) navigateUp();
   else navigateDown();
+});
+$(document).on("keydown", function(e) {
+  if (scrolling) return;
+  if (e.which === 38) navigateUp();
+  else if (e.which === 40) navigateDown();
 });`,
     preview: "scroll-skewed-onepage",
   },
