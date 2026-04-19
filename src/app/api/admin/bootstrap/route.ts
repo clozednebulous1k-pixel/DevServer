@@ -1,5 +1,41 @@
 import { NextResponse } from "next/server";
-import { firestoreHelpers, getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
+import {
+  firestoreHelpers,
+  getAdminAuth,
+  getAdminDb,
+  getFirebaseAdminDiagnostics,
+} from "@/lib/firebase/admin";
+
+/** Runtime Node obrigatorio para firebase-admin + Buffer na decodificacao Base64. */
+export const runtime = "nodejs";
+
+/** Diagnostico seguro (sem secrets): use GET no navegador para ver se a Vercel esta configurada. */
+export async function GET() {
+  const secretRaw = process.env.ADMIN_BOOTSTRAP_SECRET?.trim();
+  const bootstrapSecretConfigured = !!(secretRaw && secretRaw.length >= 16);
+  const firebase = getFirebaseAdminDiagnostics();
+  const firebaseAdminConfigured = firebase.initOk;
+  const auth = getAdminAuth();
+  const db = getAdminDb();
+  const ready = bootstrapSecretConfigured && !!(auth && db);
+
+  let hint =
+    "Se readyForBootstrap for true, envie POST com JSON: email, password, secret (igual ADMIN_BOOTSTRAP_SECRET).";
+  if (!bootstrapSecretConfigured) {
+    hint =
+      "Defina ADMIN_BOOTSTRAP_SECRET na Vercel (Production), minimo 16 caracteres, salve e rode Redeploy.";
+  } else if (!firebaseAdminConfigured) {
+    hint = firebase.hint ?? "Configure as credenciais Firebase Admin na Vercel e redeploy.";
+  }
+
+  return NextResponse.json({
+    bootstrapSecretConfigured,
+    firebaseAdminConfigured,
+    readyForBootstrap: ready,
+    firebase,
+    hint,
+  });
+}
 
 /**
  * Cria o primeiro usuário administrador (Auth + Firestore).
@@ -16,17 +52,27 @@ export async function POST(request: Request) {
   if (!secretEnv || secretEnv.length < 16) {
     return NextResponse.json(
       {
+        code: "ADMIN_BOOTSTRAP_SECRET_REQUIRED",
         error:
-          "Bootstrap desabilitado: defina ADMIN_BOOTSTRAP_SECRET no .env (minimo 16 caracteres). Remova em producao se nao for usar.",
+          "Bootstrap desabilitado na Vercel: adicione a variavel ADMIN_BOOTSTRAP_SECRET (minimo 16 caracteres) em Settings > Environment Variables > Production e faca Redeploy.",
       },
-      { status: 503 },
+      { status: 422 },
     );
   }
 
   const auth = getAdminAuth();
   const db = getAdminDb();
   if (!auth || !db) {
-    return NextResponse.json({ error: "Firebase Admin nao configurado." }, { status: 500 });
+    const firebase = getFirebaseAdminDiagnostics();
+    return NextResponse.json(
+      {
+        code: "FIREBASE_ADMIN_MISSING",
+        error:
+          "Firebase Admin nao inicializou no servidor. Veja o objeto \"firebase\" abaixo (hint) e corrija as variaveis na Vercel.",
+        firebase,
+      },
+      { status: 500 },
+    );
   }
 
   let body: { email?: string; password?: string; secret?: string };
