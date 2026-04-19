@@ -39,15 +39,27 @@ export async function GET() {
 
 /**
  * Cria o primeiro usuário administrador (Auth + Firestore).
- * Só roda se NÃO existir nenhum documento `users/*` com `role: "admin"`.
  * Protegido por ADMIN_BOOTSTRAP_SECRET no body ou header Authorization: Bearer.
- *
- * Uso local (após configurar Firebase Admin no .env):
- * curl -X POST http://localhost:3000/api/admin/bootstrap \
- *   -H "Content-Type: application/json" \
- *   -d '{"email":"admin@teste.local","password":"SuaSenhaSegura123","secret":"MESMO_VALOR_DE_ADMIN_BOOTSTRAP_SECRET"}'
  */
 export async function POST(request: Request) {
+  try {
+    return await handleBootstrapPost(request);
+  } catch (err) {
+    console.error("[api/admin/bootstrap]", err);
+    const message = err instanceof Error ? err.message : String(err);
+    const firebase = getFirebaseAdminDiagnostics();
+    return NextResponse.json(
+      {
+        code: "BOOTSTRAP_EXCEPTION",
+        error: message,
+        firebase,
+      },
+      { status: 500 },
+    );
+  }
+}
+
+async function handleBootstrapPost(request: Request) {
   const secretEnv = process.env.ADMIN_BOOTSTRAP_SECRET?.trim();
   if (!secretEnv || secretEnv.length < 16) {
     return NextResponse.json(
@@ -85,7 +97,7 @@ export async function POST(request: Request) {
   const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
   const secret = (body.secret ?? bearer ?? "").trim();
   if (secret !== secretEnv) {
-    return NextResponse.json({ error: "Secret invalido." }, { status: 403 });
+    return NextResponse.json({ code: "SECRET_MISMATCH", error: "Secret invalido." }, { status: 403 });
   }
 
   const email = body.email?.trim().toLowerCase() ?? "";
@@ -100,10 +112,25 @@ export async function POST(request: Request) {
     );
   }
 
-  const adminsSnap = await db.collection("users").where("role", "==", "admin").limit(1).get();
+  let adminsSnap;
+  try {
+    adminsSnap = await db.collection("users").where("role", "==", "admin").limit(1).get();
+  } catch (firestoreErr) {
+    const msg = firestoreErr instanceof Error ? firestoreErr.message : String(firestoreErr);
+    return NextResponse.json(
+      {
+        code: "FIRESTORE_QUERY_FAILED",
+        error: msg,
+        hint: "Confira se o Firestore esta criado no Firebase e se a API esta ativa no Google Cloud.",
+      },
+      { status: 500 },
+    );
+  }
+
   if (!adminsSnap.empty) {
     return NextResponse.json(
       {
+        code: "ADMIN_ALREADY_EXISTS",
         error:
           "Ja existe um administrador. Use o painel /admin/orcamentos ou o Firebase Console para criar outros usuarios.",
       },
@@ -138,20 +165,33 @@ export async function POST(request: Request) {
     }
   }
 
-  await db
-    .collection("users")
-    .doc(uid)
-    .set(
+  try {
+    await db
+      .collection("users")
+      .doc(uid)
+      .set(
+        {
+          role: "admin",
+          libraryAccess: true,
+          email,
+          createdAt: firestoreHelpers.serverTimestamp(),
+          updatedAt: firestoreHelpers.serverTimestamp(),
+          source: "bootstrap",
+        },
+        { merge: true },
+      );
+  } catch (firestoreErr) {
+    const msg = firestoreErr instanceof Error ? firestoreErr.message : String(firestoreErr);
+    return NextResponse.json(
       {
-        role: "admin",
-        libraryAccess: true,
-        email,
-        createdAt: firestoreHelpers.serverTimestamp(),
-        updatedAt: firestoreHelpers.serverTimestamp(),
-        source: "bootstrap",
+        code: "FIRESTORE_WRITE_FAILED",
+        error: msg,
+        uid,
+        hint: "Usuario pode ter sido criado no Auth; corrija Firestore e atualize users/{uid} manualmente se necessario.",
       },
-      { merge: true },
+      { status: 500 },
     );
+  }
 
   return NextResponse.json({
     ok: true,
