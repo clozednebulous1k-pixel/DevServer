@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { SiteNav } from "@/components/site-nav";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { AccessManager } from "@/components/admin/access-manager";
@@ -16,6 +17,8 @@ type Orcamento = {
 
 /** Nao pre-renderizar no build: evita falha se Firestore API estiver desativada no GCP. */
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const runtime = "nodejs";
 
 function firestoreHelpMessage(err: unknown, projectId: string | undefined): string {
   const text = err instanceof Error ? err.message : String(err);
@@ -27,6 +30,8 @@ function firestoreHelpMessage(err: unknown, projectId: string | undefined): stri
 }
 
 export default async function AdminOrcamentosPage() {
+  await connection();
+
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const db = getAdminDb();
   if (!db) {
