@@ -50,8 +50,7 @@ type PromptCategoryId =
   | "carousels"
   | "images"
   | "navigation"
-  | "texts"
-  | "announcements";
+  | "texts";
 
 type CategoryId =
   | PromptCategoryId
@@ -75,7 +74,6 @@ const promptCategories: readonly {
   { id: "images", label: "Imagens", count: 23 },
   { id: "navigation", label: "Navigation Menus", count: 13 },
   { id: "texts", label: "Textos", count: 16 },
-  { id: "announcements", label: "Announcements", count: 0, soon: true },
 ];
 
 const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
@@ -949,7 +947,6 @@ const categoryLabels: Record<CategoryId, string> = {
   images: "Imagens",
   navigation: "Navigation Menus",
   texts: "Textos",
-  announcements: "Announcements",
   library: "Biblioteca",
   security: "Segurança",
   hosting: "Hospedagem",

@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { BookOpen, Lock, Sparkles } from "lucide-react";
-import { LibraryConceptPreview } from "@/components/prompts/library-concept-preview";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NeonButton } from "@/components/ui/neon-button";
@@ -11,6 +11,21 @@ const WA_LIBRARY =
   encodeURIComponent(
     "Olá, vim do site da DevServer e quero saber mais sobre o projeto com acesso à Biblioteca de prompts.",
   );
+
+const TEASER_PHOTOS: { src: string; alt: string }[] = [
+  {
+    src: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
+    alt: "Mesa com laptop e café",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=800&q=80",
+    alt: "Código em tela de monitor",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80",
+    alt: "Smartphone com apps",
+  },
+];
 
 export function HomeLibraryTeaser() {
   return (
@@ -65,17 +80,18 @@ export function HomeLibraryTeaser() {
           </div>
 
           <div className="relative">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
-              <LibraryConceptPreview seed="home-lib-hero" tone="hero" />
-              <LibraryConceptPreview seed="home-lib-carousel" tone="carousel" />
-              <LibraryConceptPreview seed="home-lib-nav" tone="navigation" />
-              <LibraryConceptPreview seed="home-lib-image" tone="image" />
-              <LibraryConceptPreview seed="home-lib-border" tone="border" />
-              <LibraryConceptPreview seed="home-lib-bg" tone="background" />
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              {TEASER_PHOTOS.map((photo) => (
+                <div
+                  key={photo.src}
+                  className="relative aspect-[3/4] overflow-hidden rounded-xl border border-border/50 shadow-md"
+                >
+                  <Image src={photo.src} alt={photo.alt} fill sizes="140px" className="object-cover" />
+                </div>
+              ))}
             </div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-8 h-28 bg-gradient-to-t from-background via-background/85 to-transparent" />
-            <p className="relative z-10 mt-3 text-center text-xs text-muted-foreground">
-              Prévia visual — o catálogo completo abre na biblioteca após a contratação.
+            <p className="relative z-10 mt-4 text-center text-xs text-muted-foreground">
+              Fotos ilustrativas — na biblioteca você acessa prompts e guias completos.
             </p>
           </div>
         </div>

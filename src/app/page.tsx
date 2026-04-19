@@ -17,7 +17,7 @@ import { SiteNav } from "@/components/site-nav";
 import { Hero3DRibbon } from "@/components/ui/hero-3d-ribbon";
 import { HomeLibraryCatalogShowcase } from "@/components/home-library-catalog-showcase";
 import { HomeLibraryTeaser } from "@/components/home-library-teaser";
-import { LibraryConceptPreview } from "@/components/prompts/library-concept-preview";
+import { HomeSeoGuide } from "@/components/home-seo-guide";
 
 export default function Home() {
   const screenSize = useScreenSize();
@@ -152,6 +152,7 @@ export default function Home() {
         <ScrollHorizontalDevServer />
         <HomeLibraryTeaser />
         <HomeLibraryCatalogShowcase />
+        <HomeSeoGuide />
         <section className="mx-auto w-full max-w-6xl px-4 pb-2">
           <ContainerScroll
             titleComponent={
@@ -172,39 +173,41 @@ export default function Home() {
             }
           >
             <div
-              className="mx-auto grid h-full min-h-0 w-full grid-cols-2 grid-rows-3 gap-1.5 rounded-xl md:gap-2 [&>*]:min-h-0"
-              aria-label="Prévias visuais no mesmo estilo da biblioteca DevServer"
+              className="mx-auto grid h-full min-h-0 w-full grid-cols-2 grid-rows-2 gap-1.5 rounded-xl md:gap-2"
+              aria-label="Referências visuais de produto e desenvolvimento"
             >
-              <LibraryConceptPreview
-                seed="home-impact-marquee-hero"
-                tone="hero"
-                className="h-full w-full rounded-lg border-0 md:rounded-xl"
-              />
-              <LibraryConceptPreview
-                seed="home-impact-marquee-carousel"
-                tone="carousel"
-                className="h-full w-full rounded-lg border-0 md:rounded-xl"
-              />
-              <LibraryConceptPreview
-                seed="home-impact-marquee-image"
-                tone="image"
-                className="h-full w-full rounded-lg border-0 md:rounded-xl"
-              />
-              <LibraryConceptPreview
-                seed="home-impact-marquee-nav"
-                tone="navigation"
-                className="h-full w-full rounded-lg border-0 md:rounded-xl"
-              />
-              <LibraryConceptPreview
-                seed="home-impact-marquee-border"
-                tone="border"
-                className="h-full w-full rounded-lg border-0 md:rounded-xl"
-              />
-              <LibraryConceptPreview
-                seed="home-impact-marquee-bg"
-                tone="background"
-                className="h-full w-full rounded-lg border-0 md:rounded-xl"
-              />
+              {[
+                {
+                  src: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=900&q=80",
+                  alt: "Equipe em reunião com laptop",
+                },
+                {
+                  src: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=900&q=80",
+                  alt: "Servidor e equipamentos de rede",
+                },
+                {
+                  src: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=900&q=80",
+                  alt: "Time colaborando em projeto digital",
+                },
+                {
+                  src: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=900&q=80",
+                  alt: "Ambiente de trabalho com notebook",
+                },
+              ].map((item) => (
+                <div
+                  key={item.src}
+                  className="relative aspect-[4/3] w-full overflow-hidden rounded-lg md:rounded-xl"
+                >
+                  <Image
+                    src={item.src}
+                    alt={item.alt}
+                    fill
+                    sizes="(max-width: 768px) 45vw, 400px"
+                    className="object-cover"
+                    draggable={false}
+                  />
+                </div>
+              ))}
             </div>
           </ContainerScroll>
         </section>
@@ -265,6 +268,11 @@ export default function Home() {
                 <li>
                   <a href="#catalogo-biblioteca" className="transition-colors hover:text-foreground">
                     Catálogo da biblioteca
+                  </a>
+                </li>
+                <li>
+                  <a href="#seo" className="transition-colors hover:text-foreground">
+                    Guia de SEO
                   </a>
                 </li>
                 <li>
