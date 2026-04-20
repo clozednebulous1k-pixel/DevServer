@@ -7,7 +7,6 @@ import {
   BookOpen,
   BriefcaseBusiness,
   HomeIcon,
-  KeyRound,
   LayoutPanelTop,
   LogIn,
   LogOut,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Button } from "@/components/ui/button";
 
 type MeResponse = {
   authenticated: boolean;
@@ -25,6 +25,7 @@ type MeResponse = {
 
 export function SiteNav() {
   const [session, setSession] = useState<MeResponse>({ authenticated: false });
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,8 +58,6 @@ export function SiteNav() {
         ...publicItems,
         { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
         { name: "Painel", url: "/painel", icon: LayoutPanelTop },
-        { name: "Senha", url: "/painel#alterar-senha", icon: KeyRound },
-        { name: "Sair", url: "/logout", icon: LogOut },
       ];
       if (session.role === "admin") {
         items.push({ name: "Admin", url: "/admin/orcamentos", icon: ShieldCheck });
@@ -85,9 +84,53 @@ export function SiteNav() {
         <span className="text-sm font-medium">DevServer</span>
       </Link>
       <NavBar items={navItems} />
+      {session.authenticated ? (
+        <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 sm:bottom-auto sm:left-[calc(50%+360px)] sm:top-6 sm:translate-x-0">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-full border-border bg-background/90 backdrop-blur"
+            onClick={() => setShowLogoutModal(true)}
+          >
+            <LogOut className="mr-1 size-4" />
+            Sair
+          </Button>
+        </div>
+      ) : null}
       <div className="fixed right-4 top-4 z-50">
         <ThemeToggle />
       </div>
+      {showLogoutModal ? (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-sm rounded-2xl border bg-card p-5 shadow-xl">
+            <h2 className="text-lg font-semibold">Confirmar saída</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Tem certeza que deseja sair da sua conta agora?
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full"
+                onClick={() => setShowLogoutModal(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                className="rounded-full"
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  window.location.href = "/logout";
+                }}
+              >
+                Sim, sair
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
