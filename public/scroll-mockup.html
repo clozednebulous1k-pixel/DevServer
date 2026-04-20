@@ -1,259 +1,103 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --background: 260 87% 3%;
-      --foreground: 40 6% 95%;
-      --card: 240 6% 9%;
-      --card-foreground: 40 6% 95%;
-      --popover: 240 6% 9%;
-      --popover-foreground: 40 6% 95%;
-      --primary: 262 83% 58%;
-      --primary-foreground: 0 0% 100%;
-      --secondary: 240 4% 16%;
-      --secondary-foreground: 40 6% 95%;
-      --muted: 240 4% 16%;
-      --muted-foreground: 240 5% 65%;
-      --accent: 262 83% 58%;
-      --accent-foreground: 0 0% 100%;
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 0 0% 100%;
-      --border: 240 4% 20%;
-      --input: 240 4% 20%;
-      --ring: 262 83% 58%;
-      --radius: 0.75rem;
-      --hero-heading: 40 10% 96%;
-      --hero-sub: 40 6% 82%;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; }
-    body {
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
-      font-family: "Geist", "Geist Sans", "Inter", system-ui, sans-serif;
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
       overflow: auto;
+      background: #0d0d0d;
+      font-family: "Poppins", sans-serif;
     }
-    .liquid-glass {
-      background: rgba(255, 255, 255, 0.01);
-      background-blend-mode: luminosity;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border: none;
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 200vh;
+      padding: 8% 7%;
+    }
+    .text {
+      font-size: clamp(48px, 8.2vw, 122px);
+      letter-spacing: -0.01em;
+      line-height: 1;
+      margin: 0;
+      width: 100%;
+      color: rgb(182 182 182 / 0.2);
+      background: linear-gradient(to right, #b6b6b6, #b6b6b6) no-repeat;
+      -webkit-background-clip: text;
+      background-clip: text;
+      background-size: 0%;
+      transition: background-size cubic-bezier(.1,.5,.5,1) 0.5s;
+      border-bottom: 1px solid #2f2b28;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
       position: relative;
-      overflow: hidden;
+      padding: 10px 0 14px;
     }
-    .liquid-glass::before {
-      content: "";
+    .text > span {
       position: absolute;
       inset: 0;
-      border-radius: inherit;
-      padding: 1.4px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
-    .hero { position: relative; overflow: hidden; background: hsl(var(--background)); }
-    .navbar {
-      width: 100%;
-      padding: 16px 22px;
+      background-color: #545bff;
+      color: #0d0d0d;
+      clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%);
+      transform-origin: center;
+      transition: all cubic-bezier(.1,.5,.5,1) 0.4s;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      padding-left: 0;
     }
-    .logo-wrap { display: flex; align-items: center; gap: 10px; min-width: 132px; }
-    .logo {
-      width: 32px; height: 32px; border-radius: 10px;
-      display: grid; place-items: center; font-size: 13px; font-weight: 700;
-      color: hsl(var(--primary-foreground)); background: hsl(var(--primary));
-      box-shadow: 0 6px 20px rgba(120, 82, 255, 0.35);
+    .text:hover > span {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
     }
-    .nav-center { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: center; }
-    .nav-item {
-      border: 0; background: transparent; color: hsl(var(--foreground) / .9);
-      font-size: 14px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+    a {
+      text-decoration: none;
+      color: inherit;
+      border-bottom: 1px solid rgb(13 13 13 / 0.45);
     }
-    .chev {
-      width: 8px; height: 8px; border-left: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
-      transform: rotate(-45deg) translateY(-1px);
-    }
-    .hero-secondary {
-      border-radius: 999px; padding: 8px 16px; color: hsl(var(--foreground));
-      font-size: 13px; line-height: 1; cursor: pointer;
-    }
-    .divider { margin-top: 3px; width: 100%; height: 1px; background: linear-gradient(to right, transparent, hsl(var(--foreground) / .2), transparent); }
-    .hero-content { padding: 34px 16px 0; text-align: center; display: flex; flex-direction: column; align-items: center; }
-    .headline {
-      font-family: "General Sans", "Geist", sans-serif;
-      font-size: clamp(88px, 21vw, 230px);
-      font-weight: 400;
-      line-height: 1.02;
-      letter-spacing: -0.024em;
-      background-image: linear-gradient(223deg, #E8E8E9 0%, #3A7BBF 104.15%);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-    }
-    .subtext {
-      color: hsl(var(--hero-sub) / .8);
-      text-align: center;
-      font-size: 17px;
-      line-height: 1.9;
-      max-width: 430px;
-      margin-top: 8px;
-    }
-    .cta-wrap { margin-top: 32px; margin-bottom: 66px; }
-    .hero-cta {
-      border-radius: 999px; padding: 14px 29px; color: hsl(var(--foreground));
-      font-size: 16px; font-weight: 400; cursor: pointer;
-    }
-    .social {
-      position: relative; width: 100%; overflow: hidden; min-height: 380px;
-      border-top: 1px solid hsl(var(--border));
-    }
-    .video-bg {
-      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-      opacity: 0; transition: opacity .16s linear;
-    }
-    .overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to bottom, hsl(var(--background)) 0%, transparent 50%, hsl(var(--background)) 100%);
-    }
-    .social-content {
-      position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center;
-      padding: 64px 16px 90px; gap: 52px;
-    }
-    .spacer { height: 160px; }
-    .marquee-shell {
-      width: min(96%, 960px); display: flex; align-items: center; gap: 22px; overflow: hidden;
-      padding: 14px; border-radius: 16px; border: 1px solid hsl(var(--border) / .8); background: hsl(var(--card) / .35);
-    }
-    .marquee-copy {
-      color: hsl(var(--foreground) / .5); font-size: 13px; line-height: 1.3;
-      white-space: nowrap; flex-shrink: 0;
-    }
-    .marquee-window { overflow: hidden; width: 100%; }
-    .marquee-track { display: flex; width: max-content; gap: 64px; animation: marquee 20s linear infinite; }
-    .logo-item { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
-    .logo-icon {
-      width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center;
-      color: hsl(var(--foreground)); font-size: 11px; font-weight: 600;
-    }
-    .brand { font-size: 16px; font-weight: 600; color: hsl(var(--foreground)); }
-    @keyframes marquee {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-50%); }
-    }
-    @media (max-width: 860px) {
-      .navbar { padding: 14px; }
-      .nav-center { display: none; }
-      .headline { font-size: clamp(72px, 24vw, 140px); }
-      .subtext { font-size: 14px; line-height: 1.6; }
-      .marquee-shell { flex-direction: column; align-items: flex-start; gap: 14px; }
+    @media (max-width: 760px) {
+      .container { padding: 12% 6%; }
+      .text { font-size: clamp(32px, 11.5vw, 74px); }
     }
   </style>
 </head>
 <body>
-  <section class="hero">
-    <nav class="navbar">
-      <div class="logo-wrap">
-        <div class="logo">G</div>
-      </div>
-      <div class="nav-center">
-        <button class="nav-item">Features <span class="chev"></span></button>
-        <button class="nav-item">Solutions</button>
-        <button class="nav-item">Plans</button>
-        <button class="nav-item">Learning <span class="chev"></span></button>
-      </div>
-      <button class="hero-secondary liquid-glass">Sign Up</button>
-    </nav>
-    <div class="divider"></div>
-    <div class="hero-content">
-      <h1 class="headline">Grow</h1>
-      <p class="subtext">The most powerful AI ever deployed<br />in talent acquisition</p>
-      <div class="cta-wrap">
-        <button class="hero-cta liquid-glass">Schedule a Consult</button>
-      </div>
-    </div>
-  </section>
+  <div class="container">
+    <h1 class="text">DEVSERVER<span>SOLUCOES WEB</span></h1>
+    <h1 class="text">AUTOMACOES<span>COM IA APLICADA</span></h1>
+    <h1 class="text">PERFORMANCE<span>ESCALA SEM TRAVAR</span></h1>
+    <h1 class="text">HOVER AQUI<span><a href="https://dev-server0.vercel.app" target="_blank" rel="noopener">VER PROJETO</a></span></h1>
+    <h1 class="text">BORA FECHAR?<span><a href="https://wa.me/5511952025568" target="_blank" rel="noopener">FALAR NO WHATSAPP</a></span></h1>
+  </div>
 
-  <section class="social">
-    <video
-      id="bg-video"
-      class="video-bg"
-      autoplay
-      muted
-      playsinline
-      preload="auto"
-    >
-      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260308_114720_3dabeb9e-2c39-4907-b747-bc3544e2d5b7.mp4" type="video/mp4" />
-    </video>
-    <div class="overlay"></div>
-    <div class="social-content">
-      <div class="spacer"></div>
-      <div class="marquee-shell liquid-glass">
-        <p class="marquee-copy">Relied on by brands<br />across the globe</p>
-        <div class="marquee-window">
-          <div class="marquee-track" id="marquee-track"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script>
-    const brands = ["Vortex", "Nimbus", "Prysma", "Cirrus", "Kynder", "Halcyn"];
-    const track = document.getElementById("marquee-track");
-    const twoRounds = [...brands, ...brands];
-    twoRounds.forEach((name) => {
-      const item = document.createElement("div");
-      item.className = "logo-item";
-      item.innerHTML = '<span class="logo-icon liquid-glass">' + name[0] + '</span><span class="brand">' + name + "</span>";
-      track.appendChild(item);
-    });
+    gsap.registerPlugin(ScrollTrigger);
 
-    const video = document.getElementById("bg-video");
-    const fade = 0.5;
-    let resetLock = false;
-
-    const loopFade = () => {
-      if (video && video.duration && Number.isFinite(video.duration)) {
-        const t = video.currentTime;
-        const d = video.duration;
-        let opacity = 1;
-        if (t <= fade) opacity = Math.max(0, t / fade);
-        if (d - t <= fade) opacity = Math.max(0, (d - t) / fade);
-        video.style.opacity = String(Math.min(1, opacity));
-
-        if (!resetLock && d - t <= 0.02) {
-          resetLock = true;
-          video.style.opacity = "0";
-          setTimeout(() => {
-            video.currentTime = 0;
-            video.play().catch(() => {});
-            resetLock = false;
-          }, 100);
+    const textElements = gsap.utils.toArray(".text");
+    textElements.forEach((text) => {
+      gsap.to(text, {
+        backgroundSize: "100%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: text,
+          start: "center 80%",
+          end: "center 20%",
+          scrub: true
         }
-      }
-      requestAnimationFrame(loopFade);
-    };
-
-    video.addEventListener("ended", () => {
-      video.style.opacity = "0";
-      setTimeout(() => {
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      }, 100);
+      });
     });
-
-    video.play().catch(() => {});
-    requestAnimationFrame(loopFade);
   </script>
 </body>
 </html>
