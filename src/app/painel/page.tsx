@@ -167,7 +167,7 @@ export default function PainelPage() {
             </article>
           </div>
 
-          <article className="mt-6 rounded-2xl border bg-background/60 p-4">
+          <article id="alterar-senha" className="mt-6 rounded-2xl border bg-background/60 p-4">
             <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
               <LockKeyhole className="size-4" />
               Alterar senha

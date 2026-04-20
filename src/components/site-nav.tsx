@@ -3,7 +3,18 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, BriefcaseBusiness, HomeIcon, LayoutPanelTop, LogIn, Rocket, ShieldCheck, User } from "lucide-react";
+import {
+  BookOpen,
+  BriefcaseBusiness,
+  HomeIcon,
+  KeyRound,
+  LayoutPanelTop,
+  LogIn,
+  LogOut,
+  Rocket,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -46,6 +57,8 @@ export function SiteNav() {
         ...publicItems,
         { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
         { name: "Painel", url: "/painel", icon: LayoutPanelTop },
+        { name: "Senha", url: "/painel#alterar-senha", icon: KeyRound },
+        { name: "Sair", url: "/logout", icon: LogOut },
       ];
       if (session.role === "admin") {
         items.push({ name: "Admin", url: "/admin/orcamentos", icon: ShieldCheck });
