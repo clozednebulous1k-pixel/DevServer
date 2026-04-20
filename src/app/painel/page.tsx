@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import {
-  EmailAuthProvider,
-  onAuthStateChanged,
-  reauthenticateWithCredential,
-  signOut,
-  updatePassword,
-  type User,
-} from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { LockKeyhole, LogOut, ShieldCheck, UserCircle2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { useScreenSize } from "@/components/hooks/use-screen-size";
@@ -28,7 +21,6 @@ export default function PainelPage() {
   const auth = useMemo(() => getFirebaseAuth(), []);
   const screenSize = useScreenSize();
   const [session, setSession] = useState<MeResponse>({ authenticated: false });
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
@@ -54,23 +46,11 @@ export default function PainelPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!auth) return;
-    const unsub = onAuthStateChanged(auth, (user) => setCurrentUser(user));
-    return () => unsub();
-  }, [auth]);
-
   async function handleChangePassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
     setError(null);
     setMessage(null);
-
-    if (!auth || !currentUser || !currentUser.email) {
-      setSaving(false);
-      setError("Nao foi possivel validar sua sessao. Saia e entre novamente.");
-      return;
-    }
 
     if (newPassword.length < 8) {
       setSaving(false);
@@ -79,14 +59,21 @@ export default function PainelPage() {
     }
 
     try {
-      const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
-      await reauthenticateWithCredential(currentUser, credential);
-      await updatePassword(currentUser, newPassword);
+      const response = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(data.error ?? "Falha ao atualizar senha.");
+      }
       setCurrentPassword("");
       setNewPassword("");
       setMessage("Senha atualizada com sucesso.");
-    } catch {
-      setError("Nao foi possivel atualizar a senha. Verifique a senha atual e tente novamente.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Nao foi possivel atualizar a senha.";
+      setError(message);
     }
 
     setSaving(false);
