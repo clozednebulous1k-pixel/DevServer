@@ -77,7 +77,7 @@ const promptCategories: readonly {
   { id: "images", label: "Imagens", count: 23 },
   { id: "navigation", label: "Navigation Menus", count: 13 },
   { id: "texts", label: "Textos", count: 16 },
-  { id: "scroll", label: "Scroll", count: 5 },
+  { id: "scroll", label: "Scroll", count: 7 },
 ];
 
 const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
@@ -1686,7 +1686,9 @@ type ScrollPreviewId =
   | "scroll-horizontal-pin"
   | "scroll-fluid-words"
   | "scroll-axis-toggle-marquee"
-  | "scroll-skewed-onepage";
+  | "scroll-skewed-onepage"
+  | "scroll-infinite-portrait-gallery"
+  | "scroll-brutal-magic-velocity";
 
 const scrollPrompts: {
   id: string;
@@ -1801,6 +1803,37 @@ control.addEventListener("click", () => {
   [...marquees].forEach((marquee) => marquee.classList.toggle("marquee--vertical"));
 });`,
     preview: "scroll-axis-toggle-marquee",
+  },
+  {
+    id: "scroll-brutal-magic-velocity",
+    title: "Brutal Magic velocity scroll (real code)",
+    description:
+      "Navbar magnética + cursor custom + skew por velocidade de scroll, executando em preview real no card.",
+    prompt: `<nav class="brutal-nav">...</nav>
+<section class="hero">BRUTAL MAGIC</section>
+<section class="section-dark">...</section>
+
+/* JS */
+cursor magnético + hover hacker text;
+navbar com estado scrolled e tilt 3D;
+scrollLoop com skewY baseado na velocidade.`,
+    preview: "scroll-brutal-magic-velocity",
+  },
+  {
+    id: "scroll-infinite-portrait-gallery",
+    title: "Infinite portrait gallery (WebGL real)",
+    description:
+      "Preview fiel do código original: galeria infinita com drag/scroll, inércia, efeito bulge e fullscreen.",
+    prompt: `<div class="cache"></div>
+<div class="loading">Loading... 0%</div>
+<button class="fullscreen-btn" aria-label="Plein écran"><i class="fas fa-expand"></i></button>
+<div id="ui" class="hint">Photo by Dynamic Wang on Unsplash || Scroll / drag / use - or +</div>
+<div class="copy">&Toc</div>
+
+/* CSS + JS */
+class InfinitePortraitGallery { ... }
+document.addEventListener("DOMContentLoaded", () => new InfinitePortraitGallery());`,
+    preview: "scroll-infinite-portrait-gallery",
   },
   {
     id: "scroll-skewed-onepage",
