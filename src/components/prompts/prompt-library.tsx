@@ -1697,6 +1697,7 @@ const scrollPrompts: {
   title: string;
   description: string;
   prompt: string;
+  code?: string;
   preview: ScrollPreviewId;
 }[] = [
   {
@@ -1817,6 +1818,33 @@ const gl = canvas.getContext("webgl2");
 fragment shader com snoise3 + fbm3;
 render loop com iTime + iResolution;
 resize responsivo com viewport.`,
+    code: `<canvas id="webglCanvas"></canvas>
+<style>
+  body { margin: 0; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+<script>
+const canvas = document.getElementById("webglCanvas");
+const gl = canvas.getContext("webgl2");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+gl.viewport(0, 0, canvas.width, canvas.height);
+// ... vertex shader + fragment shader (fbm/simplex) ...
+// ... compileShader/program/fullscreen quad/uniforms ...
+function render(t) {
+  t *= 0.001;
+  gl.uniform1f(iTimeLoc, t);
+  gl.uniform2f(iResLoc, canvas.width, canvas.height);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  gl.viewport(0, 0, canvas.width, canvas.height);
+});
+</script>`,
     preview: "scroll-webgl-cloud-noise",
   },
   {
@@ -1830,6 +1858,24 @@ resize responsivo com viewport.`,
 <canvas id="glcanvas"></canvas>
 /* JS */
 count-up + intersection reveal + cloth simulation WebGL com drag.`,
+    code: `<!doctype html>
+<html lang="en">
+<head>
+  <!-- ClawShield landing styles -->
+</head>
+<body>
+  <nav>...</nav>
+  <section class="hero">
+    <canvas id="glcanvas"></canvas>
+  </section>
+  <section class="threat-section">...</section>
+  <section class="pricing-section">...</section>
+  <script>
+    // reveal + count-up
+    // 3D cloth receipt simulation (WebGL) with drag interaction
+  </script>
+</body>
+</html>`,
     preview: "scroll-clawshield-landing",
   },
   {
@@ -1845,6 +1891,25 @@ count-up + intersection reveal + cloth simulation WebGL com drag.`,
 cursor magnético + hover hacker text;
 navbar com estado scrolled e tilt 3D;
 scrollLoop com skewY baseado na velocidade.`,
+    code: `<head>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="noise"></div>
+  <div id="cursor"></div>
+  <nav class="brutal-nav">...</nav>
+  <div id="scroll-content">
+    <section class="hero">...</section>
+    <section class="section-dark">...</section>
+  </div>
+  <script>
+    // split chars
+    // magnetic cursor
+    // navbar scrolled + tilt
+    // scroll velocity skew
+    // hacker text effect
+  </script>
+</body>`,
     preview: "scroll-brutal-magic-velocity",
   },
   {
@@ -1861,6 +1926,21 @@ scrollLoop com skewY baseado na velocidade.`,
 /* CSS + JS */
 class InfinitePortraitGallery { ... }
 document.addEventListener("DOMContentLoaded", () => new InfinitePortraitGallery());`,
+    code: `<div class="cache"></div>
+<div class="loading">Loading... 0%</div>
+<button class="fullscreen-btn" aria-label="Plein écran"></button>
+<div id="ui" class="hint">...</div>
+<script>
+const MES_IMAGES = [/* unsplash urls */];
+class InfinitePortraitGallery {
+  constructor() {
+    this.canvas = document.createElement("canvas");
+    this.gl = this.canvas.getContext("webgl");
+    // init shaders + load images + drag + inertia + fullscreen + animate
+  }
+}
+document.addEventListener("DOMContentLoaded", () => new InfinitePortraitGallery());
+</script>`,
     preview: "scroll-infinite-portrait-gallery",
   },
   {
@@ -2499,16 +2579,30 @@ export function PromptLibrary() {
                       <div className="max-h-28 overflow-y-auto rounded-xl border border-border/80 bg-background/50 p-3 text-xs leading-relaxed text-muted-foreground">
                         {item.prompt}
                       </div>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        className="w-full rounded-full"
-                        onClick={() => copyPrompt(item.prompt, item.id)}
-                      >
-                        <Copy className="mr-2 size-4" />
-                        {copiedId === item.id ? "Copiado!" : "Copiar prompt"}
-                      </Button>
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="w-full rounded-full"
+                          onClick={() => copyPrompt(item.prompt, item.id)}
+                        >
+                          <Copy className="mr-2 size-4" />
+                          {copiedId === item.id ? "Copiado!" : "Copiar prompt"}
+                        </Button>
+                        {item.code ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full rounded-full"
+                            onClick={() => copyPrompt(item.code!, `${item.id}-code`)}
+                          >
+                            <Copy className="mr-2 size-4" />
+                            {copiedId === `${item.id}-code` ? "Código copiado!" : "Copiar código"}
+                          </Button>
+                        ) : null}
+                      </div>
                     </div>
                   </article>
                 </div>
