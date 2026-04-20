@@ -18,13 +18,50 @@ import { NavBar } from "@/components/ui/tubelight-navbar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 
+const SESSION_CACHE_KEY = "devserver.nav.session";
+
 type MeResponse = {
   authenticated: boolean;
   role?: "admin" | "user";
 };
 
+type NavSessionState = {
+  status: "loading" | "authenticated" | "guest";
+  role?: "admin" | "user";
+};
+
+let navSessionMemoryCache: NavSessionState | null = null;
+
+function readCachedSession(): NavSessionState | null {
+  if (navSessionMemoryCache) return navSessionMemoryCache;
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as NavSessionState;
+    if (!parsed || (parsed.status !== "authenticated" && parsed.status !== "guest")) return null;
+    navSessionMemoryCache = parsed;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function cacheSession(state: NavSessionState) {
+  navSessionMemoryCache = state;
+  if (typeof window === "undefined") return;
+
+  if (state.status === "loading") {
+    window.sessionStorage.removeItem(SESSION_CACHE_KEY);
+    return;
+  }
+
+  window.sessionStorage.setItem(SESSION_CACHE_KEY, JSON.stringify(state));
+}
+
 export function SiteNav() {
-  const [session, setSession] = useState<MeResponse>({ authenticated: false });
+  const [session, setSession] = useState<NavSessionState>(() => readCachedSession() ?? { status: "loading" });
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
@@ -33,11 +70,17 @@ export function SiteNav() {
       .then((response) => response.json())
       .then((data: MeResponse) => {
         if (cancelled) return;
-        setSession({ authenticated: !!data.authenticated, role: data.role });
+        const nextState: NavSessionState = data.authenticated
+          ? { status: "authenticated", role: data.role }
+          : { status: "guest" };
+        setSession(nextState);
+        cacheSession(nextState);
       })
       .catch(() => {
         if (cancelled) return;
-        setSession({ authenticated: false });
+        const fallback = readCachedSession() ?? { status: "guest" as const };
+        setSession(fallback);
+        cacheSession(fallback);
       });
 
     return () => {
@@ -53,7 +96,7 @@ export function SiteNav() {
       { name: "Contato", url: "/contato", icon: Rocket },
     ];
 
-    if (session.authenticated) {
+    if (session.status === "authenticated") {
       const items = [
         ...publicItems,
         { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
@@ -65,8 +108,12 @@ export function SiteNav() {
       return items;
     }
 
+    if (session.status === "loading") {
+      return [...publicItems, { name: "Painel", url: "/painel", icon: LayoutPanelTop }];
+    }
+
     return [...publicItems, { name: "Entrar", url: "/login", icon: LogIn }];
-  }, [session.authenticated, session.role]);
+  }, [session.status, session.role]);
 
   return (
     <>
@@ -84,7 +131,7 @@ export function SiteNav() {
         <span className="text-sm font-medium">DevServer</span>
       </Link>
       <NavBar items={navItems} />
-      {session.authenticated ? (
+      {session.status === "authenticated" ? (
         <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 sm:bottom-auto sm:left-[calc(50%+360px)] sm:top-6 sm:translate-x-0">
           <Button
             type="button"
@@ -122,6 +169,7 @@ export function SiteNav() {
                 className="rounded-full"
                 onClick={() => {
                   setShowLogoutModal(false);
+                  cacheSession({ status: "guest" });
                   window.location.href = "/logout";
                 }}
               >
