@@ -16,6 +16,7 @@ export function AccessManager({ initialUsers }: { initialUsers: AccessUser[] }) 
   const [users, setUsers] = useState<AccessUser[]>(initialUsers);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"admin" | "user">("user");
   const [libraryAccess, setLibraryAccess] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -41,6 +42,7 @@ export function AccessManager({ initialUsers }: { initialUsers: AccessUser[] }) 
       body: JSON.stringify({
         email,
         password,
+        role,
         libraryAccess,
       }),
     });
@@ -55,6 +57,7 @@ export function AccessManager({ initialUsers }: { initialUsers: AccessUser[] }) 
     setMessage("Usuario criado com sucesso.");
     setEmail("");
     setPassword("");
+    setRole("user");
     setLibraryAccess(true);
     await loadUsers();
   }
@@ -107,14 +110,26 @@ export function AccessManager({ initialUsers }: { initialUsers: AccessUser[] }) 
             className="h-10 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
           />
         </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-muted-foreground">Tipo de conta</span>
+          <select
+            value={role}
+            onChange={(event) => setRole(event.target.value === "admin" ? "admin" : "user")}
+            className="h-10 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+          >
+            <option value="user">Usuário</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
         <div className="flex items-end gap-3">
           <label className="inline-flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={libraryAccess}
               onChange={(event) => setLibraryAccess(event.target.checked)}
+              disabled={role === "admin"}
             />
-            Liberar biblioteca
+            {role === "admin" ? "Biblioteca liberada automaticamente" : "Liberar biblioteca"}
           </label>
         </div>
         <div className="md:col-span-4">

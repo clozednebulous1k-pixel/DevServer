@@ -48,7 +48,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isLoginRoute) {
-    const target = isAdmin ? "/admin/orcamentos" : "/painel";
+    const target = "/painel";
     return NextResponse.redirect(new URL(target, request.url));
   }
 

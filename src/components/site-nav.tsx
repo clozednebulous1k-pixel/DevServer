@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, BriefcaseBusiness, HomeIcon, LayoutPanelTop, LogIn, Rocket, User } from "lucide-react";
+import { BookOpen, BriefcaseBusiness, HomeIcon, LayoutPanelTop, LogIn, Rocket, ShieldCheck, User } from "lucide-react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -34,20 +34,26 @@ export function SiteNav() {
   }, []);
 
   const navItems = useMemo(() => {
-    const baseItems = [
+    const publicItems = [
       { name: "Início", url: "/", icon: HomeIcon },
       { name: "Sobre", url: "/sobre", icon: User },
       { name: "Projetos", url: "/projetos", icon: BriefcaseBusiness },
-      { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
       { name: "Contato", url: "/contato", icon: Rocket },
     ];
 
     if (session.authenticated) {
-      const painelUrl = session.role === "admin" ? "/admin/orcamentos" : "/painel";
-      return [...baseItems, { name: "Painel", url: painelUrl, icon: LayoutPanelTop }];
+      const items = [
+        ...publicItems,
+        { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
+        { name: "Painel", url: "/painel", icon: LayoutPanelTop },
+      ];
+      if (session.role === "admin") {
+        items.push({ name: "Admin", url: "/admin/orcamentos", icon: ShieldCheck });
+      }
+      return items;
     }
 
-    return [...baseItems, { name: "Entrar", url: "/login", icon: LogIn }];
+    return [...publicItems, { name: "Entrar", url: "/login", icon: LogIn }];
   }, [session.authenticated, session.role]);
 
   return (

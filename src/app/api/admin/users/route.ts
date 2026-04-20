@@ -45,12 +45,14 @@ export async function POST(request: Request) {
   const body = (await request.json()) as {
     email?: string;
     password?: string;
+    role?: "admin" | "user";
     libraryAccess?: boolean;
   };
 
   const email = body.email?.trim().toLowerCase() ?? "";
   const password = body.password ?? "";
-  const libraryAccess = !!body.libraryAccess;
+  const role: "admin" | "user" = body.role === "admin" ? "admin" : "user";
+  const libraryAccess = role === "admin" ? true : !!body.libraryAccess;
 
   if (!email || !email.includes("@")) {
     return NextResponse.json({ error: "E-mail invalido." }, { status: 400 });
@@ -75,7 +77,7 @@ export async function POST(request: Request) {
     .collection("users")
     .doc(created.uid)
     .set({
-      role: "user",
+      role,
       libraryAccess,
       email,
       createdAt: firestoreHelpers.serverTimestamp(),
@@ -86,7 +88,7 @@ export async function POST(request: Request) {
     user: {
       id: created.uid,
       email: created.email,
-      role: "user",
+      role,
       libraryAccess,
     },
   });
