@@ -77,7 +77,7 @@ const promptCategories: readonly {
   { id: "images", label: "Imagens", count: 23 },
   { id: "navigation", label: "Navigation Menus", count: 13 },
   { id: "texts", label: "Textos", count: 16 },
-  { id: "scroll", label: "Scroll", count: 7 },
+  { id: "scroll", label: "Scroll", count: 9 },
 ];
 
 const totalLibraryPromptItems = promptCategories.filter((c) => !c.soon).reduce((sum, c) => sum + c.count, 0);
@@ -1688,7 +1688,9 @@ type ScrollPreviewId =
   | "scroll-axis-toggle-marquee"
   | "scroll-skewed-onepage"
   | "scroll-infinite-portrait-gallery"
-  | "scroll-brutal-magic-velocity";
+  | "scroll-brutal-magic-velocity"
+  | "scroll-webgl-cloud-noise"
+  | "scroll-clawshield-landing";
 
 const scrollPrompts: {
   id: string;
@@ -1803,6 +1805,32 @@ control.addEventListener("click", () => {
   [...marquees].forEach((marquee) => marquee.classList.toggle("marquee--vertical"));
 });`,
     preview: "scroll-axis-toggle-marquee",
+  },
+  {
+    id: "scroll-webgl-cloud-noise",
+    title: "WebGL cloud noise (shader real)",
+    description:
+      "Canvas fullscreen com WebGL2 e shader FBM/Simplex, igual ao código enviado (nuvens animadas em tempo real).",
+    prompt: `<canvas id="webglCanvas"></canvas>
+/* JS */
+const gl = canvas.getContext("webgl2");
+fragment shader com snoise3 + fbm3;
+render loop com iTime + iResolution;
+resize responsivo com viewport.`,
+    preview: "scroll-webgl-cloud-noise",
+  },
+  {
+    id: "scroll-clawshield-landing",
+    title: "ClawShield landing + cloth sim (real)",
+    description:
+      "Landing cyber com animações de reveal/count-up e simulação WebGL de cloth para o report de segurança no hero.",
+    prompt: `<section class="hero">...</section>
+<section class="threat-section">...</section>
+<section class="pricing-section">...</section>
+<canvas id="glcanvas"></canvas>
+/* JS */
+count-up + intersection reveal + cloth simulation WebGL com drag.`,
+    preview: "scroll-clawshield-landing",
   },
   {
     id: "scroll-brutal-magic-velocity",
