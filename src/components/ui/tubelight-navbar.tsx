@@ -21,22 +21,11 @@ interface NavBarProps {
 export function NavBar({ items, className }: NavBarProps) {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState(items[0]?.name ?? "");
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const current = items.find((item) => item.url === pathname);
     if (current) setActiveTab(current.name);
   }, [pathname, items]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: NavItem) => {
     setActiveTab(item.name);
@@ -74,7 +63,7 @@ export function NavBar({ items, className }: NavBarProps) {
               )}
             >
               <span className="hidden md:inline">{item.name}</span>
-              <span className={cn("md:hidden", !isMobile && "hidden")}>
+              <span className="md:hidden">
                 <Icon size={18} strokeWidth={2.5} />
               </span>
               {isActive && (
