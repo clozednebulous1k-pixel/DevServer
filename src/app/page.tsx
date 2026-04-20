@@ -170,42 +170,13 @@ export default function Home() {
               </>
             }
           >
-            <div
-              className="mx-auto grid h-full min-h-0 w-full grid-cols-2 grid-rows-2 gap-1.5 rounded-xl md:gap-2"
-              aria-label="Referências visuais de produto e desenvolvimento"
-            >
-              {[
-                {
-                  src: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=900&q=80",
-                  alt: "Equipe em reunião com laptop",
-                },
-                {
-                  src: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=900&q=80",
-                  alt: "Servidor e equipamentos de rede",
-                },
-                {
-                  src: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=900&q=80",
-                  alt: "Time colaborando em projeto digital",
-                },
-                {
-                  src: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=900&q=80",
-                  alt: "Ambiente de trabalho com notebook",
-                },
-              ].map((item) => (
-                <div
-                  key={item.src}
-                  className="relative aspect-[4/3] w-full overflow-hidden rounded-lg md:rounded-xl"
-                >
-                  <Image
-                    src={item.src}
-                    alt={item.alt}
-                    fill
-                    sizes="(max-width: 768px) 45vw, 400px"
-                    className="object-cover"
-                    draggable={false}
-                  />
-                </div>
-              ))}
+            <div className="relative mx-auto h-full min-h-0 w-full rounded-xl bg-black" aria-label="Mockup com preview real do código">
+              <iframe
+                title="Preview real no mockup"
+                src="/scroll-mockup.html"
+                className="h-full w-full border-0"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+              />
             </div>
           </ContainerScroll>
         </section>
