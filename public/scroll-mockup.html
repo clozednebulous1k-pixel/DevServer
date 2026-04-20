@@ -3,39 +3,257 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600&family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:#fff0}
-    html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-    canvas{display:block;position:fixed;inset:0;width:100%;height:100%;cursor:grab}
-    canvas:active{cursor:grabbing}
-    .loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:13px;z-index:6;background:rgb(0 0 0 / .8);padding:10px 14px;border-radius:8px;font-family:monospace}
-    .cache{position:fixed;inset:0;background:#000;z-index:5}
-    .hint{position:fixed;left:10px;bottom:10px;z-index:7;background:rgb(0 0 0 / .75);padding:6px 8px;border-radius:8px;font-size:10px;color:#fff;max-width:72%}
-    .hint a{color:tomato}
-    .copy{position:fixed;left:10px;top:10px;background:rgb(255 255 255 / .9);color:#000;padding:4px 6px;border-radius:6px;font-size:10px;z-index:7}
+    :root {
+      --background: 260 87% 3%;
+      --foreground: 40 6% 95%;
+      --card: 240 6% 9%;
+      --card-foreground: 40 6% 95%;
+      --popover: 240 6% 9%;
+      --popover-foreground: 40 6% 95%;
+      --primary: 262 83% 58%;
+      --primary-foreground: 0 0% 100%;
+      --secondary: 240 4% 16%;
+      --secondary-foreground: 40 6% 95%;
+      --muted: 240 4% 16%;
+      --muted-foreground: 240 5% 65%;
+      --accent: 262 83% 58%;
+      --accent-foreground: 0 0% 100%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 100%;
+      --border: 240 4% 20%;
+      --input: 240 4% 20%;
+      --ring: 262 83% 58%;
+      --radius: 0.75rem;
+      --hero-heading: 40 10% 96%;
+      --hero-sub: 40 6% 82%;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-family: "Geist", "Geist Sans", "Inter", system-ui, sans-serif;
+      overflow: auto;
+    }
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .liquid-glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .hero { position: relative; overflow: hidden; background: hsl(var(--background)); }
+    .navbar {
+      width: 100%;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; min-width: 132px; }
+    .logo {
+      width: 32px; height: 32px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 13px; font-weight: 700;
+      color: hsl(var(--primary-foreground)); background: hsl(var(--primary));
+      box-shadow: 0 6px 20px rgba(120, 82, 255, 0.35);
+    }
+    .nav-center { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: center; }
+    .nav-item {
+      border: 0; background: transparent; color: hsl(var(--foreground) / .9);
+      font-size: 14px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+    }
+    .chev {
+      width: 8px; height: 8px; border-left: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+    .hero-secondary {
+      border-radius: 999px; padding: 8px 16px; color: hsl(var(--foreground));
+      font-size: 13px; line-height: 1; cursor: pointer;
+    }
+    .divider { margin-top: 3px; width: 100%; height: 1px; background: linear-gradient(to right, transparent, hsl(var(--foreground) / .2), transparent); }
+    .hero-content { padding: 34px 16px 0; text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .headline {
+      font-family: "General Sans", "Geist", sans-serif;
+      font-size: clamp(88px, 21vw, 230px);
+      font-weight: 400;
+      line-height: 1.02;
+      letter-spacing: -0.024em;
+      background-image: linear-gradient(223deg, #E8E8E9 0%, #3A7BBF 104.15%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .subtext {
+      color: hsl(var(--hero-sub) / .8);
+      text-align: center;
+      font-size: 17px;
+      line-height: 1.9;
+      max-width: 430px;
+      margin-top: 8px;
+    }
+    .cta-wrap { margin-top: 32px; margin-bottom: 66px; }
+    .hero-cta {
+      border-radius: 999px; padding: 14px 29px; color: hsl(var(--foreground));
+      font-size: 16px; font-weight: 400; cursor: pointer;
+    }
+    .social {
+      position: relative; width: 100%; overflow: hidden; min-height: 380px;
+      border-top: 1px solid hsl(var(--border));
+    }
+    .video-bg {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; transition: opacity .16s linear;
+    }
+    .overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, hsl(var(--background)) 0%, transparent 50%, hsl(var(--background)) 100%);
+    }
+    .social-content {
+      position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center;
+      padding: 64px 16px 90px; gap: 52px;
+    }
+    .spacer { height: 160px; }
+    .marquee-shell {
+      width: min(96%, 960px); display: flex; align-items: center; gap: 22px; overflow: hidden;
+      padding: 14px; border-radius: 16px; border: 1px solid hsl(var(--border) / .8); background: hsl(var(--card) / .35);
+    }
+    .marquee-copy {
+      color: hsl(var(--foreground) / .5); font-size: 13px; line-height: 1.3;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .marquee-window { overflow: hidden; width: 100%; }
+    .marquee-track { display: flex; width: max-content; gap: 64px; animation: marquee 20s linear infinite; }
+    .logo-item { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+    .logo-icon {
+      width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center;
+      color: hsl(var(--foreground)); font-size: 11px; font-weight: 600;
+    }
+    .brand { font-size: 16px; font-weight: 600; color: hsl(var(--foreground)); }
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    @media (max-width: 860px) {
+      .navbar { padding: 14px; }
+      .nav-center { display: none; }
+      .headline { font-size: clamp(72px, 24vw, 140px); }
+      .subtext { font-size: 14px; line-height: 1.6; }
+      .marquee-shell { flex-direction: column; align-items: flex-start; gap: 14px; }
+    }
   </style>
 </head>
 <body>
-  <div class="cache"></div>
-  <div class="loading">Loading... 0%</div>
-  <div id="ui" class="hint">Photo by <a href="https://unsplash.com/fr/@dynamicwang" target="_blank" rel="noopener nofollow">Dynamic Wang</a> on Unsplash || Scroll / drag / use - or +</div>
-  <div class="copy">&amp;Toc</div>
+  <section class="hero">
+    <nav class="navbar">
+      <div class="logo-wrap">
+        <div class="logo">G</div>
+      </div>
+      <div class="nav-center">
+        <button class="nav-item">Features <span class="chev"></span></button>
+        <button class="nav-item">Solutions</button>
+        <button class="nav-item">Plans</button>
+        <button class="nav-item">Learning <span class="chev"></span></button>
+      </div>
+      <button class="hero-secondary liquid-glass">Sign Up</button>
+    </nav>
+    <div class="divider"></div>
+    <div class="hero-content">
+      <h1 class="headline">Grow</h1>
+      <p class="subtext">The most powerful AI ever deployed<br />in talent acquisition</p>
+      <div class="cta-wrap">
+        <button class="hero-cta liquid-glass">Schedule a Consult</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="social">
+    <video
+      id="bg-video"
+      class="video-bg"
+      autoplay
+      muted
+      playsinline
+      preload="auto"
+    >
+      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260308_114720_3dabeb9e-2c39-4907-b747-bc3544e2d5b7.mp4" type="video/mp4" />
+    </video>
+    <div class="overlay"></div>
+    <div class="social-content">
+      <div class="spacer"></div>
+      <div class="marquee-shell liquid-glass">
+        <p class="marquee-copy">Relied on by brands<br />across the globe</p>
+        <div class="marquee-window">
+          <div class="marquee-track" id="marquee-track"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <script>
-    const MES_IMAGES=["https://images.unsplash.com/photo-1698732276362-8a2d4f3c5145?w=500&h=500&fit=crop","https://images.unsplash.com/photo-1698732211807-d42a4879ff74?w=500&h=500&fit=crop","https://images.unsplash.com/photo-1698729855527-5841d0e07c1b?w=500&h=500&fit=crop","https://images.unsplash.com/photo-1698729821290-73bd6aff963b?w=500&h=500&fit=crop","https://images.unsplash.com/photo-1698729821220-a52dca70bb82?w=500&h=500&fit=crop","https://images.unsplash.com/photo-1698729257645-fad43df40e78?w=500&h=500&fit=crop","https://images.unsplash.com/photo-1698729427290-288304ab8ff6?w=500&h=500&fit=crop","https://images.unsplash.com/photo-1698729508209-e3e6f416402e?w=500&h=500&fit=crop"];
-    class InfinitePortraitGallery{
-      constructor(){this.canvas=document.createElement("canvas");document.body.appendChild(this.canvas);this.gl=this.canvas.getContext("webgl",{alpha:true,premultipliedAlpha:false});if(!this.gl){document.querySelector(".loading").textContent="WebGL indisponível";return;}this.images=[];this.textures=[];this.imageWidth=140;this.imageHeight=140;this.gap=18;this.viewOffset={x:0,y:0};this.drag={isDragging:false,lastX:0,lastY:0,velocityX:0,velocityY:0};this.inertia=0.95;this.bulgeStrength=0.38;this.bulgeRadius=1.35;this.adjustedBulgeRadius=this.bulgeRadius;this.resizeCanvas();window.addEventListener("resize",()=>this.resizeCanvas());this.init();this.setupEventListeners();this.loadPortraitImages();this.animate();}
-      resizeCanvas(){this.canvas.width=window.innerWidth;this.canvas.height=window.innerHeight;const min=Math.min(this.canvas.width,this.canvas.height);const diagonal=Math.sqrt((this.canvas.width/min)**2+(this.canvas.height/min)**2);this.adjustedBulgeRadius=Math.max(this.bulgeRadius,diagonal*0.72);this.gl.viewport(0,0,this.canvas.width,this.canvas.height);}
-      init(){const vs='attribute vec2 aPosition;attribute vec2 aTexCoord;varying vec2 vTexCoord;uniform vec2 uResolution;uniform vec2 uOffset;uniform vec2 uImagePosition;uniform float uBulgeStrength;uniform float uBulgeRadius;vec2 applyBulgeEffect(vec2 pos){vec2 normalizedPos=pos/uResolution;vec2 center=vec2(0.5,0.5);vec2 delta=normalizedPos-center;float aspect=uResolution.x/uResolution.y;delta.x*=aspect;float dist=length(delta);if(dist<uBulgeRadius){float t=dist/uBulgeRadius;float z=sqrt(max(0.05,0.5-t*t));delta*=0.35+uBulgeStrength/z;delta.x/=aspect;normalizedPos=center+delta;pos=normalizedPos*uResolution;}return pos;}void main(){vec2 pos=aPosition*vec2(140.0,140.0);pos+=uImagePosition;pos-=uOffset;pos=applyBulgeEffect(pos);vec2 clip=pos/uResolution*2.0-1.0;gl_Position=vec4(clip,0.0,1.0);vTexCoord=aTexCoord;}';const fs='precision mediump float;varying vec2 vTexCoord;uniform sampler2D uSampler;void main(){vec2 uv=vec2(vTexCoord.x,1.0-vTexCoord.y);vec4 color=texture2D(uSampler,uv);if(color.a<0.01)discard;gl_FragColor=color;}';this.program=this.createProgram(vs,fs);const S=20,positions=[],tex=[],indices=[];for(let y=0;y<=S;y++){for(let x=0;x<=S;x++){positions.push(x/S,y/S);tex.push(x/S,y/S);}}for(let y=0;y<S;y++){for(let x=0;x<S;x++){const i=y*(S+1)+x;indices.push(i,i+1,i+S+1,i+1,i+S+2,i+S+1);}}this.indexCount=indices.length;this.positionBuffer=this.gl.createBuffer();this.gl.bindBuffer(this.gl.ARRAY_BUFFER,this.positionBuffer);this.gl.bufferData(this.gl.ARRAY_BUFFER,new Float32Array(positions),this.gl.STATIC_DRAW);this.texCoordBuffer=this.gl.createBuffer();this.gl.bindBuffer(this.gl.ARRAY_BUFFER,this.texCoordBuffer);this.gl.bufferData(this.gl.ARRAY_BUFFER,new Float32Array(tex),this.gl.STATIC_DRAW);this.indexBuffer=this.gl.createBuffer();this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER,this.indexBuffer);this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(indices),this.gl.STATIC_DRAW);this.gl.enable(this.gl.BLEND);this.gl.blendFunc(this.gl.SRC_ALPHA,this.gl.ONE_MINUS_SRC_ALPHA);}
-      async loadPortraitImages(){const loading=document.querySelector(".loading");const cache=document.querySelector(".cache");const total=52;let loaded=0;for(let i=0;i<total;i++){const img=new Image();img.crossOrigin="Anonymous";img.src=MES_IMAGES[i%MES_IMAGES.length];await new Promise((resolve)=>{img.onload=resolve;img.onerror=()=>{img.src="https://picsum.photos/id/"+((i%80)+1)+"/256/256";img.onload=resolve;img.onerror=resolve;};});this.images.push(img);this.textures.push(this.createTexture(img));loaded++;loading.textContent="Loading... "+Math.round(loaded/total*100)+"%";}loading.style.display="none";cache.style.display="none";}
-      createTexture(img){const tex=this.gl.createTexture();this.gl.bindTexture(this.gl.TEXTURE_2D,tex);this.gl.texImage2D(this.gl.TEXTURE_2D,0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,img);this.gl.texParameteri(this.gl.TEXTURE_2D,this.gl.TEXTURE_WRAP_S,this.gl.CLAMP_TO_EDGE);this.gl.texParameteri(this.gl.TEXTURE_2D,this.gl.TEXTURE_WRAP_T,this.gl.CLAMP_TO_EDGE);this.gl.texParameteri(this.gl.TEXTURE_2D,this.gl.TEXTURE_MIN_FILTER,this.gl.LINEAR);this.gl.texParameteri(this.gl.TEXTURE_2D,this.gl.TEXTURE_MAG_FILTER,this.gl.LINEAR);return tex;}
-      getVisibleTiles(){const tiles=[],w=this.imageWidth+this.gap,h=this.imageHeight+this.gap,left=this.viewOffset.x-this.canvas.width,right=this.viewOffset.x+this.canvas.width*2,top=this.viewOffset.y-this.canvas.height,bottom=this.viewOffset.y+this.canvas.height*2;for(let y=Math.floor(top/h)-1;y<=Math.ceil(bottom/h)+1;y++){for(let x=Math.floor(left/w)-1;x<=Math.ceil(right/w)+1;x++){const idx=Math.abs((x*7919+y*7307)%this.images.length);tiles.push({x:x*w,y:y*h,imageIndex:idx});}}return tiles;}
-      render(){if(!this.program||!this.images.length)return;this.gl.clearColor(0,0,0,0);this.gl.clear(this.gl.COLOR_BUFFER_BIT);this.gl.useProgram(this.program);const posLoc=this.gl.getAttribLocation(this.program,"aPosition");this.gl.enableVertexAttribArray(posLoc);this.gl.bindBuffer(this.gl.ARRAY_BUFFER,this.positionBuffer);this.gl.vertexAttribPointer(posLoc,2,this.gl.FLOAT,false,0,0);const texLoc=this.gl.getAttribLocation(this.program,"aTexCoord");this.gl.enableVertexAttribArray(texLoc);this.gl.bindBuffer(this.gl.ARRAY_BUFFER,this.texCoordBuffer);this.gl.vertexAttribPointer(texLoc,2,this.gl.FLOAT,false,0,0);this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER,this.indexBuffer);this.gl.uniform2f(this.gl.getUniformLocation(this.program,"uResolution"),this.canvas.width,this.canvas.height);this.gl.uniform1f(this.gl.getUniformLocation(this.program,"uBulgeStrength"),this.bulgeStrength);this.gl.uniform1f(this.gl.getUniformLocation(this.program,"uBulgeRadius"),this.adjustedBulgeRadius);const offsetLoc=this.gl.getUniformLocation(this.program,"uOffset");const imgPosLoc=this.gl.getUniformLocation(this.program,"uImagePosition");const samplerLoc=this.gl.getUniformLocation(this.program,"uSampler");for(const t of this.getVisibleTiles()){this.gl.uniform2f(offsetLoc,this.viewOffset.x,this.viewOffset.y);this.gl.uniform2f(imgPosLoc,t.x,t.y);this.gl.activeTexture(this.gl.TEXTURE0);this.gl.bindTexture(this.gl.TEXTURE_2D,this.textures[t.imageIndex]);this.gl.uniform1i(samplerLoc,0);this.gl.drawElements(this.gl.TRIANGLES,this.indexCount,this.gl.UNSIGNED_SHORT,0);}}
-      setupEventListeners(){this.canvas.addEventListener("mousedown",(e)=>{this.drag.isDragging=true;this.drag.lastX=e.clientX;this.drag.lastY=e.clientY;});window.addEventListener("mousemove",(e)=>{if(!this.drag.isDragging)return;const dx=e.clientX-this.drag.lastX,dy=e.clientY-this.drag.lastY;this.drag.velocityX=dx*0.3+this.drag.velocityX*0.7;this.drag.velocityY=dy*0.3+this.drag.velocityY*0.7;this.viewOffset.x-=this.drag.velocityX;this.viewOffset.y-=this.drag.velocityY;this.drag.lastX=e.clientX;this.drag.lastY=e.clientY;});window.addEventListener("mouseup",()=>{this.drag.isDragging=false;});this.canvas.addEventListener("wheel",(e)=>{e.preventDefault();this.drag.velocityX+=e.deltaX*0.45;this.drag.velocityY+=e.deltaY*0.45;},{passive:false});window.addEventListener("keydown",(e)=>{if(e.key==="+"||e.key==="=")this.bulgeStrength=Math.min(1.5,this.bulgeStrength+0.05);if(e.key==="-"||e.key==="_")this.bulgeStrength=Math.max(0,this.bulgeStrength-0.05);});}
-      animate(){if(!this.drag.isDragging){this.viewOffset.x-=this.drag.velocityX;this.viewOffset.y-=this.drag.velocityY;this.drag.velocityX*=this.inertia;this.drag.velocityY*=this.inertia;if(Math.abs(this.drag.velocityX)<0.01)this.drag.velocityX=0;if(Math.abs(this.drag.velocityY)<0.01)this.drag.velocityY=0;}this.render();requestAnimationFrame(()=>this.animate());}
-      createProgram(vs,fs){const v=this.loadShader(this.gl.VERTEX_SHADER,vs),f=this.loadShader(this.gl.FRAGMENT_SHADER,fs),p=this.gl.createProgram();this.gl.attachShader(p,v);this.gl.attachShader(p,f);this.gl.linkProgram(p);if(!this.gl.getProgramParameter(p,this.gl.LINK_STATUS))return null;return p;}
-      loadShader(type,source){const shader=this.gl.createShader(type);this.gl.shaderSource(shader,source);this.gl.compileShader(shader);if(!this.gl.getShaderParameter(shader,this.gl.COMPILE_STATUS)){this.gl.deleteShader(shader);return null;}return shader;}
-    }
-    window.addEventListener("DOMContentLoaded",()=>new InfinitePortraitGallery());
+    const brands = ["Vortex", "Nimbus", "Prysma", "Cirrus", "Kynder", "Halcyn"];
+    const track = document.getElementById("marquee-track");
+    const twoRounds = [...brands, ...brands];
+    twoRounds.forEach((name) => {
+      const item = document.createElement("div");
+      item.className = "logo-item";
+      item.innerHTML = '<span class="logo-icon liquid-glass">' + name[0] + '</span><span class="brand">' + name + "</span>";
+      track.appendChild(item);
+    });
+
+    const video = document.getElementById("bg-video");
+    const fade = 0.5;
+    let resetLock = false;
+
+    const loopFade = () => {
+      if (video && video.duration && Number.isFinite(video.duration)) {
+        const t = video.currentTime;
+        const d = video.duration;
+        let opacity = 1;
+        if (t <= fade) opacity = Math.max(0, t / fade);
+        if (d - t <= fade) opacity = Math.max(0, (d - t) / fade);
+        video.style.opacity = String(Math.min(1, opacity));
+
+        if (!resetLock && d - t <= 0.02) {
+          resetLock = true;
+          video.style.opacity = "0";
+          setTimeout(() => {
+            video.currentTime = 0;
+            video.play().catch(() => {});
+            resetLock = false;
+          }, 100);
+        }
+      }
+      requestAnimationFrame(loopFade);
+    };
+
+    video.addEventListener("ended", () => {
+      video.style.opacity = "0";
+      setTimeout(() => {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }, 100);
+    });
+
+    video.play().catch(() => {});
+    requestAnimationFrame(loopFade);
   </script>
 </body>
 </html>
