@@ -901,6 +901,18 @@ function PreviewScrollSkewedOnePage() {
   );
 }
 
+function PreviewLaptopMockup({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative h-[168px] overflow-hidden rounded-lg bg-[#06080f] sm:h-[180px]">
+      <div className="pointer-events-none absolute inset-x-6 top-0 h-6 rounded-b-2xl bg-[#2b2d35]/70 blur-[1px]" />
+      <div className="absolute inset-x-2 top-2 bottom-4 rounded-[20px] border border-[#7f8088]/70 bg-[#1f2027] p-2 shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
+        <div className="h-full w-full overflow-hidden rounded-xl border border-white/10 bg-black">{children}</div>
+      </div>
+      <div className="pointer-events-none absolute inset-x-4 bottom-1 h-2 rounded-full bg-[#b7bcc8]/25 blur-[1.5px]" />
+    </div>
+  );
+}
+
 function PreviewScrollInfinitePortraitGallery() {
   const srcDoc = useMemo(
     () => `<!doctype html>
@@ -1055,14 +1067,14 @@ void main(){vec2 uv=vec2(vTexCoord.x,1.0-vTexCoord.y);vec4 color=texture2D(uSamp
   );
 
   return (
-    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-black sm:h-[180px]">
+    <PreviewLaptopMockup>
       <iframe
         title="Infinite portrait gallery preview"
         srcDoc={srcDoc}
         className="h-full w-full border-0"
         sandbox="allow-scripts allow-same-origin allow-popups"
       />
-    </div>
+    </PreviewLaptopMockup>
   );
 }
 
@@ -1146,14 +1158,14 @@ function PreviewScrollBrutalMagicVelocity() {
   );
 
   return (
-    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-black sm:h-[180px]">
+    <PreviewLaptopMockup>
       <iframe
         title="Brutal Magic velocity scroll preview"
         srcDoc={srcDoc}
         className="h-full w-full border-0"
         sandbox="allow-scripts allow-same-origin"
       />
-    </div>
+    </PreviewLaptopMockup>
   );
 }
 
@@ -1227,9 +1239,9 @@ addEventListener('resize',rs);
   );
 
   return (
-    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-black sm:h-[180px]">
+    <PreviewLaptopMockup>
       <iframe title="WebGL cloud noise preview" srcDoc={srcDoc} className="h-full w-full border-0" sandbox="allow-scripts allow-same-origin" />
-    </div>
+    </PreviewLaptopMockup>
   );
 }
 
@@ -1317,9 +1329,9 @@ function PreviewScrollClawshieldLanding() {
   );
 
   return (
-    <div className="relative h-[168px] overflow-hidden rounded-lg border border-border bg-[#08090c] sm:h-[180px]">
+    <PreviewLaptopMockup>
       <iframe title="ClawShield landing preview" srcDoc={srcDoc} className="h-full w-full border-0" sandbox="allow-scripts allow-same-origin" />
-    </div>
+    </PreviewLaptopMockup>
   );
 }
 
