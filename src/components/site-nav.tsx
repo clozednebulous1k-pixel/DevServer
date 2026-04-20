@@ -1,20 +1,54 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, BriefcaseBusiness, HomeIcon, LogIn, Rocket, User } from "lucide-react";
+import { BookOpen, BriefcaseBusiness, HomeIcon, LayoutPanelTop, LogIn, Rocket, User } from "lucide-react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
+type MeResponse = {
+  authenticated: boolean;
+  role?: "admin" | "user";
+};
+
 export function SiteNav() {
-  const navItems = [
-    { name: "Início", url: "/", icon: HomeIcon },
-    { name: "Sobre", url: "/sobre", icon: User },
-    { name: "Projetos", url: "/projetos", icon: BriefcaseBusiness },
-    { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
-    { name: "Contato", url: "/contato", icon: Rocket },
-    { name: "Entrar", url: "/login", icon: LogIn },
-  ];
+  const [session, setSession] = useState<MeResponse>({ authenticated: false });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data: MeResponse) => {
+        if (cancelled) return;
+        setSession({ authenticated: !!data.authenticated, role: data.role });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSession({ authenticated: false });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const navItems = useMemo(() => {
+    const baseItems = [
+      { name: "Início", url: "/", icon: HomeIcon },
+      { name: "Sobre", url: "/sobre", icon: User },
+      { name: "Projetos", url: "/projetos", icon: BriefcaseBusiness },
+      { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
+      { name: "Contato", url: "/contato", icon: Rocket },
+    ];
+
+    if (session.authenticated) {
+      const painelUrl = session.role === "admin" ? "/admin/orcamentos" : "/painel";
+      return [...baseItems, { name: "Painel", url: painelUrl, icon: LayoutPanelTop }];
+    }
+
+    return [...baseItems, { name: "Entrar", url: "/login", icon: LogIn }];
+  }, [session.authenticated, session.role]);
 
   return (
     <>

@@ -15,7 +15,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const requestedRedirect = searchParams.get("redirect");
   const redirect =
-    requestedRedirect && requestedRedirect.startsWith("/") ? requestedRedirect : "/biblioteca";
+    requestedRedirect && requestedRedirect.startsWith("/") ? requestedRedirect : "/painel";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

@@ -7,9 +7,10 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isBibliotecaRoute = pathname.startsWith("/biblioteca");
   const isAdminRoute = pathname.startsWith("/admin");
+  const isPainelRoute = pathname.startsWith("/painel");
   const isLoginRoute = pathname.startsWith("/login");
 
-  if (!isBibliotecaRoute && !isAdminRoute && !isLoginRoute) {
+  if (!isBibliotecaRoute && !isAdminRoute && !isPainelRoute && !isLoginRoute) {
     return NextResponse.next();
   }
 
@@ -17,13 +18,13 @@ export async function proxy(request: NextRequest) {
   const { decoded } = await verifySessionFromRequest(request);
 
   if (!db) {
-    if (isBibliotecaRoute || isAdminRoute) {
+    if (isBibliotecaRoute || isAdminRoute || isPainelRoute) {
       return NextResponse.redirect(new URL("/", request.url));
     }
     return NextResponse.next();
   }
 
-  if (!decoded && (isBibliotecaRoute || isAdminRoute)) {
+  if (!decoded && (isBibliotecaRoute || isAdminRoute || isPainelRoute)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("redirect", pathname);
@@ -47,7 +48,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isLoginRoute) {
-    const target = isAdmin ? "/admin/orcamentos" : hasBibliotecaAccess ? "/biblioteca" : "/pagamento";
+    const target = isAdmin ? "/admin/orcamentos" : "/painel";
     return NextResponse.redirect(new URL(target, request.url));
   }
 
@@ -55,5 +56,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/biblioteca/:path*", "/admin/:path*", "/login"],
+  matcher: ["/biblioteca/:path*", "/admin/:path*", "/painel", "/login"],
 };
