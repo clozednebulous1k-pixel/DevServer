@@ -131,7 +131,7 @@ export default function PainelPage() {
             </Button>
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className={`mt-6 grid gap-4 ${isAdmin ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
             <article className="rounded-2xl border bg-background/60 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
                 <UserCircle2 className="size-4" />
@@ -149,22 +149,20 @@ export default function PainelPage() {
               </p>
             </article>
 
-            <article className="rounded-2xl border bg-background/60 p-4">
-              <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
-                <ShieldCheck className="size-4" />
-                Painel administrativo
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {isAdmin
-                  ? "Você pode criar e liberar novos logins no painel de administração."
-                  : "Seu acesso administrativo não está habilitado."}
-              </p>
-              {isAdmin ? (
+            {isAdmin ? (
+              <article className="rounded-2xl border bg-background/60 p-4">
+                <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <ShieldCheck className="size-4" />
+                  Painel administrativo
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Você pode criar e liberar novos logins no painel de administração.
+                </p>
                 <Link href="/admin/orcamentos">
                   <Button className="mt-3 rounded-full">Abrir painel admin</Button>
                 </Link>
-              ) : null}
-            </article>
+              </article>
+            ) : null}
           </div>
 
           <article id="alterar-senha" className="mt-6 rounded-2xl border bg-background/60 p-4">
