@@ -1,6 +1,10 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { SiteNav } from "@/components/site-nav";
-import { getAdminDb } from "@/lib/firebase/admin";
+import { loadUserProfile } from "@/lib/auth/load-profile";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/session-cookie";
+import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import { AccessManager } from "@/components/admin/access-manager";
 import { loadUsersDirectory, type DirectoryUser } from "@/lib/admin/users-directory";
 
@@ -32,6 +36,20 @@ function firestoreHelpMessage(err: unknown, projectId: string | undefined): stri
 export default async function AdminOrcamentosPage() {
   await connection();
 
+  const auth = getAdminAuth();
+  const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+  if (!auth || !sessionCookie) {
+    redirect("/login?redirect=/admin/orcamentos");
+  }
+
+  let uid: string;
+  try {
+    const decoded = await auth.verifySessionCookie(sessionCookie, true);
+    uid = decoded.uid;
+  } catch {
+    redirect("/login?redirect=/admin/orcamentos");
+  }
+
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const db = getAdminDb();
   if (!db) {
@@ -46,6 +64,11 @@ export default async function AdminOrcamentosPage() {
         </main>
       </div>
     );
+  }
+
+  const profile = await loadUserProfile(db, uid);
+  if (profile?.role !== "admin") {
+    redirect("/");
   }
 
   let orcamentos: Orcamento[] = [];
