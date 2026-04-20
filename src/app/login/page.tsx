@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { useScreenSize } from "@/components/hooks/use-screen-size";
 import { SiteNav } from "@/components/site-nav";
 import { PixelTrail } from "@/components/ui/pixel-trail";
@@ -18,6 +19,8 @@ export default function LoginPage() {
     requestedRedirect && requestedRedirect.startsWith("/") ? requestedRedirect : "/painel";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const auth = useMemo(() => getFirebaseAuth(), []);
@@ -38,7 +41,7 @@ export default function LoginPage() {
       const sessionResponse = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ idToken, remember }),
       });
 
       if (!sessionResponse.ok) {
@@ -88,14 +91,34 @@ export default function LoginPage() {
             </label>
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium">Senha</span>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Sua senha"
+                  className="h-11 w-full rounded-xl border bg-background/80 px-3 pr-11 text-sm outline-none ring-primary/20 focus:ring-2"
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-md p-1 text-muted-foreground transition hover:text-foreground"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-2 text-sm">
               <input
-                type="password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Sua senha"
-                className="h-11 w-full rounded-xl border bg-background/80 px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                type="checkbox"
+                checked={remember}
+                onChange={(event) => setRemember(event.target.checked)}
+                className="size-4 rounded border border-border accent-primary"
               />
+              Lembrar senha
             </label>
 
             {error ? <p className="text-sm text-destructive">{error}</p> : null}

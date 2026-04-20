@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifySessionFromRequest } from "@/lib/auth/verify-session";
 import { getAdminAuth } from "@/lib/firebase/admin";
+import { applyRateLimit, getClientIpFromRequest } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -30,6 +31,15 @@ async function verifyCurrentPassword(email: string, currentPassword: string): Pr
 }
 
 export async function POST(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const rate = applyRateLimit(`auth-change-password:${ip}`, { limit: 8, windowMs: 60_000 });
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Muitas tentativas. Aguarde antes de tentar novamente." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const { decoded } = await verifySessionFromRequest(request);
   if (!decoded) {
     return NextResponse.json({ error: "Sessao invalida." }, { status: 401 });

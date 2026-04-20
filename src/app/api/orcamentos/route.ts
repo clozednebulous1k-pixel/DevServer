@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
 import { clampOrcamentoField } from "@/lib/orcamento-limits";
 import { firestoreHelpers, getAdminDb } from "@/lib/firebase/admin";
+import { applyRateLimit, getClientIpFromRequest } from "@/lib/security/rate-limit";
 
 export async function POST(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const rate = applyRateLimit(`orcamentos:${ip}`, { limit: 5, windowMs: 60_000 });
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Muitas requisicoes. Aguarde um minuto e tente novamente." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const db = getAdminDb();
   if (!db) {
     return NextResponse.json({ error: "Firestore nao configurado." }, { status: 500 });

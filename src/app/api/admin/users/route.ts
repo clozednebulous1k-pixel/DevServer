@@ -3,6 +3,7 @@ import { verifySessionFromRequest } from "@/lib/auth/verify-session";
 import { loadUserProfile } from "@/lib/auth/load-profile";
 import { loadUsersDirectory } from "@/lib/admin/users-directory";
 import { firestoreHelpers, getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
+import { applyRateLimit, getClientIpFromRequest } from "@/lib/security/rate-limit";
 
 async function ensureAdmin(request: Request) {
   const db = getAdminDb();
@@ -25,6 +26,15 @@ async function ensureAdmin(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const rate = applyRateLimit(`admin-users-get:${ip}`, { limit: 60, windowMs: 60_000 });
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Muitas requisicoes. Aguarde e tente novamente." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const guard = await ensureAdmin(request);
   if ("error" in guard) return guard.error;
 
@@ -37,6 +47,15 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const rate = applyRateLimit(`admin-users-post:${ip}`, { limit: 20, windowMs: 60_000 });
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Muitas tentativas. Aguarde e tente novamente." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const guard = await ensureAdmin(request);
   if ("error" in guard) return guard.error;
 
@@ -95,6 +114,15 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const rate = applyRateLimit(`admin-users-patch:${ip}`, { limit: 30, windowMs: 60_000 });
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Muitas alteracoes em pouco tempo. Aguarde e tente novamente." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const guard = await ensureAdmin(request);
   if ("error" in guard) return guard.error;
 

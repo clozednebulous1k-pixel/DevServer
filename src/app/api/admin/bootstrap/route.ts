@@ -5,6 +5,7 @@ import {
   getAdminDb,
   getFirebaseAdminDiagnostics,
 } from "@/lib/firebase/admin";
+import { applyRateLimit, getClientIpFromRequest } from "@/lib/security/rate-limit";
 
 /** Runtime Node obrigatorio para firebase-admin + Buffer na decodificacao Base64. */
 export const runtime = "nodejs";
@@ -60,6 +61,15 @@ export async function POST(request: Request) {
 }
 
 async function handleBootstrapPost(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const rate = applyRateLimit(`admin-bootstrap:${ip}`, { limit: 5, windowMs: 60_000 });
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { code: "RATE_LIMITED", error: "Muitas tentativas de bootstrap. Aguarde e tente novamente." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
   const secretEnv = process.env.ADMIN_BOOTSTRAP_SECRET?.trim();
   if (!secretEnv || secretEnv.length < 16) {
     return NextResponse.json(
