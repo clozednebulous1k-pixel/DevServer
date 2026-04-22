@@ -1,6 +1,7 @@
 import {
   CRIAR_SCHEMA_VERSION,
   type CriarCanvasElement,
+  type CriarPageSchema,
   type CriarProjectSchema,
 } from "@/lib/criar/schema";
 
@@ -83,6 +84,23 @@ export function makeElement<T extends CriarCanvasElement["type"]>(type: T): Elem
   }
 }
 
+export function makeBlankPage(index: number, viewport: "desktop" | "tablet" | "mobile"): CriarPageSchema {
+  const dimensions =
+    viewport === "desktop" ? { width: 1280, height: 900 } : viewport === "tablet" ? { width: 900, height: 1200 } : { width: 430, height: 932 };
+
+  return {
+    slug: index === 0 ? "home" : `pagina-${index + 1}`,
+    title: index === 0 ? "Home" : `Página ${index + 1}`,
+    viewport,
+    canvas: {
+      width: dimensions.width,
+      height: dimensions.height,
+      background: "#0b1220",
+      elements: [],
+    },
+  };
+}
+
 export function makeDefaultSchema(): CriarProjectSchema {
   return {
     meta: { version: CRIAR_SCHEMA_VERSION },
@@ -91,17 +109,6 @@ export function makeDefaultSchema(): CriarProjectSchema {
       background: "#09090b",
       text: "#f5f5f5",
     },
-    pages: [
-      {
-        slug: "home",
-        title: "Home",
-        canvas: {
-          width: 1280,
-          height: 900,
-          background: "#0b1220",
-          elements: [],
-        },
-      },
-    ],
+    pages: [makeBlankPage(0, "desktop")],
   };
 }

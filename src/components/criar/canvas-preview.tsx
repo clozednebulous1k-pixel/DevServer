@@ -1,15 +1,18 @@
 "use client";
 
-import { useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { CriarCanvasElement, CriarProjectSchema } from "@/lib/criar/schema";
 import { cn } from "@/lib/utils";
 
 type Props = {
   schema: CriarProjectSchema;
+  pageIndex: number;
   selectedBlockId: string | null;
   onSelectBlock: (blockId: string) => void;
   onChangeElement: (next: CriarCanvasElement) => void;
   zoom: number;
+  zoomMode: "fit" | "manual";
+  onFitZoomChange: (zoom: number) => void;
 };
 
 function animationClass(element: CriarCanvasElement): string {
@@ -25,10 +28,42 @@ function animationClass(element: CriarCanvasElement): string {
   }
 }
 
-export function CanvasPreview({ schema, selectedBlockId, onSelectBlock, onChangeElement, zoom }: Props) {
-  const page = schema.pages[0];
+export function CanvasPreview({
+  schema,
+  pageIndex,
+  selectedBlockId,
+  onSelectBlock,
+  onChangeElement,
+  zoom,
+  zoomMode,
+  onFitZoomChange,
+}: Props) {
+  const page = schema.pages[pageIndex] ?? null;
+  const canvasWidth = page?.canvas.width ?? 0;
+  const canvasHeight = page?.canvas.height ?? 0;
   const dragging = useRef<{ id: string; mode: "move" | "resize"; startX: number; startY: number; baseX: number; baseY: number; baseW: number; baseH: number } | null>(null);
   const [, force] = useState(0);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!page) return;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    function computeFit() {
+      const availableW = Math.max(viewport.clientWidth - 24, 320);
+      const availableH = Math.max(viewport.clientHeight - 24, 280);
+      const fit = Math.min(availableW / canvasWidth, availableH / canvasHeight, 1);
+      onFitZoomChange(Math.max(0.2, Number(fit.toFixed(2))));
+    }
+
+    computeFit();
+    const observer = new ResizeObserver(computeFit);
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, [onFitZoomChange, page, canvasHeight, canvasWidth]);
+
+  const effectiveZoom = zoomMode === "fit" ? zoom : zoom;
 
   if (!page) return null;
 
@@ -73,17 +108,17 @@ export function CanvasPreview({ schema, selectedBlockId, onSelectBlock, onChange
   }
 
   return (
-    <section className="rounded-2xl border bg-background/50 p-3">
-      <div className="max-h-[72vh] overflow-auto rounded-xl border bg-[#111827] p-4">
+    <section className="min-w-0 rounded-2xl border bg-background/50 p-3">
+      <div ref={viewportRef} className="h-[72vh] overflow-auto rounded-xl border bg-[#111827] p-4">
         <div
           className="relative mx-auto overflow-hidden rounded-xl border border-slate-700 bg-[#0b1220]"
           style={{
             width: page.canvas.width,
             height: page.canvas.height,
             backgroundColor: page.canvas.background,
-            transform: `scale(${zoom})`,
+            transform: `scale(${effectiveZoom})`,
             transformOrigin: "top left",
-            marginBottom: `${Math.max(0, (zoom - 1) * page.canvas.height)}px`,
+            marginBottom: `${Math.max(0, (effectiveZoom - 1) * page.canvas.height)}px`,
           }}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}

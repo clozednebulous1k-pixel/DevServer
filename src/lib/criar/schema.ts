@@ -58,6 +58,7 @@ export type CriarCanvasElement = TextElement | ButtonElement | ShapeElement | Im
 export type CriarPageSchema = {
   slug: string;
   title: string;
+  viewport: "desktop" | "tablet" | "mobile";
   canvas: {
     width: number;
     height: number;
@@ -246,6 +247,8 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
       normalizedPages.push({
         slug: pageRecord.slug,
         title: pageRecord.title,
+        viewport:
+          pageRecord.viewport === "tablet" || pageRecord.viewport === "mobile" ? pageRecord.viewport : "desktop",
         canvas: {
           width: canvas.width,
           height: canvas.height,
@@ -271,6 +274,7 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
       normalizedPages.push({
         slug: pageRecord.slug,
         title: pageRecord.title,
+        viewport: "desktop",
         canvas: {
           width: 1200,
           height: Math.max(900, elements.length * 180),
@@ -300,7 +304,11 @@ export function validateCriarSchema(input: unknown): { ok: true; value: CriarPro
   if (!normalized) return { ok: false, error: "Schema invalido." };
 
   for (const page of normalized.pages) {
-    if (!isString(page.slug) || !isString(page.title)) {
+    if (
+      !isString(page.slug) ||
+      !isString(page.title) ||
+      (page.viewport !== "desktop" && page.viewport !== "tablet" && page.viewport !== "mobile")
+    ) {
       return { ok: false, error: "Pagina invalida." };
     }
     if (

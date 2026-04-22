@@ -44,6 +44,30 @@ function TextField({
   );
 }
 
+function ColorField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-2">
+        <input type="color" value={value} onChange={(event) => onChange(event.target.value)} className="h-9 w-12 rounded-xl border bg-background p-1" />
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-9 flex-1 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+        />
+      </div>
+    </label>
+  );
+}
+
 export function PropertiesPanel({
   block,
   onChangeBlock,
@@ -142,11 +166,7 @@ export function PropertiesPanel({
         {block.type === "text" ? (
           <>
             <TextField label="Texto" value={block.text} multiline onChange={(text) => onChangeBlock({ ...block, text })} />
-            <TextField
-              label="Cor (hex/rgb)"
-              value={block.color}
-              onChange={(color) => onChangeBlock({ ...block, color })}
-            />
+            <ColorField label="Cor" value={block.color} onChange={(color) => onChangeBlock({ ...block, color })} />
             <TextField
               label="Tamanho da fonte"
               value={String(block.fontSize)}
@@ -164,8 +184,8 @@ export function PropertiesPanel({
           <>
             <TextField label="Texto do botão" value={block.label} onChange={(label) => onChangeBlock({ ...block, label })} />
             <TextField label="Link" value={block.href} onChange={(href) => onChangeBlock({ ...block, href })} />
-            <TextField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} />
-            <TextField label="Cor do texto" value={block.color} onChange={(color) => onChangeBlock({ ...block, color })} />
+            <ColorField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} />
+            <ColorField label="Cor do texto" value={block.color} onChange={(color) => onChangeBlock({ ...block, color })} />
             <TextField
               label="Tamanho da fonte"
               value={String(block.fontSize)}
@@ -174,7 +194,7 @@ export function PropertiesPanel({
             <TextField label="Fonte" value={block.fontFamily} onChange={(fontFamily) => onChangeBlock({ ...block, fontFamily })} />
           </>
         ) : null}
-        {block.type === "shape" ? <TextField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} /> : null}
+        {block.type === "shape" ? <ColorField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} /> : null}
         {block.type === "image" ? <TextField label="URL da imagem" value={block.src} onChange={(src) => onChangeBlock({ ...block, src })} /> : null}
       </div>
       <div className="mt-4 grid grid-cols-3 gap-2">

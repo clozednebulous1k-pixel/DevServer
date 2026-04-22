@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Download, Laptop, Save, Smartphone, Tablet } from "lucide-react";
+import { Download, Laptop, Plus, Save, Smartphone, Tablet, ZoomIn, ZoomOut } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { Button } from "@/components/ui/button";
 import { BlockPalette } from "@/components/criar/block-palette";
 import { CanvasPreview } from "@/components/criar/canvas-preview";
 import { PropertiesPanel } from "@/components/criar/properties-panel";
-import { makeElement } from "@/lib/criar/defaults";
+import { makeBlankPage, makeElement } from "@/lib/criar/defaults";
 import { normalizeCriarSchema, type CriarCanvasElement, type CriarProjectRecord, type CriarProjectSchema } from "@/lib/criar/schema";
 
 type Props = {
@@ -24,7 +24,8 @@ export function EditorShell({ projectId }: Props) {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
-  const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [zoomMode, setZoomMode] = useState<"fit" | "manual">("fit");
+  const [activePageIndex, setActivePageIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,6 +46,7 @@ export function EditorShell({ projectId }: Props) {
           schema: normalizedSchema,
         };
         setProject(normalizedProject);
+        setActivePageIndex(0);
         setSelectedBlockId(normalizedProject.schema.pages[0]?.canvas.elements[0]?.id ?? null);
       })
       .catch(() => {
@@ -61,21 +63,24 @@ export function EditorShell({ projectId }: Props) {
   }, [projectId]);
 
   const schema: CriarProjectSchema | null = project?.schema ?? null;
-  const elements = schema?.pages[0]?.canvas.elements ?? [];
+  const pages = schema?.pages ?? [];
+  const page = pages[activePageIndex] ?? null;
+  const elements = page?.canvas.elements ?? [];
   const selectedIndex = elements.findIndex((element) => element.id === selectedBlockId);
   const selectedElement = selectedIndex >= 0 ? elements[selectedIndex]! : null;
-  const page = schema?.pages[0] ?? null;
 
   function mutateElements(mutator: (list: CriarCanvasElement[]) => CriarCanvasElement[], nextSelectedId?: string | null) {
     if (!project) return;
-    const page = project.schema.pages[0];
-    if (!page) return;
-    const nextElements = mutator(page.canvas.elements);
+    const currentPage = project.schema.pages[activePageIndex];
+    if (!currentPage) return;
+    const nextElements = mutator(currentPage.canvas.elements);
+    const nextPages = [...project.schema.pages];
+    nextPages[activePageIndex] = { ...currentPage, canvas: { ...currentPage.canvas, elements: nextElements } };
     const nextProject: CriarProjectRecord = {
       ...project,
       schema: {
         ...project.schema,
-        pages: [{ ...page, canvas: { ...page.canvas, elements: nextElements } }],
+        pages: nextPages,
       },
     };
     setProject(nextProject);
@@ -115,28 +120,17 @@ export function EditorShell({ projectId }: Props) {
     mutateElements(() => nextElements, nextElements[selectedIndex - 1]?.id ?? nextElements[0]?.id ?? null);
   }
 
-  function setCanvasSize(next: { width: number; height: number }) {
-    if (!project) return;
-    const localPage = project.schema.pages[0];
-    if (!localPage) return;
-    setProject({
-      ...project,
-      schema: {
-        ...project.schema,
-        pages: [{ ...localPage, canvas: { ...localPage.canvas, width: next.width, height: next.height } }],
-      },
-    });
-  }
-
   function setCanvasBackground(background: string) {
     if (!project) return;
-    const localPage = project.schema.pages[0];
+    const localPage = project.schema.pages[activePageIndex];
     if (!localPage) return;
+    const nextPages = [...project.schema.pages];
+    nextPages[activePageIndex] = { ...localPage, canvas: { ...localPage.canvas, background } };
     setProject({
       ...project,
       schema: {
         ...project.schema,
-        pages: [{ ...localPage, canvas: { ...localPage.canvas, background } }],
+        pages: nextPages,
       },
     });
   }
@@ -153,10 +147,35 @@ export function EditorShell({ projectId }: Props) {
   }
 
   function applyViewport(next: "desktop" | "tablet" | "mobile") {
-    setViewport(next);
-    if (next === "desktop") setCanvasSize({ width: 1280, height: 900 });
-    if (next === "tablet") setCanvasSize({ width: 900, height: 1200 });
-    if (next === "mobile") setCanvasSize({ width: 430, height: 932 });
+    if (!project) return;
+    const current = project.schema.pages[activePageIndex];
+    if (!current) return;
+    const nextPages = [...project.schema.pages];
+    if (next === "desktop") nextPages[activePageIndex] = { ...current, viewport: "desktop", canvas: { ...current.canvas, width: 1280, height: 900 } };
+    if (next === "tablet") nextPages[activePageIndex] = { ...current, viewport: "tablet", canvas: { ...current.canvas, width: 900, height: 1200 } };
+    if (next === "mobile") nextPages[activePageIndex] = { ...current, viewport: "mobile", canvas: { ...current.canvas, width: 430, height: 932 } };
+    setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
+    setZoomMode("fit");
+  }
+
+  function addPage(viewport: "desktop" | "tablet" | "mobile") {
+    if (!project) return;
+    const nextIndex = project.schema.pages.length;
+    const newPage = makeBlankPage(nextIndex, viewport);
+    const nextPages = [...project.schema.pages, newPage];
+    setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
+    setActivePageIndex(nextIndex);
+    setSelectedBlockId(null);
+    setZoomMode("fit");
+  }
+
+  function setManualZoom(next: number) {
+    setZoomMode("manual");
+    setZoom(Math.max(0.2, Math.min(2, next)));
+  }
+
+  function handleFitZoom(zoomValue: number) {
+    if (zoomMode === "fit") setZoom(zoomValue);
   }
 
   async function saveProject() {
@@ -239,14 +258,51 @@ export function EditorShell({ projectId }: Props) {
         ) : !project || !schema ? (
           <div className="rounded-2xl border bg-card/80 p-6 text-sm text-destructive">Não foi possível abrir o projeto.</div>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[240px_1fr_340px]">
+          <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)_320px]">
             <BlockPalette onAddBlock={addBlock} />
-            <div className="space-y-4">
+            <div className="min-w-0 space-y-4">
+              <section className="rounded-2xl border bg-card/80 p-3">
+                <h3 className="text-sm font-semibold">Telas do site</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Defina quantas telas seu site terá.</p>
+                <div className="mt-3 grid gap-2">
+                  {pages.map((entry, index) => (
+                    <button
+                      key={`${entry.slug}-${index}`}
+                      type="button"
+                      className={`rounded-xl border px-3 py-2 text-left text-sm ${index === activePageIndex ? "border-primary bg-primary/10" : "border-border bg-background/50"}`}
+                      onClick={() => {
+                        setActivePageIndex(index);
+                        setSelectedBlockId(entry.canvas.elements[0]?.id ?? null);
+                        setZoomMode("fit");
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>{entry.title}</span>
+                        <span className="text-xs text-muted-foreground">{entry.viewport}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button type="button" size="sm" variant="outline" onClick={() => addPage("desktop")}>
+                    <Plus className="mr-1 size-3.5" />
+                    + Desktop
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" onClick={() => addPage("tablet")}>
+                    <Plus className="mr-1 size-3.5" />
+                    + Tablet
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" onClick={() => addPage("mobile")}>
+                    <Plus className="mr-1 size-3.5" />
+                    + Mobile
+                  </Button>
+                </div>
+              </section>
               <section className="rounded-2xl border bg-card/80 p-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
-                    variant={viewport === "desktop" ? "default" : "outline"}
+                    variant={page?.viewport === "desktop" ? "default" : "outline"}
                     size="sm"
                     onClick={() => applyViewport("desktop")}
                   >
@@ -255,7 +311,7 @@ export function EditorShell({ projectId }: Props) {
                   </Button>
                   <Button
                     type="button"
-                    variant={viewport === "tablet" ? "default" : "outline"}
+                    variant={page?.viewport === "tablet" ? "default" : "outline"}
                     size="sm"
                     onClick={() => applyViewport("tablet")}
                   >
@@ -264,7 +320,7 @@ export function EditorShell({ projectId }: Props) {
                   </Button>
                   <Button
                     type="button"
-                    variant={viewport === "mobile" ? "default" : "outline"}
+                    variant={page?.viewport === "mobile" ? "default" : "outline"}
                     size="sm"
                     onClick={() => applyViewport("mobile")}
                   >
@@ -273,13 +329,22 @@ export function EditorShell({ projectId }: Props) {
                   </Button>
                   <div className="ml-auto flex items-center gap-2">
                     <label className="text-xs text-muted-foreground">Zoom</label>
+                    <Button type="button" size="sm" variant="outline" onClick={() => setManualZoom(zoom - 0.1)}>
+                      <ZoomOut className="size-3.5" />
+                    </Button>
                     <input
                       type="range"
-                      min={40}
-                      max={160}
+                      min={20}
+                      max={200}
                       value={Math.round(zoom * 100)}
-                      onChange={(event) => setZoom(Number(event.target.value) / 100)}
+                      onChange={(event) => setManualZoom(Number(event.target.value) / 100)}
                     />
+                    <Button type="button" size="sm" variant="outline" onClick={() => setManualZoom(zoom + 0.1)}>
+                      <ZoomIn className="size-3.5" />
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" onClick={() => setZoomMode("fit")}>
+                      Ajustar
+                    </Button>
                     <span className="w-12 text-right text-xs text-muted-foreground">{Math.round(zoom * 100)}%</span>
                   </div>
                 </div>
@@ -291,47 +356,82 @@ export function EditorShell({ projectId }: Props) {
               </section>
               <CanvasPreview
                 schema={schema}
+                pageIndex={activePageIndex}
                 selectedBlockId={selectedBlockId}
                 onSelectBlock={setSelectedBlockId}
                 onChangeElement={updateSelectedElement}
                 zoom={zoom}
+                zoomMode={zoomMode}
+                onFitZoomChange={handleFitZoom}
               />
             </div>
-            <div className="space-y-4">
+            <div className="min-w-0 space-y-4">
               <section className="rounded-2xl border bg-card/80 p-4">
                 <h3 className="text-sm font-semibold">Aparência global</h3>
                 <div className="mt-3 grid gap-2">
                   <label className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">Cor primária</span>
-                    <input
-                      value={schema.theme.primary}
-                      onChange={(event) => setTheme({ primary: event.target.value })}
-                      className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={schema.theme.primary}
+                        onChange={(event) => setTheme({ primary: event.target.value })}
+                        className="h-9 w-12 rounded-xl border bg-background p-1"
+                      />
+                      <input
+                        value={schema.theme.primary}
+                        onChange={(event) => setTheme({ primary: event.target.value })}
+                        className="h-9 flex-1 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                      />
+                    </div>
                   </label>
                   <label className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">Cor de texto global</span>
-                    <input
-                      value={schema.theme.text}
-                      onChange={(event) => setTheme({ text: event.target.value })}
-                      className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={schema.theme.text}
+                        onChange={(event) => setTheme({ text: event.target.value })}
+                        className="h-9 w-12 rounded-xl border bg-background p-1"
+                      />
+                      <input
+                        value={schema.theme.text}
+                        onChange={(event) => setTheme({ text: event.target.value })}
+                        className="h-9 flex-1 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                      />
+                    </div>
                   </label>
                   <label className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">Fundo global</span>
-                    <input
-                      value={schema.theme.background}
-                      onChange={(event) => setTheme({ background: event.target.value })}
-                      className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={schema.theme.background}
+                        onChange={(event) => setTheme({ background: event.target.value })}
+                        className="h-9 w-12 rounded-xl border bg-background p-1"
+                      />
+                      <input
+                        value={schema.theme.background}
+                        onChange={(event) => setTheme({ background: event.target.value })}
+                        className="h-9 flex-1 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                      />
+                    </div>
                   </label>
                   <label className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">Fundo do canvas</span>
-                    <input
-                      value={page?.canvas.background ?? "#0b1220"}
-                      onChange={(event) => setCanvasBackground(event.target.value)}
-                      className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={page?.canvas.background ?? "#0b1220"}
+                        onChange={(event) => setCanvasBackground(event.target.value)}
+                        className="h-9 w-12 rounded-xl border bg-background p-1"
+                      />
+                      <input
+                        value={page?.canvas.background ?? "#0b1220"}
+                        onChange={(event) => setCanvasBackground(event.target.value)}
+                        className="h-9 flex-1 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                      />
+                    </div>
                   </label>
                 </div>
               </section>
