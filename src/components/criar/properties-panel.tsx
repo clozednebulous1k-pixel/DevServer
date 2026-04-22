@@ -1,5 +1,6 @@
 "use client";
 
+import type { ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import type { CriarCanvasElement } from "@/lib/criar/schema";
 
@@ -13,6 +14,30 @@ type Props = {
   canMoveUp: boolean;
   canMoveDown: boolean;
 };
+
+const FONT_OPTIONS = [
+  "Inter, system-ui, sans-serif",
+  "Arial, sans-serif",
+  "Helvetica, Arial, sans-serif",
+  "\"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif",
+  "Roboto, sans-serif",
+  "\"Open Sans\", sans-serif",
+  "Lato, sans-serif",
+  "Poppins, sans-serif",
+  "Montserrat, sans-serif",
+  "\"Source Sans Pro\", sans-serif",
+  "Nunito, sans-serif",
+  "Merriweather, serif",
+  "Georgia, serif",
+  "\"Times New Roman\", serif",
+  "\"Playfair Display\", serif",
+  "\"Roboto Slab\", serif",
+  "\"Fira Sans\", sans-serif",
+  "\"DM Sans\", sans-serif",
+  "\"Space Grotesk\", sans-serif",
+  "\"Trebuchet MS\", sans-serif",
+  "\"Courier New\", monospace",
+];
 
 function TextField({
   label,
@@ -42,6 +67,68 @@ function TextField({
         />
       )}
     </label>
+  );
+}
+
+function FontField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <select
+        value={FONT_OPTIONS.includes(value) ? value : "__custom__"}
+        onChange={(event) => {
+          if (event.target.value === "__custom__") return;
+          onChange(event.target.value);
+        }}
+        className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+      >
+        {FONT_OPTIONS.map((font) => (
+          <option key={font} value={font}>
+            {font.split(",")[0]!.replace(/"/g, "")}
+          </option>
+        ))}
+        <option value="__custom__">Personalizada (campo abaixo)</option>
+      </select>
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="Fonte customizada"
+        className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+      />
+    </label>
+  );
+}
+
+function ImageUploadField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  async function handleFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onerror = () => reject(new Error("Falha ao ler imagem"));
+      reader.readAsDataURL(file);
+    });
+    onChange(dataUrl);
+    event.target.value = "";
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <TextField label="URL da imagem" value={value} onChange={onChange} />
+      <label className="flex h-9 cursor-pointer items-center justify-center rounded-xl border border-dashed bg-background px-3 text-xs text-muted-foreground hover:border-primary/60">
+        Enviar imagem do computador
+        <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
+      </label>
+    </div>
   );
 }
 
@@ -81,7 +168,7 @@ export function PropertiesPanel({
 }: Props) {
   if (!block) {
     return (
-      <aside className="rounded-2xl border bg-card/80 p-4">
+      <aside className="rounded-xl border bg-card/80 p-3">
         <h2 className="text-sm font-semibold">Propriedades</h2>
         <p className="mt-2 text-xs text-muted-foreground">Selecione um bloco para editar.</p>
       </aside>
@@ -89,7 +176,7 @@ export function PropertiesPanel({
   }
 
   return (
-    <aside className="rounded-2xl border bg-card/80 p-4">
+    <aside className="rounded-xl border bg-card/80 p-3">
       <h2 className="text-sm font-semibold">Propriedades: {block.type.toUpperCase()}</h2>
       <div className="mt-3 grid gap-2">
         <TextField
@@ -179,7 +266,7 @@ export function PropertiesPanel({
               value={String(block.fontWeight)}
               onChange={(fontWeight) => onChangeBlock({ ...block, fontWeight: Math.max(100, Number(fontWeight) || 100) })}
             />
-            <TextField label="Fonte" value={block.fontFamily} onChange={(fontFamily) => onChangeBlock({ ...block, fontFamily })} />
+            <FontField label="Fonte" value={block.fontFamily} onChange={(fontFamily) => onChangeBlock({ ...block, fontFamily })} />
           </>
         ) : null}
         {block.type === "button" ? (
@@ -193,11 +280,11 @@ export function PropertiesPanel({
               value={String(block.fontSize)}
               onChange={(fontSize) => onChangeBlock({ ...block, fontSize: Math.max(8, Number(fontSize) || 8) })}
             />
-            <TextField label="Fonte" value={block.fontFamily} onChange={(fontFamily) => onChangeBlock({ ...block, fontFamily })} />
+            <FontField label="Fonte" value={block.fontFamily} onChange={(fontFamily) => onChangeBlock({ ...block, fontFamily })} />
           </>
         ) : null}
         {block.type === "shape" ? <ColorField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} /> : null}
-        {block.type === "image" ? <TextField label="URL da imagem" value={block.src} onChange={(src) => onChangeBlock({ ...block, src })} /> : null}
+        {block.type === "image" ? <ImageUploadField value={block.src} onChange={(src) => onChangeBlock({ ...block, src })} /> : null}
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Button type="button" variant="outline" onClick={onDuplicate}>

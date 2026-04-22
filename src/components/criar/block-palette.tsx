@@ -12,12 +12,12 @@ const ELEMENT_TYPES: Array<{ type: CriarCanvasElement["type"]; label: string }> 
 
 export function BlockPalette({ onAddBlock }: { onAddBlock: (type: CriarCanvasElement["type"]) => void }) {
   return (
-    <aside className="rounded-2xl border bg-card/80 p-4">
+    <aside className="rounded-xl border bg-card/80 p-3">
       <h2 className="text-sm font-semibold">Componentes</h2>
       <p className="mt-1 text-xs text-muted-foreground">Adicione elementos no canvas.</p>
-      <div className="mt-3 grid gap-2">
+      <div className="mt-2 grid gap-1.5">
         {ELEMENT_TYPES.map((element) => (
-          <Button key={element.type} type="button" variant="outline" className="justify-start" onClick={() => onAddBlock(element.type)}>
+          <Button key={element.type} size="sm" type="button" variant="outline" className="justify-start" onClick={() => onAddBlock(element.type)}>
             + {element.label}
           </Button>
         ))}

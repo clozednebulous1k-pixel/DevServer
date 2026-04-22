@@ -316,10 +316,10 @@ export function EditorShell({ projectId }: Props) {
         ) : !project || !schema ? (
           <div className="rounded-2xl border bg-card/80 p-6 text-sm text-destructive">Não foi possível abrir o projeto.</div>
         ) : (
-          <div className="grid h-[calc(100vh-11.5rem)] gap-4 overflow-hidden lg:grid-cols-[200px_minmax(0,1fr)_300px]">
-            <div className="min-w-0 space-y-4 overflow-y-auto pr-1">
+          <div className="grid h-[calc(100vh-11.5rem)] gap-3 overflow-hidden lg:grid-cols-[190px_minmax(0,1fr)_280px]">
+            <div className="min-w-0 space-y-3 overflow-y-auto pr-1">
               <BlockPalette onAddBlock={addBlock} />
-              <section className="rounded-2xl border bg-card/80 p-3">
+              <section className="rounded-xl border bg-card/80 p-2.5">
                 <h3 className="text-sm font-semibold">Telas do site</h3>
                 <p className="mt-1 text-xs text-muted-foreground">Defina quantas telas seu site terá.</p>
                 <div className="mt-3 grid gap-2">
@@ -327,7 +327,7 @@ export function EditorShell({ projectId }: Props) {
                     <button
                       key={`${entry.slug}-${index}`}
                       type="button"
-                      className={`rounded-xl border px-3 py-2 text-left text-sm ${index === activePageIndex ? "border-primary bg-primary/10" : "border-border bg-background/50"}`}
+                      className={`rounded-lg border px-2.5 py-1.5 text-left text-sm ${index === activePageIndex ? "border-primary bg-primary/10" : "border-border bg-background/50"}`}
                       onClick={() => {
                         setActivePageIndex(index);
                         setSelectedBlockId(entry.canvas.elements[0]?.id ?? null);
@@ -341,7 +341,7 @@ export function EditorShell({ projectId }: Props) {
                     </button>
                   ))}
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-2 flex flex-wrap gap-1.5">
                   <Button type="button" size="sm" variant="outline" onClick={() => addPage("desktop")}>
                     <Plus className="mr-1 size-3.5" />
                     + Desktop
@@ -356,7 +356,7 @@ export function EditorShell({ projectId }: Props) {
                   </Button>
                 </div>
               </section>
-              <section className="rounded-2xl border bg-card/80 p-3">
+              <section className="rounded-xl border bg-card/80 p-2.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
@@ -430,8 +430,8 @@ export function EditorShell({ projectId }: Props) {
                 onManualZoomChange={setManualZoom}
               />
             </div>
-            <div className="min-w-0 space-y-4 overflow-y-auto pr-1">
-              <section className="rounded-2xl border bg-card/80 p-4">
+            <div className="min-w-0 space-y-3 overflow-y-auto pr-1">
+              <section className="rounded-xl border bg-card/80 p-3">
                 <h3 className="text-sm font-semibold">Aparência global</h3>
                 <div className="mt-3 grid gap-2">
                   <label className="flex flex-col gap-1">
