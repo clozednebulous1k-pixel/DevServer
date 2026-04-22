@@ -14,6 +14,10 @@ type Props = {
   selectedBlockId: string | null;
   onSelectBlock: (blockId: string) => void;
   onChangeElement: (next: CriarCanvasElement) => void;
+  onDuplicateSelected: () => void;
+  onRemoveSelected: () => void;
+  onMoveLayerUp: () => void;
+  onMoveLayerDown: () => void;
   zoom: number;
   zoomMode: "fit" | "manual";
   onFitZoomChange: (zoom: number) => void;
@@ -42,6 +46,10 @@ export function CanvasPreview({
   selectedBlockId,
   onSelectBlock,
   onChangeElement,
+  onDuplicateSelected,
+  onRemoveSelected,
+  onMoveLayerUp,
+  onMoveLayerDown,
   zoom,
   zoomMode,
   onFitZoomChange,
@@ -65,6 +73,14 @@ export function CanvasPreview({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
   const [isPanning, setIsPanning] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
+  const [guideState, setGuideState] = useState<{ showCenterX: boolean; showCenterY: boolean }>({
+    showCenterX: false,
+    showCenterY: false,
+  });
+
+  const selectedElement =
+    page?.canvas.elements.find((element) => element.id === selectedBlockId) ?? null;
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -78,6 +94,18 @@ export function CanvasPreview({
     viewport.addEventListener("wheel", onWheel, { passive: false });
     return () => viewport.removeEventListener("wheel", onWheel);
   }, [zoom, onManualZoomChange]);
+
+  useEffect(() => {
+    function closeContextMenu() {
+      setContextMenu(null);
+    }
+    window.addEventListener("mousedown", closeContextMenu);
+    window.addEventListener("scroll", closeContextMenu, true);
+    return () => {
+      window.removeEventListener("mousedown", closeContextMenu);
+      window.removeEventListener("scroll", closeContextMenu, true);
+    };
+  }, []);
 
   useEffect(() => {
     if (!page || schema.pages.length === 0) return;
@@ -139,8 +167,23 @@ export function CanvasPreview({
     const dx = (event.clientX - current.startX) / scale;
     const dy = (event.clientY - current.startY) / scale;
     if (current.mode === "move") {
-      onChangeElement({ ...element, x: Math.round(current.baseX + dx), y: Math.round(current.baseY + dy) });
+      const SNAP_THRESHOLD = 10;
+      let nextX = Math.round(current.baseX + dx);
+      let nextY = Math.round(current.baseY + dy);
+      const elementCenterX = nextX + element.w / 2;
+      const elementCenterY = nextY + element.h / 2;
+      const pageCenterX = page.canvas.width / 2;
+      const pageCenterY = page.canvas.height / 2;
+      const snapX = Math.abs(elementCenterX - pageCenterX) <= SNAP_THRESHOLD;
+      const snapY = Math.abs(elementCenterY - pageCenterY) <= SNAP_THRESHOLD;
+
+      if (snapX) nextX = Math.round(pageCenterX - element.w / 2);
+      if (snapY) nextY = Math.round(pageCenterY - element.h / 2);
+
+      setGuideState({ showCenterX: snapX, showCenterY: snapY });
+      onChangeElement({ ...element, x: nextX, y: nextY });
     } else {
+      setGuideState({ showCenterX: false, showCenterY: false });
       onChangeElement({
         ...element,
         w: Math.max(24, Math.round(current.baseW + dx)),
@@ -153,6 +196,7 @@ export function CanvasPreview({
   function endDrag() {
     dragging.current = null;
     pageDragging.current = null;
+    setGuideState({ showCenterX: false, showCenterY: false });
   }
 
   function beginPan(event: React.MouseEvent<HTMLDivElement>) {
@@ -183,6 +227,14 @@ export function CanvasPreview({
   function endPan() {
     panning.current = null;
     setIsPanning(false);
+  }
+
+  function applyQuickEdit(
+    patch: Partial<CriarCanvasElement>,
+    target: CriarCanvasElement | null = selectedElement,
+  ) {
+    if (!target) return;
+    onChangeElement({ ...target, ...patch } as CriarCanvasElement);
   }
 
   function beginInlineEdit(element: CriarCanvasElement) {
@@ -216,6 +268,7 @@ export function CanvasPreview({
         onAuxClick={(event) => {
           if (event.button === 1) event.preventDefault();
         }}
+        onContextMenu={(event) => event.preventDefault()}
       >
         <div
           className="relative mx-auto bg-background"
@@ -285,6 +338,23 @@ export function CanvasPreview({
                     <Trash2 className="size-4" />
                   </button>
                 ) : null}
+                {isActivePage ? (
+                  <>
+                    <div className="pointer-events-none absolute left-10 right-10 top-10 bottom-10 rounded-md border border-blue-300/35 border-dashed" />
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute left-1/2 top-0 h-full w-px bg-blue-400/30 transition-opacity",
+                        guideState.showCenterX ? "opacity-100" : "opacity-60",
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute left-0 top-1/2 h-px w-full bg-blue-400/30 transition-opacity",
+                        guideState.showCenterY ? "opacity-100" : "opacity-60",
+                      )}
+                    />
+                  </>
+                ) : null}
                 {currentPage.canvas.elements.map((element) => (
                   <div
                     key={element.id}
@@ -294,6 +364,7 @@ export function CanvasPreview({
                       event.stopPropagation();
                       if (!isActivePage) onSelectPage(currentPageIndex);
                       onSelectBlock(element.id);
+                      setContextMenu(null);
                     }}
                     onDoubleClick={(event) => {
                       event.stopPropagation();
@@ -303,6 +374,17 @@ export function CanvasPreview({
                     onPointerDown={(event) => {
                       if (!isActivePage) return;
                       beginDrag(event, element, "move");
+                    }}
+                    onContextMenu={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      if (!isActivePage) onSelectPage(currentPageIndex);
+                      onSelectBlock(element.id);
+                      setContextMenu({
+                        x: event.clientX,
+                        y: event.clientY,
+                        elementId: element.id,
+                      });
                     }}
                     className={cn(
                       "absolute select-none outline-none transition",
@@ -423,6 +505,107 @@ export function CanvasPreview({
           })}
         </div>
       </div>
+      {contextMenu && selectedElement && selectedElement.id === contextMenu.elementId ? (
+        <div
+          className="fixed z-50 w-64 rounded-xl border bg-background/95 p-3 shadow-2xl backdrop-blur"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          <p className="mb-2 text-xs font-semibold text-muted-foreground">Menu rápido</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            <button type="button" className="rounded-md border px-2 py-1 text-xs hover:bg-accent" onClick={onMoveLayerUp}>
+              Camada cima
+            </button>
+            <button type="button" className="rounded-md border px-2 py-1 text-xs hover:bg-accent" onClick={onMoveLayerDown}>
+              Camada baixo
+            </button>
+            <button type="button" className="rounded-md border px-2 py-1 text-xs hover:bg-accent" onClick={onDuplicateSelected}>
+              Duplicar
+            </button>
+            <button type="button" className="rounded-md border px-2 py-1 text-xs text-destructive hover:bg-destructive/10" onClick={onRemoveSelected}>
+              Remover
+            </button>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-1.5">
+            <input
+              type="number"
+              value={Math.round(selectedElement.w)}
+              onChange={(event) => applyQuickEdit({ w: Math.max(24, Number(event.target.value) || 24) })}
+              className="h-8 rounded-md border px-2 text-xs"
+              title="Largura"
+            />
+            <input
+              type="number"
+              value={Math.round(selectedElement.h)}
+              onChange={(event) => applyQuickEdit({ h: Math.max(24, Number(event.target.value) || 24) })}
+              className="h-8 rounded-md border px-2 text-xs"
+              title="Altura"
+            />
+          </div>
+          {selectedElement.type === "text" ? (
+            <div className="mt-2 grid gap-1.5">
+              <input
+                type="color"
+                value={selectedElement.color}
+                onChange={(event) => applyQuickEdit({ color: event.target.value })}
+                className="h-8 w-full rounded-md border p-1"
+              />
+              <input
+                type="number"
+                value={selectedElement.fontSize}
+                onChange={(event) => applyQuickEdit({ fontSize: Math.max(8, Number(event.target.value) || 8) })}
+                className="h-8 rounded-md border px-2 text-xs"
+                title="Tamanho fonte"
+              />
+              <input
+                value={selectedElement.fontFamily}
+                onChange={(event) => applyQuickEdit({ fontFamily: event.target.value })}
+                className="h-8 rounded-md border px-2 text-xs"
+                title="Fonte"
+              />
+            </div>
+          ) : null}
+          {selectedElement.type === "button" ? (
+            <div className="mt-2 grid gap-1.5">
+              <input
+                type="color"
+                value={selectedElement.bg}
+                onChange={(event) => applyQuickEdit({ bg: event.target.value })}
+                className="h-8 w-full rounded-md border p-1"
+              />
+              <input
+                type="color"
+                value={selectedElement.color}
+                onChange={(event) => applyQuickEdit({ color: event.target.value })}
+                className="h-8 w-full rounded-md border p-1"
+              />
+              <input
+                type="number"
+                value={selectedElement.fontSize}
+                onChange={(event) => applyQuickEdit({ fontSize: Math.max(8, Number(event.target.value) || 8) })}
+                className="h-8 rounded-md border px-2 text-xs"
+                title="Tamanho fonte"
+              />
+              <input
+                value={selectedElement.fontFamily}
+                onChange={(event) => applyQuickEdit({ fontFamily: event.target.value })}
+                className="h-8 rounded-md border px-2 text-xs"
+                title="Fonte"
+              />
+            </div>
+          ) : null}
+          {selectedElement.type === "shape" ? (
+            <div className="mt-2">
+              <input
+                type="color"
+                value={selectedElement.bg}
+                onChange={(event) => applyQuickEdit({ bg: event.target.value })}
+                className="h-8 w-full rounded-md border p-1"
+              />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }

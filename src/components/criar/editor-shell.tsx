@@ -522,6 +522,10 @@ export function EditorShell({ projectId }: Props) {
                 selectedBlockId={selectedBlockId}
                 onSelectBlock={setSelectedBlockId}
                 onChangeElement={updateSelectedElement}
+                onDuplicateSelected={duplicateSelected}
+                onRemoveSelected={removeSelected}
+                onMoveLayerUp={() => moveSelected(-1)}
+                onMoveLayerDown={() => moveSelected(1)}
                 zoom={zoom}
                 zoomMode={zoomMode}
                 onFitZoomChange={handleFitZoom}
