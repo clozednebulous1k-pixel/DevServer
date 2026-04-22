@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Laptop, Plus, Save, Smartphone, Tablet, ZoomIn, ZoomOut } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ export function EditorShell({ projectId }: Props) {
   const [zoom, setZoom] = useState(1);
   const [zoomMode, setZoomMode] = useState<"fit" | "manual">("fit");
   const [activePageIndex, setActivePageIndex] = useState(0);
+  const clipboardRef = useRef<CriarCanvasElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,6 +93,15 @@ export function EditorShell({ projectId }: Props) {
     mutateElements((list) => [...list, element], element.id);
   }
 
+  function cloneElement(element: CriarCanvasElement) {
+    return {
+      ...element,
+      id: `${element.type}-${Math.random().toString(36).slice(2, 10)}`,
+      x: element.x + 24,
+      y: element.y + 24,
+    };
+  }
+
   function updateSelectedElement(next: CriarCanvasElement) {
     if (selectedIndex < 0) return;
     mutateElements((list) => {
@@ -118,6 +128,12 @@ export function EditorShell({ projectId }: Props) {
     if (selectedIndex < 0) return;
     const nextElements = elements.filter((_, index) => index !== selectedIndex);
     mutateElements(() => nextElements, nextElements[selectedIndex - 1]?.id ?? nextElements[0]?.id ?? null);
+  }
+
+  function duplicateSelected() {
+    if (!selectedElement) return;
+    const clone = cloneElement(selectedElement);
+    mutateElements((list) => [...list, clone], clone.id);
   }
 
   function setCanvasBackground(background: string) {
@@ -173,6 +189,48 @@ export function EditorShell({ projectId }: Props) {
     setZoomMode("manual");
     setZoom(Math.max(0.2, Math.min(2, next)));
   }
+
+  useEffect(() => {
+    function handleEditorShortcuts(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const isTypingTarget =
+        !!target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+      if (isTypingTarget) return;
+
+      const key = event.key.toLowerCase();
+      const withMeta = event.ctrlKey || event.metaKey;
+
+      if (withMeta && key === "c" && selectedElement) {
+        event.preventDefault();
+        clipboardRef.current = { ...selectedElement };
+        return;
+      }
+
+      if (withMeta && key === "v" && clipboardRef.current) {
+        event.preventDefault();
+        const clone = cloneElement(clipboardRef.current);
+        mutateElements((list) => [...list, clone], clone.id);
+        return;
+      }
+
+      if (withMeta && key === "d" && selectedElement) {
+        event.preventDefault();
+        const clone = cloneElement(selectedElement);
+        mutateElements((list) => [...list, clone], clone.id);
+        return;
+      }
+
+      if (key === "delete" || key === "backspace") {
+        if (!selectedElement) return;
+        event.preventDefault();
+        removeSelected();
+      }
+    }
+
+    window.addEventListener("keydown", handleEditorShortcuts);
+    return () => window.removeEventListener("keydown", handleEditorShortcuts);
+  }, [selectedElement, activePageIndex, project]);
 
   function handleFitZoom(zoomValue: number) {
     if (zoomMode === "fit") setZoom(zoomValue);
@@ -258,8 +316,7 @@ export function EditorShell({ projectId }: Props) {
         ) : !project || !schema ? (
           <div className="rounded-2xl border bg-card/80 p-6 text-sm text-destructive">Não foi possível abrir o projeto.</div>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)_320px]">
-            <BlockPalette onAddBlock={addBlock} />
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="min-w-0 space-y-4">
               <section className="rounded-2xl border bg-card/80 p-3">
                 <h3 className="text-sm font-semibold">Telas do site</h3>
@@ -353,6 +410,9 @@ export function EditorShell({ projectId }: Props) {
                     Canvas: {page.canvas.width}x{page.canvas.height}
                   </p>
                 ) : null}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Atalhos: Ctrl+C copiar, Ctrl+V colar, Ctrl+D duplicar, Delete remover. Duplo clique para editar texto.
+                </p>
               </section>
               <CanvasPreview
                 schema={schema}
@@ -366,6 +426,7 @@ export function EditorShell({ projectId }: Props) {
               />
             </div>
             <div className="min-w-0 space-y-4">
+              <BlockPalette onAddBlock={addBlock} />
               <section className="rounded-2xl border bg-card/80 p-4">
                 <h3 className="text-sm font-semibold">Aparência global</h3>
                 <div className="mt-3 grid gap-2">
@@ -438,6 +499,7 @@ export function EditorShell({ projectId }: Props) {
               <PropertiesPanel
                 block={selectedElement}
                 onChangeBlock={updateSelectedElement}
+                onDuplicate={duplicateSelected}
                 onMoveUp={() => moveSelected(-1)}
                 onMoveDown={() => moveSelected(1)}
                 onRemove={removeSelected}

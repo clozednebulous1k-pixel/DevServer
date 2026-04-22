@@ -6,6 +6,7 @@ import type { CriarCanvasElement } from "@/lib/criar/schema";
 type Props = {
   block: CriarCanvasElement | null;
   onChangeBlock: (next: CriarCanvasElement) => void;
+  onDuplicate: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
@@ -71,6 +72,7 @@ function ColorField({
 export function PropertiesPanel({
   block,
   onChangeBlock,
+  onDuplicate,
   onMoveUp,
   onMoveDown,
   onRemove,
@@ -197,7 +199,10 @@ export function PropertiesPanel({
         {block.type === "shape" ? <ColorField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} /> : null}
         {block.type === "image" ? <TextField label="URL da imagem" value={block.src} onChange={(src) => onChangeBlock({ ...block, src })} /> : null}
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Button type="button" variant="outline" onClick={onDuplicate}>
+          Duplicar
+        </Button>
         <Button type="button" variant="outline" onClick={onMoveUp} disabled={!canMoveUp}>
           Subir
         </Button>

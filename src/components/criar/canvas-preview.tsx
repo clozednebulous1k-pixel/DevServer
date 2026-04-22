@@ -44,6 +44,8 @@ export function CanvasPreview({
   const dragging = useRef<{ id: string; mode: "move" | "resize"; startX: number; startY: number; baseX: number; baseY: number; baseW: number; baseH: number } | null>(null);
   const [, force] = useState(0);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState("");
 
   useEffect(() => {
     if (!page) return;
@@ -70,6 +72,7 @@ export function CanvasPreview({
   if (!page) return null;
 
   function beginDrag(event: React.PointerEvent, element: CriarCanvasElement, mode: "move" | "resize") {
+    if (editingId === element.id) return;
     event.preventDefault();
     event.stopPropagation();
     onSelectBlock(element.id);
@@ -91,8 +94,9 @@ export function CanvasPreview({
     if (!current) return;
     const element = page.canvas.elements.find((entry) => entry.id === current.id);
     if (!element) return;
-    const dx = event.clientX - current.startX;
-    const dy = event.clientY - current.startY;
+    const scale = Math.max(zoom, 0.2);
+    const dx = (event.clientX - current.startX) / scale;
+    const dy = (event.clientY - current.startY) / scale;
     if (current.mode === "move") {
       onChangeElement({ ...element, x: Math.round(current.baseX + dx), y: Math.round(current.baseY + dy) });
     } else {
@@ -107,6 +111,25 @@ export function CanvasPreview({
 
   function endDrag() {
     dragging.current = null;
+  }
+
+  function beginInlineEdit(element: CriarCanvasElement) {
+    if (element.type !== "text" && element.type !== "button") return;
+    setEditingId(element.id);
+    setEditingValue(element.type === "text" ? element.text : element.label);
+    onSelectBlock(element.id);
+  }
+
+  function commitInlineEdit(element: CriarCanvasElement) {
+    if (editingId !== element.id) return;
+    const nextValue = editingValue.trim();
+    if (element.type === "text") {
+      onChangeElement({ ...element, text: nextValue || "Novo texto" });
+    }
+    if (element.type === "button") {
+      onChangeElement({ ...element, label: nextValue || "Botao" });
+    }
+    setEditingId(null);
   }
 
   return (
@@ -125,6 +148,7 @@ export function CanvasPreview({
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
+          onClick={() => setEditingId(null)}
         >
           <style>{`
             @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
@@ -137,6 +161,10 @@ export function CanvasPreview({
               role="button"
               tabIndex={0}
               onClick={() => onSelectBlock(element.id)}
+              onDoubleClick={(event) => {
+                event.stopPropagation();
+                beginInlineEdit(element);
+              }}
               onPointerDown={(event) => beginDrag(event, element, "move")}
               className={cn(
                 "absolute cursor-move select-none outline-none transition",
@@ -158,32 +186,77 @@ export function CanvasPreview({
               }
             >
               {element.type === "text" ? (
-                <div
-                  className="h-full w-full whitespace-pre-wrap px-2 py-1"
-                  style={{
-                    color: element.color,
-                    fontSize: element.fontSize,
-                    fontWeight: element.fontWeight,
-                    fontFamily: element.fontFamily,
-                  }}
-                >
-                  {element.text}
-                </div>
+                editingId === element.id ? (
+                  <textarea
+                    autoFocus
+                    value={editingValue}
+                    onChange={(event) => setEditingValue(event.target.value)}
+                    onBlur={() => commitInlineEdit(element)}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => {
+                      if (event.key === "Escape") setEditingId(null);
+                      if (event.key === "Enter" && !event.shiftKey) {
+                        event.preventDefault();
+                        commitInlineEdit(element);
+                      }
+                    }}
+                    className="h-full w-full resize-none rounded-md border border-primary/50 bg-black/30 px-2 py-1 outline-none"
+                    style={{
+                      color: element.color,
+                      fontSize: element.fontSize,
+                      fontWeight: element.fontWeight,
+                      fontFamily: element.fontFamily,
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="h-full w-full whitespace-pre-wrap px-2 py-1"
+                    style={{
+                      color: element.color,
+                      fontSize: element.fontSize,
+                      fontWeight: element.fontWeight,
+                      fontFamily: element.fontFamily,
+                    }}
+                  >
+                    {element.text}
+                  </div>
+                )
               ) : null}
               {element.type === "button" ? (
-                <button
-                  type="button"
-                  className="h-full w-full"
-                  style={{
-                    backgroundColor: element.bg,
-                    color: element.color,
-                    fontSize: element.fontSize,
-                    fontFamily: element.fontFamily,
-                    borderRadius: element.radius,
-                  }}
-                >
-                  {element.label}
-                </button>
+                editingId === element.id ? (
+                  <input
+                    autoFocus
+                    value={editingValue}
+                    onChange={(event) => setEditingValue(event.target.value)}
+                    onBlur={() => commitInlineEdit(element)}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => {
+                      if (event.key === "Escape") setEditingId(null);
+                      if (event.key === "Enter") commitInlineEdit(element);
+                    }}
+                    className="h-full w-full rounded-md border border-primary/60 bg-black/20 px-3 text-center outline-none"
+                    style={{
+                      backgroundColor: element.bg,
+                      color: element.color,
+                      fontSize: element.fontSize,
+                      fontFamily: element.fontFamily,
+                    }}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className="h-full w-full"
+                    style={{
+                      backgroundColor: element.bg,
+                      color: element.color,
+                      fontSize: element.fontSize,
+                      fontFamily: element.fontFamily,
+                      borderRadius: element.radius,
+                    }}
+                  >
+                    {element.label}
+                  </button>
+                )
               ) : null}
               {element.type === "shape" ? (
                 <div className="h-full w-full" style={{ backgroundColor: element.bg, borderRadius: element.radius }} />
