@@ -59,10 +59,12 @@ export function CanvasPreview({
   const workspaceHeight = pageFrames.reduce((max, frame) => Math.max(max, frame.y + frame.page.canvas.height), 0) + canvasGap;
   const dragging = useRef<{ id: string; mode: "move" | "resize"; startX: number; startY: number; baseX: number; baseY: number; baseW: number; baseH: number } | null>(null);
   const pageDragging = useRef<{ pageIndex: number; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+  const panning = useRef<{ startX: number; startY: number; scrollLeft: number; scrollTop: number } | null>(null);
   const [, force] = useState(0);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
+  const [isPanning, setIsPanning] = useState(false);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -153,6 +155,36 @@ export function CanvasPreview({
     pageDragging.current = null;
   }
 
+  function beginPan(event: React.MouseEvent<HTMLDivElement>) {
+    if (event.button !== 1) return;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    event.preventDefault();
+    panning.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      scrollLeft: viewport.scrollLeft,
+      scrollTop: viewport.scrollTop,
+    };
+    setIsPanning(true);
+  }
+
+  function movePan(event: React.MouseEvent<HTMLDivElement>) {
+    const current = panning.current;
+    const viewport = viewportRef.current;
+    if (!current || !viewport) return;
+    event.preventDefault();
+    const dx = event.clientX - current.startX;
+    const dy = event.clientY - current.startY;
+    viewport.scrollLeft = current.scrollLeft - dx;
+    viewport.scrollTop = current.scrollTop - dy;
+  }
+
+  function endPan() {
+    panning.current = null;
+    setIsPanning(false);
+  }
+
   function beginInlineEdit(element: CriarCanvasElement) {
     if (element.type !== "text" && element.type !== "button") return;
     setEditingId(element.id);
@@ -176,7 +208,14 @@ export function CanvasPreview({
     <section className="min-w-0 h-full">
       <div
         ref={viewportRef}
-        className="h-full min-h-0 overflow-auto bg-background"
+        className={cn("h-full min-h-0 overflow-auto bg-background", isPanning ? "cursor-grabbing" : "cursor-default")}
+        onMouseDown={beginPan}
+        onMouseMove={movePan}
+        onMouseUp={endPan}
+        onMouseLeave={endPan}
+        onAuxClick={(event) => {
+          if (event.button === 1) event.preventDefault();
+        }}
       >
         <div
           className="relative mx-auto bg-background"
