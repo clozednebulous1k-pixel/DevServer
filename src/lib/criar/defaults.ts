@@ -92,6 +92,10 @@ export function makeBlankPage(index: number, viewport: "desktop" | "tablet" | "m
     slug: index === 0 ? "home" : `pagina-${index + 1}`,
     title: index === 0 ? "Home" : `Página ${index + 1}`,
     viewport,
+    layout: {
+      x: (index % 2) * 1400,
+      y: Math.floor(index / 2) * 1080,
+    },
     canvas: {
       width: dimensions.width,
       height: dimensions.height,

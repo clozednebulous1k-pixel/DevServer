@@ -59,6 +59,10 @@ export type CriarPageSchema = {
   slug: string;
   title: string;
   viewport: "desktop" | "tablet" | "mobile";
+  layout: {
+    x: number;
+    y: number;
+  };
   canvas: {
     width: number;
     height: number;
@@ -249,6 +253,10 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
         title: pageRecord.title,
         viewport:
           pageRecord.viewport === "tablet" || pageRecord.viewport === "mobile" ? pageRecord.viewport : "desktop",
+        layout: {
+          x: isNumber(asRecord(pageRecord.layout)?.x) ? Number(asRecord(pageRecord.layout)?.x) : normalizedPages.length * 220,
+          y: isNumber(asRecord(pageRecord.layout)?.y) ? Number(asRecord(pageRecord.layout)?.y) : Math.floor(normalizedPages.length / 2) * 220,
+        },
         canvas: {
           width: canvas.width,
           height: canvas.height,
@@ -275,6 +283,10 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
         slug: pageRecord.slug,
         title: pageRecord.title,
         viewport: "desktop",
+        layout: {
+          x: normalizedPages.length * 220,
+          y: Math.floor(normalizedPages.length / 2) * 220,
+        },
         canvas: {
           width: 1200,
           height: Math.max(900, elements.length * 180),
@@ -307,7 +319,9 @@ export function validateCriarSchema(input: unknown): { ok: true; value: CriarPro
     if (
       !isString(page.slug) ||
       !isString(page.title) ||
-      (page.viewport !== "desktop" && page.viewport !== "tablet" && page.viewport !== "mobile")
+      (page.viewport !== "desktop" && page.viewport !== "tablet" && page.viewport !== "mobile") ||
+      !isNumber(page.layout?.x) ||
+      !isNumber(page.layout?.y)
     ) {
       return { ok: false, error: "Pagina invalida." };
     }

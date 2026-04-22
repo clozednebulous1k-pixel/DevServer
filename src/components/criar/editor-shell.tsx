@@ -114,6 +114,10 @@ export function EditorShell({ projectId }: Props) {
       ...source,
       slug: `pagina-${index + 1}`,
       title: `${source.title} ${index + 1}`,
+      layout: {
+        x: source.layout.x + 120,
+        y: source.layout.y + 120,
+      },
       canvas: {
         ...source.canvas,
         elements: clonedElements,
@@ -215,6 +219,31 @@ export function EditorShell({ projectId }: Props) {
     setActivePageIndex(nextIndex);
     setSelectedBlockId(duplicated.canvas.elements[0]?.id ?? null);
     setZoomMode("fit");
+  }
+
+  function movePage(pageIndexToMove: number, nextX: number, nextY: number) {
+    if (!project) return;
+    const localPage = project.schema.pages[pageIndexToMove];
+    if (!localPage) return;
+    const nextPages = [...project.schema.pages];
+    nextPages[pageIndexToMove] = {
+      ...localPage,
+      layout: {
+        x: Math.max(0, Math.round(nextX)),
+        y: Math.max(0, Math.round(nextY)),
+      },
+    };
+    setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
+  }
+
+  function deletePage(pageIndexToDelete: number) {
+    if (!project) return;
+    if (project.schema.pages.length <= 1) return;
+    const nextPages = project.schema.pages.filter((_, index) => index !== pageIndexToDelete);
+    const nextActive = Math.max(0, Math.min(activePageIndex > pageIndexToDelete ? activePageIndex - 1 : activePageIndex, nextPages.length - 1));
+    setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
+    setActivePageIndex(nextActive);
+    setSelectedBlockId(nextPages[nextActive]?.canvas.elements[0]?.id ?? null);
   }
 
   function setManualZoom(next: number) {
@@ -394,7 +423,7 @@ export function EditorShell({ projectId }: Props) {
                     <button
                       key={`${entry.slug}-${index}`}
                       type="button"
-                      className={`rounded-lg border px-2.5 py-1.5 text-left text-sm ${index === activePageIndex ? "border-primary bg-primary/10" : "border-border bg-background/50"}`}
+                      className={`rounded-lg border px-2.5 py-1.5 text-left text-sm ${index === activePageIndex ? "border-blue-500 bg-blue-500/10" : "border-border bg-background/50"}`}
                       onClick={() => {
                         setActivePageIndex(index);
                         setSelectedBlockId(entry.canvas.elements[0]?.id ?? null);
@@ -488,6 +517,8 @@ export function EditorShell({ projectId }: Props) {
                 schema={schema}
                 pageIndex={activePageIndex}
                 onSelectPage={setActivePageIndex}
+                onMovePage={movePage}
+                onDeletePage={deletePage}
                 selectedBlockId={selectedBlockId}
                 onSelectBlock={setSelectedBlockId}
                 onChangeElement={updateSelectedElement}

@@ -3,11 +3,14 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { CriarCanvasElement, CriarProjectSchema } from "@/lib/criar/schema";
 import { cn } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   schema: CriarProjectSchema;
   pageIndex: number;
   onSelectPage: (pageIndex: number) => void;
+  onMovePage: (pageIndex: number, x: number, y: number) => void;
+  onDeletePage: (pageIndex: number) => void;
   selectedBlockId: string | null;
   onSelectBlock: (blockId: string) => void;
   onChangeElement: (next: CriarCanvasElement) => void;
@@ -34,6 +37,8 @@ export function CanvasPreview({
   schema,
   pageIndex,
   onSelectPage,
+  onMovePage,
+  onDeletePage,
   selectedBlockId,
   onSelectBlock,
   onChangeElement,
@@ -44,31 +49,16 @@ export function CanvasPreview({
 }: Props) {
   const page = schema.pages[pageIndex] ?? null;
   const canvasGap = 96;
-  const workspaceColumns = 2;
-  const pageFrames = schema.pages.map((currentPage, currentPageIndex) => {
-    const row = Math.floor(currentPageIndex / workspaceColumns);
-    const col = currentPageIndex % workspaceColumns;
-    const previousInRow = schema.pages
-      .slice(row * workspaceColumns, row * workspaceColumns + col)
-      .reduce<number>((total, entry) => total + entry.canvas.width + canvasGap, 0);
-
-    let previousRowsHeight = 0;
-    for (let rowIndex = 0; rowIndex < row; rowIndex += 1) {
-      const start = rowIndex * workspaceColumns;
-      const rowPages = schema.pages.slice(start, start + workspaceColumns);
-      const rowHeight = rowPages.reduce<number>((max, entry) => Math.max(max, entry.canvas.height), 0);
-      previousRowsHeight += rowHeight + canvasGap;
-    }
-    return {
+  const pageFrames = schema.pages.map((currentPage, currentPageIndex) => ({
       page: currentPage,
       pageIndex: currentPageIndex,
-      x: previousInRow,
-      y: previousRowsHeight,
-    };
-  });
-  const workspaceWidth = pageFrames.reduce((max, frame) => Math.max(max, frame.x + frame.page.canvas.width), 0);
-  const workspaceHeight = pageFrames.reduce((max, frame) => Math.max(max, frame.y + frame.page.canvas.height), 0);
+      x: currentPage.layout.x,
+      y: currentPage.layout.y,
+    }));
+  const workspaceWidth = pageFrames.reduce((max, frame) => Math.max(max, frame.x + frame.page.canvas.width), 0) + canvasGap;
+  const workspaceHeight = pageFrames.reduce((max, frame) => Math.max(max, frame.y + frame.page.canvas.height), 0) + canvasGap;
   const dragging = useRef<{ id: string; mode: "move" | "resize"; startX: number; startY: number; baseX: number; baseY: number; baseW: number; baseH: number } | null>(null);
+  const pageDragging = useRef<{ pageIndex: number; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
   const [, force] = useState(0);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -130,6 +120,15 @@ export function CanvasPreview({
   }
 
   function onPointerMove(event: React.PointerEvent) {
+    const pageCurrent = pageDragging.current;
+    if (pageCurrent) {
+      const scale = Math.max(zoom, 0.2);
+      const dx = (event.clientX - pageCurrent.startX) / scale;
+      const dy = (event.clientY - pageCurrent.startY) / scale;
+      onMovePage(pageCurrent.pageIndex, pageCurrent.baseX + dx, pageCurrent.baseY + dy);
+      return;
+    }
+
     const current = dragging.current;
     if (!current) return;
     const element = page.canvas.elements.find((entry) => entry.id === current.id);
@@ -151,6 +150,7 @@ export function CanvasPreview({
 
   function endDrag() {
     dragging.current = null;
+    pageDragging.current = null;
   }
 
   function beginInlineEdit(element: CriarCanvasElement) {
@@ -207,7 +207,7 @@ export function CanvasPreview({
                 key={`${currentPage.slug}-${currentPageIndex}`}
                 className={cn(
                   "absolute top-0 overflow-hidden bg-white transition",
-                  isActivePage ? "ring-2 ring-primary/70" : "ring-1 ring-border hover:ring-primary/40",
+                  isActivePage ? "ring-2 ring-blue-500" : "ring-1 ring-border hover:ring-blue-400",
                 )}
                 style={{
                   left: frame.x,
@@ -218,9 +218,34 @@ export function CanvasPreview({
                 }}
                 onClick={() => {
                   onSelectPage(currentPageIndex);
-                  if (!isActivePage) onSelectBlock(currentPage.canvas.elements[0]?.id ?? "");
+                  if (!isActivePage) onSelectBlock(currentPage.canvas.elements[0]?.id ?? null);
+                }}
+                onPointerDown={(event) => {
+                  if (event.target !== event.currentTarget) return;
+                  event.preventDefault();
+                  onSelectPage(currentPageIndex);
+                  pageDragging.current = {
+                    pageIndex: currentPageIndex,
+                    startX: event.clientX,
+                    startY: event.clientY,
+                    baseX: frame.x,
+                    baseY: frame.y,
+                  };
                 }}
               >
+                {isActivePage ? (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-2 z-20 inline-flex h-7 w-7 items-center justify-center rounded-md border bg-background/80 text-destructive hover:bg-destructive/10"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDeletePage(currentPageIndex);
+                    }}
+                    title="Deletar tela"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                ) : null}
                 {currentPage.canvas.elements.map((element) => (
                   <div
                     key={element.id}
@@ -243,7 +268,7 @@ export function CanvasPreview({
                     className={cn(
                       "absolute select-none outline-none transition",
                       isActivePage ? "cursor-move" : "cursor-pointer",
-                      selectedBlockId === element.id && isActivePage ? "ring-2 ring-primary" : "hover:ring-1 hover:ring-primary/60",
+                      selectedBlockId === element.id && isActivePage ? "ring-2 ring-blue-500" : "hover:ring-1 hover:ring-blue-400",
                       animationClass(element),
                     )}
                     style={
