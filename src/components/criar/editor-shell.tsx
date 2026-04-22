@@ -316,7 +316,7 @@ export function EditorShell({ projectId }: Props) {
         ) : !project || !schema ? (
           <div className="rounded-2xl border bg-card/80 p-6 text-sm text-destructive">Não foi possível abrir o projeto.</div>
         ) : (
-          <div className="grid h-[calc(100vh-11.5rem)] gap-4 overflow-hidden lg:grid-cols-[220px_minmax(0,1fr)_320px]">
+          <div className="grid h-[calc(100vh-11.5rem)] gap-4 overflow-hidden lg:grid-cols-[200px_minmax(0,1fr)_300px]">
             <div className="min-w-0 space-y-4 overflow-y-auto pr-1">
               <BlockPalette onAddBlock={addBlock} />
               <section className="rounded-2xl border bg-card/80 p-3">
@@ -420,12 +420,14 @@ export function EditorShell({ projectId }: Props) {
               <CanvasPreview
                 schema={schema}
                 pageIndex={activePageIndex}
+                onSelectPage={setActivePageIndex}
                 selectedBlockId={selectedBlockId}
                 onSelectBlock={setSelectedBlockId}
                 onChangeElement={updateSelectedElement}
                 zoom={zoom}
                 zoomMode={zoomMode}
                 onFitZoomChange={handleFitZoom}
+                onManualZoomChange={setManualZoom}
               />
             </div>
             <div className="min-w-0 space-y-4 overflow-y-auto pr-1">
