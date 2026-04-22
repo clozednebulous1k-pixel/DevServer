@@ -9,6 +9,7 @@ type Props = {
   selectedBlockId: string | null;
   onSelectBlock: (blockId: string) => void;
   onChangeElement: (next: CriarCanvasElement) => void;
+  zoom: number;
 };
 
 function animationClass(element: CriarCanvasElement): string {
@@ -24,7 +25,7 @@ function animationClass(element: CriarCanvasElement): string {
   }
 }
 
-export function CanvasPreview({ schema, selectedBlockId, onSelectBlock, onChangeElement }: Props) {
+export function CanvasPreview({ schema, selectedBlockId, onSelectBlock, onChangeElement, zoom }: Props) {
   const page = schema.pages[0];
   const dragging = useRef<{ id: string; mode: "move" | "resize"; startX: number; startY: number; baseX: number; baseY: number; baseW: number; baseH: number } | null>(null);
   const [, force] = useState(0);
@@ -76,7 +77,14 @@ export function CanvasPreview({ schema, selectedBlockId, onSelectBlock, onChange
       <div className="max-h-[72vh] overflow-auto rounded-xl border bg-[#111827] p-4">
         <div
           className="relative mx-auto overflow-hidden rounded-xl border border-slate-700 bg-[#0b1220]"
-          style={{ width: page.canvas.width, height: page.canvas.height }}
+          style={{
+            width: page.canvas.width,
+            height: page.canvas.height,
+            backgroundColor: page.canvas.background,
+            transform: `scale(${zoom})`,
+            transformOrigin: "top left",
+            marginBottom: `${Math.max(0, (zoom - 1) * page.canvas.height)}px`,
+          }}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
@@ -115,7 +123,12 @@ export function CanvasPreview({ schema, selectedBlockId, onSelectBlock, onChange
               {element.type === "text" ? (
                 <div
                   className="h-full w-full whitespace-pre-wrap px-2 py-1"
-                  style={{ color: element.color, fontSize: element.fontSize, fontWeight: element.fontWeight }}
+                  style={{
+                    color: element.color,
+                    fontSize: element.fontSize,
+                    fontWeight: element.fontWeight,
+                    fontFamily: element.fontFamily,
+                  }}
                 >
                   {element.text}
                 </div>
@@ -128,6 +141,7 @@ export function CanvasPreview({ schema, selectedBlockId, onSelectBlock, onChange
                     backgroundColor: element.bg,
                     color: element.color,
                     fontSize: element.fontSize,
+                    fontFamily: element.fontFamily,
                     borderRadius: element.radius,
                   }}
                 >

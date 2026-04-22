@@ -30,6 +30,7 @@ export type TextElement = CanvasBaseElement & {
   color: string;
   fontSize: number;
   fontWeight: number;
+  fontFamily: string;
 };
 
 export type ButtonElement = CanvasBaseElement & {
@@ -39,6 +40,7 @@ export type ButtonElement = CanvasBaseElement & {
   color: string;
   bg: string;
   fontSize: number;
+  fontFamily: string;
 };
 
 export type ShapeElement = CanvasBaseElement & {
@@ -59,6 +61,7 @@ export type CriarPageSchema = {
   canvas: {
     width: number;
     height: number;
+    background: string;
     elements: CriarCanvasElement[];
   };
 };
@@ -139,6 +142,7 @@ function fromLegacyBlock(block: LegacyBlock, index: number): CriarCanvasElement[
           color: "#f8fafc",
           fontSize: 52,
           fontWeight: 700,
+          fontFamily: "Inter, system-ui, sans-serif",
           x: 80,
           y,
           w: 840,
@@ -155,6 +159,7 @@ function fromLegacyBlock(block: LegacyBlock, index: number): CriarCanvasElement[
           color: "#cbd5e1",
           fontSize: 20,
           fontWeight: 400,
+          fontFamily: "Inter, system-ui, sans-serif",
           x: 80,
           y: y + 92,
           w: 760,
@@ -174,6 +179,7 @@ function fromLegacyBlock(block: LegacyBlock, index: number): CriarCanvasElement[
           color: "#94a3b8",
           fontSize: 16,
           fontWeight: 400,
+          fontFamily: "Inter, system-ui, sans-serif",
           x: 80,
           y,
           w: 840,
@@ -206,6 +212,7 @@ function fromLegacyBlock(block: LegacyBlock, index: number): CriarCanvasElement[
           color: "#e2e8f0",
           fontSize: 24,
           fontWeight: 600,
+          fontFamily: "Inter, system-ui, sans-serif",
           x: 98,
           y: y + 42,
           w: 420,
@@ -242,6 +249,7 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
         canvas: {
           width: canvas.width,
           height: canvas.height,
+          background: isString(canvas.background) ? canvas.background : "#0b1220",
           elements,
         },
       });
@@ -266,6 +274,7 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
         canvas: {
           width: 1200,
           height: Math.max(900, elements.length * 180),
+          background: "#0b1220",
           elements,
         },
       });
@@ -294,7 +303,12 @@ export function validateCriarSchema(input: unknown): { ok: true; value: CriarPro
     if (!isString(page.slug) || !isString(page.title)) {
       return { ok: false, error: "Pagina invalida." };
     }
-    if (!isNumber(page.canvas.width) || !isNumber(page.canvas.height) || !Array.isArray(page.canvas.elements)) {
+    if (
+      !isNumber(page.canvas.width) ||
+      !isNumber(page.canvas.height) ||
+      !isString(page.canvas.background) ||
+      !Array.isArray(page.canvas.elements)
+    ) {
       return { ok: false, error: "Canvas invalido." };
     }
 
@@ -306,12 +320,25 @@ export function validateCriarSchema(input: unknown): { ok: true; value: CriarPro
 
       switch (record.type) {
         case "text":
-          if (!isString(record.text) || !isString(record.color) || !isNumber(record.fontSize) || !isNumber(record.fontWeight)) {
+          if (
+            !isString(record.text) ||
+            !isString(record.color) ||
+            !isNumber(record.fontSize) ||
+            !isNumber(record.fontWeight) ||
+            !isString(record.fontFamily)
+          ) {
             return { ok: false, error: "Elemento text invalido." };
           }
           break;
         case "button":
-          if (!isString(record.label) || !isString(record.href) || !isString(record.color) || !isString(record.bg) || !isNumber(record.fontSize)) {
+          if (
+            !isString(record.label) ||
+            !isString(record.href) ||
+            !isString(record.color) ||
+            !isString(record.bg) ||
+            !isNumber(record.fontSize) ||
+            !isString(record.fontFamily)
+          ) {
             return { ok: false, error: "Elemento button invalido." };
           }
           break;

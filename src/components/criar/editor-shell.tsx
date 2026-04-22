@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Download, Save } from "lucide-react";
+import { Download, Laptop, Save, Smartphone, Tablet } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { Button } from "@/components/ui/button";
 import { BlockPalette } from "@/components/criar/block-palette";
@@ -23,6 +23,8 @@ export function EditorShell({ projectId }: Props) {
   const [saving, setSaving] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
 
   useEffect(() => {
     let cancelled = false;
@@ -62,6 +64,7 @@ export function EditorShell({ projectId }: Props) {
   const elements = schema?.pages[0]?.canvas.elements ?? [];
   const selectedIndex = elements.findIndex((element) => element.id === selectedBlockId);
   const selectedElement = selectedIndex >= 0 ? elements[selectedIndex]! : null;
+  const page = schema?.pages[0] ?? null;
 
   function mutateElements(mutator: (list: CriarCanvasElement[]) => CriarCanvasElement[], nextSelectedId?: string | null) {
     if (!project) return;
@@ -110,6 +113,50 @@ export function EditorShell({ projectId }: Props) {
     if (selectedIndex < 0) return;
     const nextElements = elements.filter((_, index) => index !== selectedIndex);
     mutateElements(() => nextElements, nextElements[selectedIndex - 1]?.id ?? nextElements[0]?.id ?? null);
+  }
+
+  function setCanvasSize(next: { width: number; height: number }) {
+    if (!project) return;
+    const localPage = project.schema.pages[0];
+    if (!localPage) return;
+    setProject({
+      ...project,
+      schema: {
+        ...project.schema,
+        pages: [{ ...localPage, canvas: { ...localPage.canvas, width: next.width, height: next.height } }],
+      },
+    });
+  }
+
+  function setCanvasBackground(background: string) {
+    if (!project) return;
+    const localPage = project.schema.pages[0];
+    if (!localPage) return;
+    setProject({
+      ...project,
+      schema: {
+        ...project.schema,
+        pages: [{ ...localPage, canvas: { ...localPage.canvas, background } }],
+      },
+    });
+  }
+
+  function setTheme(next: Partial<CriarProjectSchema["theme"]>) {
+    if (!project) return;
+    setProject({
+      ...project,
+      schema: {
+        ...project.schema,
+        theme: { ...project.schema.theme, ...next },
+      },
+    });
+  }
+
+  function applyViewport(next: "desktop" | "tablet" | "mobile") {
+    setViewport(next);
+    if (next === "desktop") setCanvasSize({ width: 1280, height: 900 });
+    if (next === "tablet") setCanvasSize({ width: 900, height: 1200 });
+    if (next === "mobile") setCanvasSize({ width: 430, height: 932 });
   }
 
   async function saveProject() {
@@ -163,7 +210,7 @@ export function EditorShell({ projectId }: Props) {
   return (
     <div className="min-h-screen bg-background">
       <SiteNav />
-      <main className="mx-auto w-full max-w-[1400px] px-4 pb-10 pt-28">
+      <main className="w-full px-4 pb-10 pt-28">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold">{headerTitle}</h1>
@@ -192,23 +239,112 @@ export function EditorShell({ projectId }: Props) {
         ) : !project || !schema ? (
           <div className="rounded-2xl border bg-card/80 p-6 text-sm text-destructive">Não foi possível abrir o projeto.</div>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[220px_1fr_320px]">
+          <div className="grid gap-4 lg:grid-cols-[240px_1fr_340px]">
             <BlockPalette onAddBlock={addBlock} />
-            <CanvasPreview
-              schema={schema}
-              selectedBlockId={selectedBlockId}
-              onSelectBlock={setSelectedBlockId}
-              onChangeElement={updateSelectedElement}
-            />
-            <PropertiesPanel
-              block={selectedElement}
-              onChangeBlock={updateSelectedElement}
-              onMoveUp={() => moveSelected(-1)}
-              onMoveDown={() => moveSelected(1)}
-              onRemove={removeSelected}
-              canMoveUp={selectedIndex > 0}
-              canMoveDown={selectedIndex >= 0 && selectedIndex < elements.length - 1}
-            />
+            <div className="space-y-4">
+              <section className="rounded-2xl border bg-card/80 p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant={viewport === "desktop" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => applyViewport("desktop")}
+                  >
+                    <Laptop className="mr-1 size-3.5" />
+                    Desktop
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={viewport === "tablet" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => applyViewport("tablet")}
+                  >
+                    <Tablet className="mr-1 size-3.5" />
+                    Tablet
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={viewport === "mobile" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => applyViewport("mobile")}
+                  >
+                    <Smartphone className="mr-1 size-3.5" />
+                    Mobile
+                  </Button>
+                  <div className="ml-auto flex items-center gap-2">
+                    <label className="text-xs text-muted-foreground">Zoom</label>
+                    <input
+                      type="range"
+                      min={40}
+                      max={160}
+                      value={Math.round(zoom * 100)}
+                      onChange={(event) => setZoom(Number(event.target.value) / 100)}
+                    />
+                    <span className="w-12 text-right text-xs text-muted-foreground">{Math.round(zoom * 100)}%</span>
+                  </div>
+                </div>
+                {page ? (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Canvas: {page.canvas.width}x{page.canvas.height}
+                  </p>
+                ) : null}
+              </section>
+              <CanvasPreview
+                schema={schema}
+                selectedBlockId={selectedBlockId}
+                onSelectBlock={setSelectedBlockId}
+                onChangeElement={updateSelectedElement}
+                zoom={zoom}
+              />
+            </div>
+            <div className="space-y-4">
+              <section className="rounded-2xl border bg-card/80 p-4">
+                <h3 className="text-sm font-semibold">Aparência global</h3>
+                <div className="mt-3 grid gap-2">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">Cor primária</span>
+                    <input
+                      value={schema.theme.primary}
+                      onChange={(event) => setTheme({ primary: event.target.value })}
+                      className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">Cor de texto global</span>
+                    <input
+                      value={schema.theme.text}
+                      onChange={(event) => setTheme({ text: event.target.value })}
+                      className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">Fundo global</span>
+                    <input
+                      value={schema.theme.background}
+                      onChange={(event) => setTheme({ background: event.target.value })}
+                      className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">Fundo do canvas</span>
+                    <input
+                      value={page?.canvas.background ?? "#0b1220"}
+                      onChange={(event) => setCanvasBackground(event.target.value)}
+                      className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+                    />
+                  </label>
+                </div>
+              </section>
+              <PropertiesPanel
+                block={selectedElement}
+                onChangeBlock={updateSelectedElement}
+                onMoveUp={() => moveSelected(-1)}
+                onMoveDown={() => moveSelected(1)}
+                onRemove={removeSelected}
+                canMoveUp={selectedIndex > 0}
+                canMoveDown={selectedIndex >= 0 && selectedIndex < elements.length - 1}
+              />
+            </div>
           </div>
         )}
       </main>

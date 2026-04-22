@@ -157,6 +157,7 @@ export function PropertiesPanel({
               value={String(block.fontWeight)}
               onChange={(fontWeight) => onChangeBlock({ ...block, fontWeight: Math.max(100, Number(fontWeight) || 100) })}
             />
+            <TextField label="Fonte" value={block.fontFamily} onChange={(fontFamily) => onChangeBlock({ ...block, fontFamily })} />
           </>
         ) : null}
         {block.type === "button" ? (
@@ -170,6 +171,7 @@ export function PropertiesPanel({
               value={String(block.fontSize)}
               onChange={(fontSize) => onChangeBlock({ ...block, fontSize: Math.max(8, Number(fontSize) || 8) })}
             />
+            <TextField label="Fonte" value={block.fontFamily} onChange={(fontFamily) => onChangeBlock({ ...block, fontFamily })} />
           </>
         ) : null}
         {block.type === "shape" ? <TextField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} /> : null}
