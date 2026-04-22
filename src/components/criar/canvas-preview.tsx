@@ -44,13 +44,48 @@ export function CanvasPreview({
 }: Props) {
   const page = schema.pages[pageIndex] ?? null;
   const canvasGap = 96;
-  const workspaceWidth = schema.pages.reduce((total, current, index) => total + current.canvas.width + (index > 0 ? canvasGap : 0), 0);
-  const workspaceHeight = schema.pages.reduce((maxHeight, current) => Math.max(maxHeight, current.canvas.height), 0);
+  const workspaceColumns = 2;
+  const pageFrames = schema.pages.map((currentPage, currentPageIndex) => {
+    const row = Math.floor(currentPageIndex / workspaceColumns);
+    const col = currentPageIndex % workspaceColumns;
+    const previousInRow = schema.pages
+      .slice(row * workspaceColumns, row * workspaceColumns + col)
+      .reduce<number>((total, entry) => total + entry.canvas.width + canvasGap, 0);
+
+    let previousRowsHeight = 0;
+    for (let rowIndex = 0; rowIndex < row; rowIndex += 1) {
+      const start = rowIndex * workspaceColumns;
+      const rowPages = schema.pages.slice(start, start + workspaceColumns);
+      const rowHeight = rowPages.reduce<number>((max, entry) => Math.max(max, entry.canvas.height), 0);
+      previousRowsHeight += rowHeight + canvasGap;
+    }
+    return {
+      page: currentPage,
+      pageIndex: currentPageIndex,
+      x: previousInRow,
+      y: previousRowsHeight,
+    };
+  });
+  const workspaceWidth = pageFrames.reduce((max, frame) => Math.max(max, frame.x + frame.page.canvas.width), 0);
+  const workspaceHeight = pageFrames.reduce((max, frame) => Math.max(max, frame.y + frame.page.canvas.height), 0);
   const dragging = useRef<{ id: string; mode: "move" | "resize"; startX: number; startY: number; baseX: number; baseY: number; baseW: number; baseH: number } | null>(null);
   const [, force] = useState(0);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const onWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey) return;
+      event.preventDefault();
+      const delta = event.deltaY > 0 ? -0.08 : 0.08;
+      onManualZoomChange(Math.max(0.2, Math.min(2, zoom + delta)));
+    };
+    viewport.addEventListener("wheel", onWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", onWheel);
+  }, [zoom, onManualZoomChange]);
 
   useEffect(() => {
     if (!page || schema.pages.length === 0) return;
@@ -142,12 +177,6 @@ export function CanvasPreview({
       <div
         ref={viewportRef}
         className="h-full min-h-0 overflow-auto bg-background"
-        onWheel={(event) => {
-          if (!event.ctrlKey) return;
-          event.preventDefault();
-          const delta = event.deltaY > 0 ? -0.08 : 0.08;
-          onManualZoomChange(Math.max(0.2, Math.min(2, zoom + delta)));
-        }}
       >
         <div
           className="relative mx-auto bg-background"
@@ -168,10 +197,9 @@ export function CanvasPreview({
             @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
             @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
           `}</style>
-          {schema.pages.map((currentPage, currentPageIndex) => {
-            const frameOffsetX = schema.pages
-              .slice(0, currentPageIndex)
-              .reduce((total, entry) => total + entry.canvas.width + canvasGap, 0);
+          {pageFrames.map((frame) => {
+            const currentPage = frame.page;
+            const currentPageIndex = frame.pageIndex;
             const isActivePage = currentPageIndex === pageIndex;
 
             return (
@@ -182,7 +210,8 @@ export function CanvasPreview({
                   isActivePage ? "ring-2 ring-primary/70" : "ring-1 ring-border hover:ring-primary/40",
                 )}
                 style={{
-                  left: frameOffsetX,
+                  left: frame.x,
+                  top: frame.y,
                   width: currentPage.canvas.width,
                   height: currentPage.canvas.height,
                   backgroundColor: currentPage.canvas.background,

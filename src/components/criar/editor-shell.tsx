@@ -27,6 +27,7 @@ export function EditorShell({ projectId }: Props) {
   const [zoomMode, setZoomMode] = useState<"fit" | "manual">("fit");
   const [activePageIndex, setActivePageIndex] = useState(0);
   const clipboardRef = useRef<CriarCanvasElement | null>(null);
+  const pageClipboardRef = useRef<CriarProjectSchema["pages"][number] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,6 +100,24 @@ export function EditorShell({ projectId }: Props) {
       id: `${element.type}-${Math.random().toString(36).slice(2, 10)}`,
       x: element.x + 24,
       y: element.y + 24,
+    };
+  }
+
+  function clonePage(source: CriarProjectSchema["pages"][number], index: number): CriarProjectSchema["pages"][number] {
+    const clonedElements = source.canvas.elements.map((element) => ({
+      ...element,
+      id: `${element.type}-${Math.random().toString(36).slice(2, 10)}`,
+      x: element.x + 24,
+      y: element.y + 24,
+    }));
+    return {
+      ...source,
+      slug: `pagina-${index + 1}`,
+      title: `${source.title} ${index + 1}`,
+      canvas: {
+        ...source.canvas,
+        elements: clonedElements,
+      },
     };
   }
 
@@ -185,6 +204,19 @@ export function EditorShell({ projectId }: Props) {
     setZoomMode("fit");
   }
 
+  function duplicateActivePage() {
+    if (!project) return;
+    const current = project.schema.pages[activePageIndex];
+    if (!current) return;
+    const nextIndex = project.schema.pages.length;
+    const duplicated = clonePage(current, nextIndex);
+    const nextPages = [...project.schema.pages, duplicated];
+    setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
+    setActivePageIndex(nextIndex);
+    setSelectedBlockId(duplicated.canvas.elements[0]?.id ?? null);
+    setZoomMode("fit");
+  }
+
   function setManualZoom(next: number) {
     setZoomMode("manual");
     setZoom(Math.max(0.2, Math.min(2, next)));
@@ -207,6 +239,12 @@ export function EditorShell({ projectId }: Props) {
         return;
       }
 
+      if (withMeta && key === "c" && !selectedElement && page) {
+        event.preventDefault();
+        pageClipboardRef.current = JSON.parse(JSON.stringify(page)) as CriarProjectSchema["pages"][number];
+        return;
+      }
+
       if (withMeta && key === "v" && clipboardRef.current) {
         event.preventDefault();
         const clone = cloneElement(clipboardRef.current);
@@ -214,10 +252,28 @@ export function EditorShell({ projectId }: Props) {
         return;
       }
 
+      if (withMeta && key === "v" && !selectedElement && pageClipboardRef.current && project) {
+        event.preventDefault();
+        const nextIndex = project.schema.pages.length;
+        const duplicated = clonePage(pageClipboardRef.current, nextIndex);
+        const nextPages = [...project.schema.pages, duplicated];
+        setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
+        setActivePageIndex(nextIndex);
+        setSelectedBlockId(duplicated.canvas.elements[0]?.id ?? null);
+        setZoomMode("fit");
+        return;
+      }
+
       if (withMeta && key === "d" && selectedElement) {
         event.preventDefault();
         const clone = cloneElement(selectedElement);
         mutateElements((list) => [...list, clone], clone.id);
+        return;
+      }
+
+      if (withMeta && key === "d" && !selectedElement) {
+        event.preventDefault();
+        duplicateActivePage();
         return;
       }
 
@@ -230,7 +286,18 @@ export function EditorShell({ projectId }: Props) {
 
     window.addEventListener("keydown", handleEditorShortcuts);
     return () => window.removeEventListener("keydown", handleEditorShortcuts);
-  }, [selectedElement, activePageIndex, project]);
+  }, [selectedElement, activePageIndex, project, page]);
+
+  useEffect(() => {
+    function blockBrowserZoom(event: KeyboardEvent) {
+      const key = event.key.toLowerCase();
+      if ((event.ctrlKey || event.metaKey) && (key === "+" || key === "-" || key === "=" || key === "0")) {
+        event.preventDefault();
+      }
+    }
+    window.addEventListener("keydown", blockBrowserZoom);
+    return () => window.removeEventListener("keydown", blockBrowserZoom);
+  }, []);
 
   function handleFitZoom(zoomValue: number) {
     if (zoomMode === "fit") setZoom(zoomValue);
@@ -412,7 +479,7 @@ export function EditorShell({ projectId }: Props) {
                   </p>
                 ) : null}
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Atalhos: Ctrl+C copiar, Ctrl+V colar, Ctrl+D duplicar, Delete remover. Duplo clique para editar texto.
+                  Atalhos: Ctrl+C/Ctrl+V/Ctrl+D para elemento ou tela ativa, Delete remover. Duplo clique para editar texto.
                 </p>
               </section>
             </div>
