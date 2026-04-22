@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import type { CriarBlock } from "@/lib/criar/schema";
+import type { CriarCanvasElement } from "@/lib/criar/schema";
 
 type Props = {
-  block: CriarBlock | null;
-  onChangeBlock: (next: CriarBlock) => void;
+  block: CriarCanvasElement | null;
+  onChangeBlock: (next: CriarCanvasElement) => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
@@ -66,96 +66,114 @@ export function PropertiesPanel({
     <aside className="rounded-2xl border bg-card/80 p-4">
       <h2 className="text-sm font-semibold">Propriedades: {block.type.toUpperCase()}</h2>
       <div className="mt-3 grid gap-2">
-        {block.type === "hero" ? (
+        <TextField
+          label="Posição X"
+          value={String(Math.round(block.x))}
+          onChange={(x) => onChangeBlock({ ...block, x: Number(x) || 0 })}
+        />
+        <TextField
+          label="Posição Y"
+          value={String(Math.round(block.y))}
+          onChange={(y) => onChangeBlock({ ...block, y: Number(y) || 0 })}
+        />
+        <TextField
+          label="Largura"
+          value={String(Math.round(block.w))}
+          onChange={(w) => onChangeBlock({ ...block, w: Math.max(24, Number(w) || 24) })}
+        />
+        <TextField
+          label="Altura"
+          value={String(Math.round(block.h))}
+          onChange={(h) => onChangeBlock({ ...block, h: Math.max(24, Number(h) || 24) })}
+        />
+        <TextField
+          label="Raio da borda"
+          value={String(Math.round(block.radius))}
+          onChange={(radius) => onChangeBlock({ ...block, radius: Math.max(0, Number(radius) || 0) })}
+        />
+        <TextField
+          label="Rotação"
+          value={String(Math.round(block.rotation))}
+          onChange={(rotation) => onChangeBlock({ ...block, rotation: Number(rotation) || 0 })}
+        />
+        <TextField
+          label="Opacidade (0-1)"
+          value={String(block.opacity)}
+          onChange={(opacity) => onChangeBlock({ ...block, opacity: Math.max(0, Math.min(1, Number(opacity) || 0)) })}
+        />
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Movimento</span>
+          <select
+            value={block.animation.preset}
+            onChange={(event) =>
+              onChangeBlock({
+                ...block,
+                animation: { ...block.animation, preset: event.target.value as CriarCanvasElement["animation"]["preset"] },
+              })
+            }
+            className="h-9 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
+          >
+            <option value="none">Nenhum</option>
+            <option value="float">Float</option>
+            <option value="pulse">Pulse</option>
+            <option value="slideUp">Slide up</option>
+          </select>
+        </label>
+        <TextField
+          label="Duração do movimento (s)"
+          value={String(block.animation.duration)}
+          onChange={(duration) =>
+            onChangeBlock({
+              ...block,
+              animation: { ...block.animation, duration: Math.max(0.2, Number(duration) || 0.2) },
+            })
+          }
+        />
+        <TextField
+          label="Delay (s)"
+          value={String(block.animation.delay)}
+          onChange={(delay) =>
+            onChangeBlock({
+              ...block,
+              animation: { ...block.animation, delay: Math.max(0, Number(delay) || 0) },
+            })
+          }
+        />
+        {block.type === "text" ? (
           <>
-            <TextField label="Título" value={block.props.title} onChange={(title) => onChangeBlock({ ...block, props: { ...block.props, title } })} />
+            <TextField label="Texto" value={block.text} multiline onChange={(text) => onChangeBlock({ ...block, text })} />
             <TextField
-              label="Subtítulo"
-              value={block.props.subtitle}
-              multiline
-              onChange={(subtitle) => onChangeBlock({ ...block, props: { ...block.props, subtitle } })}
+              label="Cor (hex/rgb)"
+              value={block.color}
+              onChange={(color) => onChangeBlock({ ...block, color })}
             />
             <TextField
-              label="Texto do botão"
-              value={block.props.ctaLabel}
-              onChange={(ctaLabel) => onChangeBlock({ ...block, props: { ...block.props, ctaLabel } })}
+              label="Tamanho da fonte"
+              value={String(block.fontSize)}
+              onChange={(fontSize) => onChangeBlock({ ...block, fontSize: Math.max(8, Number(fontSize) || 8) })}
             />
             <TextField
-              label="Link do botão"
-              value={block.props.ctaHref}
-              onChange={(ctaHref) => onChangeBlock({ ...block, props: { ...block.props, ctaHref } })}
+              label="Peso da fonte"
+              value={String(block.fontWeight)}
+              onChange={(fontWeight) => onChangeBlock({ ...block, fontWeight: Math.max(100, Number(fontWeight) || 100) })}
             />
           </>
         ) : null}
-        {block.type === "features" ? (
+        {block.type === "button" ? (
           <>
-            <TextField label="Título" value={block.props.title} onChange={(title) => onChangeBlock({ ...block, props: { ...block.props, title } })} />
-            {block.props.items.map((item, index) => (
-              <TextField
-                key={`${block.id}-feature-${index}`}
-                label={`Item ${index + 1}`}
-                value={item}
-                onChange={(nextItem) => {
-                  const items = [...block.props.items];
-                  items[index] = nextItem;
-                  onChangeBlock({ ...block, props: { ...block.props, items } });
-                }}
-              />
-            ))}
-          </>
-        ) : null}
-        {block.type === "cta" ? (
-          <>
-            <TextField label="Título" value={block.props.title} onChange={(title) => onChangeBlock({ ...block, props: { ...block.props, title } })} />
+            <TextField label="Texto do botão" value={block.label} onChange={(label) => onChangeBlock({ ...block, label })} />
+            <TextField label="Link" value={block.href} onChange={(href) => onChangeBlock({ ...block, href })} />
+            <TextField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} />
+            <TextField label="Cor do texto" value={block.color} onChange={(color) => onChangeBlock({ ...block, color })} />
             <TextField
-              label="Descrição"
-              multiline
-              value={block.props.description}
-              onChange={(description) => onChangeBlock({ ...block, props: { ...block.props, description } })}
-            />
-            <TextField
-              label="Botão"
-              value={block.props.buttonLabel}
-              onChange={(buttonLabel) => onChangeBlock({ ...block, props: { ...block.props, buttonLabel } })}
-            />
-            <TextField
-              label="Link"
-              value={block.props.buttonHref}
-              onChange={(buttonHref) => onChangeBlock({ ...block, props: { ...block.props, buttonHref } })}
+              label="Tamanho da fonte"
+              value={String(block.fontSize)}
+              onChange={(fontSize) => onChangeBlock({ ...block, fontSize: Math.max(8, Number(fontSize) || 8) })}
             />
           </>
         ) : null}
-        {block.type === "faq" ? (
-          <>
-            <TextField label="Título" value={block.props.title} onChange={(title) => onChangeBlock({ ...block, props: { ...block.props, title } })} />
-            {block.props.items.map((item, index) => (
-              <div key={`${block.id}-faq-${index}`} className="grid gap-2 rounded-xl border p-2">
-                <TextField
-                  label={`Pergunta ${index + 1}`}
-                  value={item.question}
-                  onChange={(question) => {
-                    const items = [...block.props.items];
-                    items[index] = { ...item, question };
-                    onChangeBlock({ ...block, props: { ...block.props, items } });
-                  }}
-                />
-                <TextField
-                  label={`Resposta ${index + 1}`}
-                  multiline
-                  value={item.answer}
-                  onChange={(answer) => {
-                    const items = [...block.props.items];
-                    items[index] = { ...item, answer };
-                    onChangeBlock({ ...block, props: { ...block.props, items } });
-                  }}
-                />
-              </div>
-            ))}
-          </>
-        ) : null}
-        {block.type === "footer" ? (
-          <TextField label="Texto" value={block.props.text} onChange={(text) => onChangeBlock({ ...block, props: { text } })} />
-        ) : null}
+        {block.type === "shape" ? <TextField label="Cor de fundo" value={block.bg} onChange={(bg) => onChangeBlock({ ...block, bg })} /> : null}
+        {block.type === "image" ? <TextField label="URL da imagem" value={block.src} onChange={(src) => onChangeBlock({ ...block, src })} /> : null}
       </div>
       <div className="mt-4 grid grid-cols-3 gap-2">
         <Button type="button" variant="outline" onClick={onMoveUp} disabled={!canMoveUp}>

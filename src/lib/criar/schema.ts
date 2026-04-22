@@ -6,63 +6,61 @@ export type CriarTheme = {
   text: string;
 };
 
-export type HeroBlock = {
-  id: string;
-  type: "hero";
-  props: {
-    title: string;
-    subtitle: string;
-    ctaLabel: string;
-    ctaHref: string;
-  };
-  styles?: {
-    align?: "left" | "center";
-  };
+export type ElementAnimation = {
+  preset: "none" | "float" | "pulse" | "slideUp";
+  duration: number;
+  delay: number;
 };
 
-export type FeaturesBlock = {
+export type CanvasBaseElement = {
   id: string;
-  type: "features";
-  props: {
-    title: string;
-    items: string[];
-  };
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  rotation: number;
+  opacity: number;
+  radius: number;
+  animation: ElementAnimation;
 };
 
-export type CtaBlock = {
-  id: string;
-  type: "cta";
-  props: {
-    title: string;
-    description: string;
-    buttonLabel: string;
-    buttonHref: string;
-  };
+export type TextElement = CanvasBaseElement & {
+  type: "text";
+  text: string;
+  color: string;
+  fontSize: number;
+  fontWeight: number;
 };
 
-export type FaqBlock = {
-  id: string;
-  type: "faq";
-  props: {
-    title: string;
-    items: Array<{ question: string; answer: string }>;
-  };
+export type ButtonElement = CanvasBaseElement & {
+  type: "button";
+  label: string;
+  href: string;
+  color: string;
+  bg: string;
+  fontSize: number;
 };
 
-export type FooterBlock = {
-  id: string;
-  type: "footer";
-  props: {
-    text: string;
-  };
+export type ShapeElement = CanvasBaseElement & {
+  type: "shape";
+  bg: string;
 };
 
-export type CriarBlock = HeroBlock | FeaturesBlock | CtaBlock | FaqBlock | FooterBlock;
+export type ImageElement = CanvasBaseElement & {
+  type: "image";
+  src: string;
+};
+
+export type CriarCanvasElement = TextElement | ButtonElement | ShapeElement | ImageElement;
 
 export type CriarPageSchema = {
   slug: string;
   title: string;
-  blocks: CriarBlock[];
+  canvas: {
+    width: number;
+    height: number;
+    elements: CriarCanvasElement[];
+  };
 };
 
 export type CriarProjectSchema = {
@@ -92,74 +90,242 @@ function isString(value: unknown): value is string {
   return typeof value === "string";
 }
 
-export function validateCriarSchema(input: unknown): { ok: true; value: CriarProjectSchema } | { ok: false; error: string } {
+function isNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function validateElementBase(record: Record<string, unknown>): boolean {
+  return (
+    isString(record.id) &&
+    isNumber(record.x) &&
+    isNumber(record.y) &&
+    isNumber(record.w) &&
+    isNumber(record.h) &&
+    isNumber(record.rotation) &&
+    isNumber(record.opacity) &&
+    isNumber(record.radius)
+  );
+}
+
+function validateAnimation(animation: unknown): boolean {
+  const a = asRecord(animation);
+  if (!a) return false;
+  return (
+    (a.preset === "none" || a.preset === "float" || a.preset === "pulse" || a.preset === "slideUp") &&
+    isNumber(a.duration) &&
+    isNumber(a.delay)
+  );
+}
+
+type LegacyBlock = {
+  id: string;
+  type: string;
+  props: Record<string, unknown>;
+};
+
+function defaultAnimation(): ElementAnimation {
+  return { preset: "none", duration: 1.2, delay: 0 };
+}
+
+function fromLegacyBlock(block: LegacyBlock, index: number): CriarCanvasElement[] {
+  const y = 60 + index * 140;
+  switch (block.type) {
+    case "hero":
+      return [
+        {
+          id: `${block.id}-title`,
+          type: "text",
+          text: String(block.props.title ?? "Título"),
+          color: "#f8fafc",
+          fontSize: 52,
+          fontWeight: 700,
+          x: 80,
+          y,
+          w: 840,
+          h: 80,
+          rotation: 0,
+          opacity: 1,
+          radius: 12,
+          animation: defaultAnimation(),
+        },
+        {
+          id: `${block.id}-sub`,
+          type: "text",
+          text: String(block.props.subtitle ?? "Subtítulo"),
+          color: "#cbd5e1",
+          fontSize: 20,
+          fontWeight: 400,
+          x: 80,
+          y: y + 92,
+          w: 760,
+          h: 60,
+          rotation: 0,
+          opacity: 1,
+          radius: 12,
+          animation: defaultAnimation(),
+        },
+      ];
+    case "footer":
+      return [
+        {
+          id: `${block.id}-footer`,
+          type: "text",
+          text: String(block.props.text ?? "Rodapé"),
+          color: "#94a3b8",
+          fontSize: 16,
+          fontWeight: 400,
+          x: 80,
+          y,
+          w: 840,
+          h: 42,
+          rotation: 0,
+          opacity: 1,
+          radius: 8,
+          animation: defaultAnimation(),
+        },
+      ];
+    default:
+      return [
+        {
+          id: `${block.id}-box`,
+          type: "shape",
+          bg: "#1e293b",
+          x: 80,
+          y,
+          w: 460,
+          h: 120,
+          rotation: 0,
+          opacity: 1,
+          radius: 16,
+          animation: defaultAnimation(),
+        },
+        {
+          id: `${block.id}-label`,
+          type: "text",
+          text: String(block.props.title ?? block.type.toUpperCase()),
+          color: "#e2e8f0",
+          fontSize: 24,
+          fontWeight: 600,
+          x: 98,
+          y: y + 42,
+          w: 420,
+          h: 36,
+          rotation: 0,
+          opacity: 1,
+          radius: 8,
+          animation: defaultAnimation(),
+        },
+      ];
+  }
+}
+
+export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null {
   const root = asRecord(input);
-  if (!root) return { ok: false, error: "Schema invalido (root)." };
-
+  if (!root) return null;
   const meta = asRecord(root.meta);
-  if (!meta || typeof meta.version !== "number") {
-    return { ok: false, error: "Schema invalido (meta.version)." };
-  }
-
   const theme = asRecord(root.theme);
-  if (!theme || !isString(theme.primary) || !isString(theme.background) || !isString(theme.text)) {
-    return { ok: false, error: "Schema invalido (theme)." };
-  }
+  if (!meta || !theme || !isNumber(meta.version)) return null;
+  if (!isString(theme.primary) || !isString(theme.background) || !isString(theme.text)) return null;
+  if (!Array.isArray(root.pages) || root.pages.length === 0) return null;
 
-  if (!Array.isArray(root.pages) || root.pages.length === 0) {
-    return { ok: false, error: "Schema invalido (pages)." };
-  }
-
+  const normalizedPages: CriarPageSchema[] = [];
   for (const page of root.pages) {
     const pageRecord = asRecord(page);
-    if (!pageRecord || !isString(pageRecord.slug) || !isString(pageRecord.title) || !Array.isArray(pageRecord.blocks)) {
-      return { ok: false, error: "Schema invalido (page)." };
+    if (!pageRecord || !isString(pageRecord.slug) || !isString(pageRecord.title)) return null;
+
+    const canvas = asRecord(pageRecord.canvas);
+    if (canvas && Array.isArray(canvas.elements) && isNumber(canvas.width) && isNumber(canvas.height)) {
+      const elements = canvas.elements as CriarCanvasElement[];
+      normalizedPages.push({
+        slug: pageRecord.slug,
+        title: pageRecord.title,
+        canvas: {
+          width: canvas.width,
+          height: canvas.height,
+          elements,
+        },
+      });
+      continue;
     }
 
-    for (const block of pageRecord.blocks) {
-      const blockRecord = asRecord(block);
-      if (!blockRecord || !isString(blockRecord.id) || !isString(blockRecord.type)) {
-        return { ok: false, error: "Schema invalido (block base)." };
+    // Legacy migration from blocks -> canvas elements
+    if (Array.isArray(pageRecord.blocks)) {
+      const legacyBlocks = pageRecord.blocks
+        .map((entry) => asRecord(entry))
+        .filter(Boolean)
+        .map((entry) => ({
+          id: String(entry!.id ?? `legacy-${Math.random().toString(36).slice(2, 8)}`),
+          type: String(entry!.type ?? "shape"),
+          props: asRecord(entry!.props) ?? {},
+        })) as LegacyBlock[];
+
+      const elements = legacyBlocks.flatMap((block, index) => fromLegacyBlock(block, index));
+      normalizedPages.push({
+        slug: pageRecord.slug,
+        title: pageRecord.title,
+        canvas: {
+          width: 1200,
+          height: Math.max(900, elements.length * 180),
+          elements,
+        },
+      });
+      continue;
+    }
+
+    return null;
+  }
+
+  return {
+    meta: { version: meta.version },
+    theme: {
+      primary: theme.primary,
+      background: theme.background,
+      text: theme.text,
+    },
+    pages: normalizedPages,
+  };
+}
+
+export function validateCriarSchema(input: unknown): { ok: true; value: CriarProjectSchema } | { ok: false; error: string } {
+  const normalized = normalizeCriarSchema(input);
+  if (!normalized) return { ok: false, error: "Schema invalido." };
+
+  for (const page of normalized.pages) {
+    if (!isString(page.slug) || !isString(page.title)) {
+      return { ok: false, error: "Pagina invalida." };
+    }
+    if (!isNumber(page.canvas.width) || !isNumber(page.canvas.height) || !Array.isArray(page.canvas.elements)) {
+      return { ok: false, error: "Canvas invalido." };
+    }
+
+    for (const element of page.canvas.elements) {
+      const record = asRecord(element);
+      if (!record || !isString(record.type) || !validateElementBase(record) || !validateAnimation(record.animation)) {
+        return { ok: false, error: "Elemento invalido." };
       }
 
-      const props = asRecord(blockRecord.props);
-      if (!props) return { ok: false, error: "Schema invalido (block props)." };
-
-      switch (blockRecord.type) {
-        case "hero":
-          if (!isString(props.title) || !isString(props.subtitle) || !isString(props.ctaLabel) || !isString(props.ctaHref)) {
-            return { ok: false, error: "Schema invalido (hero)." };
+      switch (record.type) {
+        case "text":
+          if (!isString(record.text) || !isString(record.color) || !isNumber(record.fontSize) || !isNumber(record.fontWeight)) {
+            return { ok: false, error: "Elemento text invalido." };
           }
           break;
-        case "features":
-          if (!isString(props.title) || !Array.isArray(props.items) || props.items.some((item) => !isString(item))) {
-            return { ok: false, error: "Schema invalido (features)." };
+        case "button":
+          if (!isString(record.label) || !isString(record.href) || !isString(record.color) || !isString(record.bg) || !isNumber(record.fontSize)) {
+            return { ok: false, error: "Elemento button invalido." };
           }
           break;
-        case "cta":
-          if (!isString(props.title) || !isString(props.description) || !isString(props.buttonLabel) || !isString(props.buttonHref)) {
-            return { ok: false, error: "Schema invalido (cta)." };
-          }
+        case "shape":
+          if (!isString(record.bg)) return { ok: false, error: "Elemento shape invalido." };
           break;
-        case "faq":
-          if (!isString(props.title) || !Array.isArray(props.items)) {
-            return { ok: false, error: "Schema invalido (faq)." };
-          }
-          for (const item of props.items) {
-            const faqItem = asRecord(item);
-            if (!faqItem || !isString(faqItem.question) || !isString(faqItem.answer)) {
-              return { ok: false, error: "Schema invalido (faq item)." };
-            }
-          }
-          break;
-        case "footer":
-          if (!isString(props.text)) return { ok: false, error: "Schema invalido (footer)." };
+        case "image":
+          if (!isString(record.src)) return { ok: false, error: "Elemento image invalido." };
           break;
         default:
-          return { ok: false, error: `Tipo de bloco nao suportado: ${blockRecord.type}` };
+          return { ok: false, error: `Tipo de elemento nao suportado: ${record.type}` };
       }
     }
   }
 
-  return { ok: true, value: root as CriarProjectSchema };
+  return { ok: true, value: normalized };
 }

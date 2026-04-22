@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { BlockPalette } from "@/components/criar/block-palette";
 import { CanvasPreview } from "@/components/criar/canvas-preview";
 import { PropertiesPanel } from "@/components/criar/properties-panel";
-import { makeBlock } from "@/lib/criar/defaults";
-import type { CriarBlock, CriarProjectRecord, CriarProjectSchema } from "@/lib/criar/schema";
+import { makeElement } from "@/lib/criar/defaults";
+import { normalizeCriarSchema, type CriarCanvasElement, type CriarProjectRecord, type CriarProjectSchema } from "@/lib/criar/schema";
 
 type Props = {
   projectId: string;
@@ -33,8 +33,17 @@ export function EditorShell({ projectId }: Props) {
       })
       .then((data) => {
         if (cancelled) return;
-        setProject(data.project);
-        setSelectedBlockId(data.project.schema.pages[0]?.blocks[0]?.id ?? null);
+        const normalizedSchema = normalizeCriarSchema(data.project.schema);
+        if (!normalizedSchema) {
+          setFeedback("Schema do projeto inválido.");
+          return;
+        }
+        const normalizedProject: CriarProjectRecord = {
+          ...data.project,
+          schema: normalizedSchema,
+        };
+        setProject(normalizedProject);
+        setSelectedBlockId(normalizedProject.schema.pages[0]?.canvas.elements[0]?.id ?? null);
       })
       .catch(() => {
         if (cancelled) return;
@@ -50,34 +59,34 @@ export function EditorShell({ projectId }: Props) {
   }, [projectId]);
 
   const schema: CriarProjectSchema | null = project?.schema ?? null;
-  const blocks = schema?.pages[0]?.blocks ?? [];
-  const selectedIndex = blocks.findIndex((block) => block.id === selectedBlockId);
-  const selectedBlock = selectedIndex >= 0 ? blocks[selectedIndex]! : null;
+  const elements = schema?.pages[0]?.canvas.elements ?? [];
+  const selectedIndex = elements.findIndex((element) => element.id === selectedBlockId);
+  const selectedElement = selectedIndex >= 0 ? elements[selectedIndex]! : null;
 
-  function mutateBlocks(mutator: (list: CriarBlock[]) => CriarBlock[], nextSelectedId?: string | null) {
+  function mutateElements(mutator: (list: CriarCanvasElement[]) => CriarCanvasElement[], nextSelectedId?: string | null) {
     if (!project) return;
     const page = project.schema.pages[0];
     if (!page) return;
-    const nextBlocks = mutator(page.blocks);
+    const nextElements = mutator(page.canvas.elements);
     const nextProject: CriarProjectRecord = {
       ...project,
       schema: {
         ...project.schema,
-        pages: [{ ...page, blocks: nextBlocks }],
+        pages: [{ ...page, canvas: { ...page.canvas, elements: nextElements } }],
       },
     };
     setProject(nextProject);
     if (nextSelectedId !== undefined) setSelectedBlockId(nextSelectedId);
   }
 
-  function addBlock(type: CriarBlock["type"]) {
-    const block = makeBlock(type);
-    mutateBlocks((list) => [...list, block], block.id);
+  function addBlock(type: CriarCanvasElement["type"]) {
+    const element = makeElement(type);
+    mutateElements((list) => [...list, element], element.id);
   }
 
-  function updateSelectedBlock(next: CriarBlock) {
+  function updateSelectedElement(next: CriarCanvasElement) {
     if (selectedIndex < 0) return;
-    mutateBlocks((list) => {
+    mutateElements((list) => {
       const clone = [...list];
       clone[selectedIndex] = next;
       return clone;
@@ -87,20 +96,20 @@ export function EditorShell({ projectId }: Props) {
   function moveSelected(direction: -1 | 1) {
     if (selectedIndex < 0) return;
     const target = selectedIndex + direction;
-    if (target < 0 || target >= blocks.length) return;
-    mutateBlocks((list) => {
+    if (target < 0 || target >= elements.length) return;
+    mutateElements((list) => {
       const clone = [...list];
       const tmp = clone[selectedIndex]!;
       clone[selectedIndex] = clone[target]!;
       clone[target] = tmp;
       return clone;
-    }, blocks[target]!.id);
+    }, elements[target]!.id);
   }
 
   function removeSelected() {
     if (selectedIndex < 0) return;
-    const nextBlocks = blocks.filter((_, index) => index !== selectedIndex);
-    mutateBlocks(() => nextBlocks, nextBlocks[selectedIndex - 1]?.id ?? nextBlocks[0]?.id ?? null);
+    const nextElements = elements.filter((_, index) => index !== selectedIndex);
+    mutateElements(() => nextElements, nextElements[selectedIndex - 1]?.id ?? nextElements[0]?.id ?? null);
   }
 
   async function saveProject() {
@@ -158,7 +167,7 @@ export function EditorShell({ projectId }: Props) {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold">{headerTitle}</h1>
-            <p className="text-sm text-muted-foreground">Edite componentes visuais e salve em JSON portável.</p>
+            <p className="text-sm text-muted-foreground">Canvas livre: crie, arraste, redimensione e anime elementos visuais.</p>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/criar">
@@ -185,15 +194,20 @@ export function EditorShell({ projectId }: Props) {
         ) : (
           <div className="grid gap-4 lg:grid-cols-[220px_1fr_320px]">
             <BlockPalette onAddBlock={addBlock} />
-            <CanvasPreview schema={schema} selectedBlockId={selectedBlockId} onSelectBlock={setSelectedBlockId} />
+            <CanvasPreview
+              schema={schema}
+              selectedBlockId={selectedBlockId}
+              onSelectBlock={setSelectedBlockId}
+              onChangeElement={updateSelectedElement}
+            />
             <PropertiesPanel
-              block={selectedBlock}
-              onChangeBlock={updateSelectedBlock}
+              block={selectedElement}
+              onChangeBlock={updateSelectedElement}
               onMoveUp={() => moveSelected(-1)}
               onMoveDown={() => moveSelected(1)}
               onRemove={removeSelected}
               canMoveUp={selectedIndex > 0}
-              canMoveDown={selectedIndex >= 0 && selectedIndex < blocks.length - 1}
+              canMoveDown={selectedIndex >= 0 && selectedIndex < elements.length - 1}
             />
           </div>
         )}
