@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   BookOpen,
   BriefcaseBusiness,
+  FolderPlus,
   HomeIcon,
   LayoutPanelTop,
   LogIn,
@@ -100,6 +101,7 @@ export function SiteNav() {
       const items = [
         ...publicItems,
         { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
+        { name: "Criar", url: "/criar", icon: FolderPlus },
         { name: "Painel", url: "/painel", icon: LayoutPanelTop },
       ];
       if (session.role === "admin") {

@@ -8,9 +8,10 @@ export async function proxy(request: NextRequest) {
   const isBibliotecaRoute = pathname.startsWith("/biblioteca");
   const isAdminRoute = pathname.startsWith("/admin");
   const isPainelRoute = pathname.startsWith("/painel");
+  const isCriarRoute = pathname.startsWith("/criar");
   const isLoginRoute = pathname.startsWith("/login");
 
-  if (!isBibliotecaRoute && !isAdminRoute && !isPainelRoute && !isLoginRoute) {
+  if (!isBibliotecaRoute && !isAdminRoute && !isPainelRoute && !isCriarRoute && !isLoginRoute) {
     return NextResponse.next();
   }
 
@@ -18,13 +19,13 @@ export async function proxy(request: NextRequest) {
   const { decoded } = await verifySessionFromRequest(request);
 
   if (!db) {
-    if (isBibliotecaRoute || isAdminRoute || isPainelRoute) {
+    if (isBibliotecaRoute || isAdminRoute || isPainelRoute || isCriarRoute) {
       return NextResponse.redirect(new URL("/", request.url));
     }
     return NextResponse.next();
   }
 
-  if (!decoded && (isBibliotecaRoute || isAdminRoute || isPainelRoute)) {
+  if (!decoded && (isBibliotecaRoute || isAdminRoute || isPainelRoute || isCriarRoute)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("redirect", pathname);
@@ -56,5 +57,14 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/biblioteca", "/biblioteca/:path*", "/admin/:path*", "/painel", "/painel/:path*", "/login"],
+  matcher: [
+    "/biblioteca",
+    "/biblioteca/:path*",
+    "/admin/:path*",
+    "/painel",
+    "/painel/:path*",
+    "/criar",
+    "/criar/:path*",
+    "/login",
+  ],
 };
