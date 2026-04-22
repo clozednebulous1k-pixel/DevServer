@@ -108,13 +108,6 @@ export function CanvasPreview({
     effect: "slideOver" | "slideUnder" | "fold" | "flip" | "fade" | "push";
     layer: "over" | "under";
   } | null>(null);
-  const [fontMenu, setFontMenu] = useState<{
-    x: number;
-    y: number;
-    elementId: string;
-    baseFont: string;
-    locked: boolean;
-  } | null>(null);
   const [guideState, setGuideState] = useState<{ showCenterX: boolean; showCenterY: boolean }>({
     showCenterX: false,
     showCenterY: false,
@@ -140,15 +133,6 @@ export function CanvasPreview({
     function closeFloatingMenus() {
       setContextMenu(null);
       setPageContextMenu(null);
-      setFontMenu((current) => {
-        if (!current) return null;
-        if (!current.locked && selectedElement && selectedElement.id === current.elementId) {
-          if (selectedElement.type === "text" || selectedElement.type === "button") {
-            onChangeElement({ ...selectedElement, fontFamily: current.baseFont });
-          }
-        }
-        return null;
-      });
     }
     window.addEventListener("mousedown", closeFloatingMenus);
     window.addEventListener("scroll", closeFloatingMenus, true);
@@ -156,7 +140,7 @@ export function CanvasPreview({
       window.removeEventListener("mousedown", closeFloatingMenus);
       window.removeEventListener("scroll", closeFloatingMenus, true);
     };
-  }, [onChangeElement, selectedElement]);
+  }, []);
 
   useEffect(() => {
     if (!page || schema.pages.length === 0) return;
@@ -332,20 +316,7 @@ export function CanvasPreview({
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
-          onClick={(event) => {
-            setEditingId(null);
-            if (event.target !== event.currentTarget) return;
-            if (!selectedElement) return;
-            if (selectedElement.type !== "text" && selectedElement.type !== "button") return;
-            setContextMenu(null);
-            setFontMenu({
-              x: event.clientX,
-              y: event.clientY,
-              elementId: selectedElement.id,
-              baseFont: selectedElement.fontFamily,
-              locked: false,
-            });
-          }}
+          onClick={() => setEditingId(null)}
         >
           <style>{`
             @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
@@ -380,7 +351,6 @@ export function CanvasPreview({
                   event.preventDefault();
                   onSelectPage(currentPageIndex);
                   setContextMenu(null);
-                  setFontMenu(null);
                   setPageContextMenu(null);
                   pageDragging.current = {
                     pageIndex: currentPageIndex,
@@ -398,7 +368,6 @@ export function CanvasPreview({
                   const fallbackTarget = schema.pages.find((candidate) => candidate.slug !== currentPage.slug)?.slug ?? "";
                   onSelectPage(currentPageIndex);
                   setContextMenu(null);
-                  setFontMenu(null);
                   setPageContextMenu({
                     x: event.clientX,
                     y: event.clientY,
@@ -454,7 +423,6 @@ export function CanvasPreview({
                       if (!isActivePage) onSelectPage(currentPageIndex);
                       onSelectBlock(element.id);
                       setContextMenu(null);
-                      setFontMenu(null);
                     }}
                     onDoubleClick={(event) => {
                       event.stopPropagation();
@@ -476,7 +444,6 @@ export function CanvasPreview({
                         elementId: element.id,
                       });
                       setPageContextMenu(null);
-                      setFontMenu(null);
                     }}
                     className={cn(
                       "absolute select-none outline-none transition",
@@ -651,11 +618,28 @@ export function CanvasPreview({
                 className="h-8 rounded-md border px-2 text-xs"
                 title="Tamanho fonte"
               />
+              <select
+                value={QUICK_FONT_OPTIONS.includes(selectedElement.fontFamily) ? selectedElement.fontFamily : "__custom__"}
+                onChange={(event) => {
+                  if (event.target.value === "__custom__") return;
+                  applyQuickEdit({ fontFamily: event.target.value });
+                }}
+                className="h-8 rounded-md border px-2 text-xs"
+                title="Fonte"
+              >
+                {QUICK_FONT_OPTIONS.map((font) => (
+                  <option key={font} value={font}>
+                    {font.split(",")[0]!.replace(/"/g, "")}
+                  </option>
+                ))}
+                <option value="__custom__">Personalizada (campo abaixo)</option>
+              </select>
               <input
                 value={selectedElement.fontFamily}
                 onChange={(event) => applyQuickEdit({ fontFamily: event.target.value })}
                 className="h-8 rounded-md border px-2 text-xs"
-                title="Fonte"
+                title="Fonte personalizada"
+                placeholder="Fonte personalizada"
               />
             </div>
           ) : null}
@@ -680,11 +664,28 @@ export function CanvasPreview({
                 className="h-8 rounded-md border px-2 text-xs"
                 title="Tamanho fonte"
               />
+              <select
+                value={QUICK_FONT_OPTIONS.includes(selectedElement.fontFamily) ? selectedElement.fontFamily : "__custom__"}
+                onChange={(event) => {
+                  if (event.target.value === "__custom__") return;
+                  applyQuickEdit({ fontFamily: event.target.value });
+                }}
+                className="h-8 rounded-md border px-2 text-xs"
+                title="Fonte"
+              >
+                {QUICK_FONT_OPTIONS.map((font) => (
+                  <option key={font} value={font}>
+                    {font.split(",")[0]!.replace(/"/g, "")}
+                  </option>
+                ))}
+                <option value="__custom__">Personalizada (campo abaixo)</option>
+              </select>
               <input
                 value={selectedElement.fontFamily}
                 onChange={(event) => applyQuickEdit({ fontFamily: event.target.value })}
                 className="h-8 rounded-md border px-2 text-xs"
-                title="Fonte"
+                title="Fonte personalizada"
+                placeholder="Fonte personalizada"
               />
             </div>
           ) : null}
@@ -698,36 +699,6 @@ export function CanvasPreview({
               />
             </div>
           ) : null}
-        </div>
-      ) : null}
-      {fontMenu && selectedElement && selectedElement.id === fontMenu.elementId && (selectedElement.type === "text" || selectedElement.type === "button") ? (
-        <div
-          className="fixed z-50 w-64 rounded-xl border bg-background/95 p-2 shadow-2xl backdrop-blur"
-          style={{ left: fontMenu.x, top: fontMenu.y }}
-          onMouseDown={(event) => event.stopPropagation()}
-        >
-          <p className="mb-1 px-1 text-xs font-semibold text-muted-foreground">Fontes (preview no hover)</p>
-          <div className="max-h-56 overflow-auto">
-            {QUICK_FONT_OPTIONS.map((font) => (
-              <button
-                key={font}
-                type="button"
-                className="block w-full rounded-md px-2 py-1 text-left text-xs hover:bg-accent"
-                style={{ fontFamily: font }}
-                onMouseEnter={() => {
-                  if (!selectedElement || selectedElement.id !== fontMenu.elementId) return;
-                  onChangeElement({ ...selectedElement, fontFamily: font });
-                }}
-                onClick={() => {
-                  if (!selectedElement || selectedElement.id !== fontMenu.elementId) return;
-                  onChangeElement({ ...selectedElement, fontFamily: font });
-                  setFontMenu(null);
-                }}
-              >
-                {font.split(",")[0]!.replace(/"/g, "")}
-              </button>
-            ))}
-          </div>
         </div>
       ) : null}
       {pageContextMenu ? (
