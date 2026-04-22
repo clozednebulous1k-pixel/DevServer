@@ -5,6 +5,19 @@ import type { CriarCanvasElement, CriarProjectSchema } from "@/lib/criar/schema"
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 
+const QUICK_FONT_OPTIONS = [
+  "Inter, system-ui, sans-serif",
+  "Arial, sans-serif",
+  "Roboto, sans-serif",
+  "Poppins, sans-serif",
+  "Montserrat, sans-serif",
+  "\"Open Sans\", sans-serif",
+  "\"Space Grotesk\", sans-serif",
+  "Georgia, serif",
+  "\"Playfair Display\", serif",
+  "\"Courier New\", monospace",
+];
+
 type Props = {
   schema: CriarProjectSchema;
   pageIndex: number;
@@ -68,12 +81,18 @@ export function CanvasPreview({
   const dragging = useRef<{ id: string; mode: "move" | "resize"; startX: number; startY: number; baseX: number; baseY: number; baseW: number; baseH: number } | null>(null);
   const pageDragging = useRef<{ pageIndex: number; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
   const panning = useRef<{ startX: number; startY: number; scrollLeft: number; scrollTop: number } | null>(null);
-  const [, force] = useState(0);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
   const [isPanning, setIsPanning] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
+  const [fontMenu, setFontMenu] = useState<{
+    x: number;
+    y: number;
+    elementId: string;
+    baseFont: string;
+    locked: boolean;
+  } | null>(null);
   const [guideState, setGuideState] = useState<{ showCenterX: boolean; showCenterY: boolean }>({
     showCenterX: false,
     showCenterY: false,
@@ -96,16 +115,25 @@ export function CanvasPreview({
   }, [zoom, onManualZoomChange]);
 
   useEffect(() => {
-    function closeContextMenu() {
+    function closeFloatingMenus() {
       setContextMenu(null);
+      setFontMenu((current) => {
+        if (!current) return null;
+        if (!current.locked && selectedElement && selectedElement.id === current.elementId) {
+          if (selectedElement.type === "text" || selectedElement.type === "button") {
+            onChangeElement({ ...selectedElement, fontFamily: current.baseFont });
+          }
+        }
+        return null;
+      });
     }
-    window.addEventListener("mousedown", closeContextMenu);
-    window.addEventListener("scroll", closeContextMenu, true);
+    window.addEventListener("mousedown", closeFloatingMenus);
+    window.addEventListener("scroll", closeFloatingMenus, true);
     return () => {
-      window.removeEventListener("mousedown", closeContextMenu);
-      window.removeEventListener("scroll", closeContextMenu, true);
+      window.removeEventListener("mousedown", closeFloatingMenus);
+      window.removeEventListener("scroll", closeFloatingMenus, true);
     };
-  }, []);
+  }, [onChangeElement, selectedElement]);
 
   useEffect(() => {
     if (!page || schema.pages.length === 0) return;
@@ -190,7 +218,6 @@ export function CanvasPreview({
         h: Math.max(24, Math.round(current.baseH + dy)),
       });
     }
-    force((n) => n + 1);
   }
 
   function endDrag() {
@@ -282,7 +309,20 @@ export function CanvasPreview({
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
-          onClick={() => setEditingId(null)}
+          onClick={(event) => {
+            setEditingId(null);
+            if (event.target !== event.currentTarget) return;
+            if (!selectedElement) return;
+            if (selectedElement.type !== "text" && selectedElement.type !== "button") return;
+            setContextMenu(null);
+            setFontMenu({
+              x: event.clientX,
+              y: event.clientY,
+              elementId: selectedElement.id,
+              baseFont: selectedElement.fontFamily,
+              locked: false,
+            });
+          }}
         >
           <style>{`
             @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
@@ -365,6 +405,7 @@ export function CanvasPreview({
                       if (!isActivePage) onSelectPage(currentPageIndex);
                       onSelectBlock(element.id);
                       setContextMenu(null);
+                      setFontMenu(null);
                     }}
                     onDoubleClick={(event) => {
                       event.stopPropagation();
@@ -385,6 +426,7 @@ export function CanvasPreview({
                         y: event.clientY,
                         elementId: element.id,
                       });
+                      setFontMenu(null);
                     }}
                     className={cn(
                       "absolute select-none outline-none transition",
@@ -489,6 +531,8 @@ export function CanvasPreview({
                         className="h-full w-full object-cover"
                         style={{ borderRadius: element.radius }}
                         draggable={false}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : null}
 
@@ -604,6 +648,36 @@ export function CanvasPreview({
               />
             </div>
           ) : null}
+        </div>
+      ) : null}
+      {fontMenu && selectedElement && selectedElement.id === fontMenu.elementId && (selectedElement.type === "text" || selectedElement.type === "button") ? (
+        <div
+          className="fixed z-50 w-64 rounded-xl border bg-background/95 p-2 shadow-2xl backdrop-blur"
+          style={{ left: fontMenu.x, top: fontMenu.y }}
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          <p className="mb-1 px-1 text-xs font-semibold text-muted-foreground">Fontes (preview no hover)</p>
+          <div className="max-h-56 overflow-auto">
+            {QUICK_FONT_OPTIONS.map((font) => (
+              <button
+                key={font}
+                type="button"
+                className="block w-full rounded-md px-2 py-1 text-left text-xs hover:bg-accent"
+                style={{ fontFamily: font }}
+                onMouseEnter={() => {
+                  if (!selectedElement || selectedElement.id !== fontMenu.elementId) return;
+                  onChangeElement({ ...selectedElement, fontFamily: font });
+                }}
+                onClick={() => {
+                  if (!selectedElement || selectedElement.id !== fontMenu.elementId) return;
+                  onChangeElement({ ...selectedElement, fontFamily: font });
+                  setFontMenu(null);
+                }}
+              >
+                {font.split(",")[0]!.replace(/"/g, "")}
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
     </section>

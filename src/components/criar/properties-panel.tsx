@@ -108,16 +108,43 @@ function FontField({
 }
 
 function ImageUploadField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  async function optimizeImage(file: File): Promise<string> {
+    const bitmap = await createImageBitmap(file);
+    const MAX_DIMENSION = 1600;
+    const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Falha ao processar imagem");
+
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    const isPng = file.type === "image/png";
+    const outputType = isPng ? "image/png" : "image/webp";
+    const quality = isPng ? undefined : 0.82;
+    return canvas.toDataURL(outputType, quality);
+  }
+
   async function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result ?? ""));
-      reader.onerror = () => reject(new Error("Falha ao ler imagem"));
-      reader.readAsDataURL(file);
-    });
-    onChange(dataUrl);
+    try {
+      const dataUrl = await optimizeImage(file);
+      onChange(dataUrl);
+    } catch {
+      const fallbackDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result ?? ""));
+        reader.onerror = () => reject(new Error("Falha ao ler imagem"));
+        reader.readAsDataURL(file);
+      });
+      onChange(fallbackDataUrl);
+    }
     event.target.value = "";
   }
 
