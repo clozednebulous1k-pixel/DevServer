@@ -133,8 +133,8 @@ export function CanvasPreview({
   }
 
   return (
-    <section className="min-w-0">
-      <div ref={viewportRef} className="h-[72vh] overflow-auto bg-background">
+    <section className="min-w-0 h-full">
+      <div ref={viewportRef} className="h-full min-h-0 overflow-auto bg-background">
         <div
           className="relative mx-auto overflow-hidden bg-white"
           style={{
