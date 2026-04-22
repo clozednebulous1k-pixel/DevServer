@@ -252,7 +252,7 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
         canvas: {
           width: canvas.width,
           height: canvas.height,
-          background: isString(canvas.background) ? canvas.background : "#0b1220",
+          background: isString(canvas.background) ? canvas.background : "#ffffff",
           elements,
         },
       });
@@ -278,7 +278,7 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
         canvas: {
           width: 1200,
           height: Math.max(900, elements.length * 180),
-          background: "#0b1220",
+          background: "#ffffff",
           elements,
         },
       });

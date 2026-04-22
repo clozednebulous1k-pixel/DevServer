@@ -317,8 +317,8 @@ export function EditorShell({ projectId }: Props) {
           <div className="rounded-2xl border bg-card/80 p-6 text-sm text-destructive">Não foi possível abrir o projeto.</div>
         ) : (
           <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)_320px]">
-            <BlockPalette onAddBlock={addBlock} />
             <div className="min-w-0 space-y-4">
+              <BlockPalette onAddBlock={addBlock} />
               <section className="rounded-2xl border bg-card/80 p-3">
                 <h3 className="text-sm font-semibold">Telas do site</h3>
                 <p className="mt-1 text-xs text-muted-foreground">Defina quantas telas seu site terá.</p>
@@ -415,6 +415,8 @@ export function EditorShell({ projectId }: Props) {
                   Atalhos: Ctrl+C copiar, Ctrl+V colar, Ctrl+D duplicar, Delete remover. Duplo clique para editar texto.
                 </p>
               </section>
+            </div>
+            <div className="min-w-0">
               <CanvasPreview
                 schema={schema}
                 pageIndex={activePageIndex}
@@ -483,12 +485,12 @@ export function EditorShell({ projectId }: Props) {
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
-                        value={page?.canvas.background ?? "#0b1220"}
+                        value={page?.canvas.background ?? "#ffffff"}
                         onChange={(event) => setCanvasBackground(event.target.value)}
                         className="h-9 w-12 rounded-xl border bg-background p-1"
                       />
                       <input
-                        value={page?.canvas.background ?? "#0b1220"}
+                        value={page?.canvas.background ?? "#ffffff"}
                         onChange={(event) => setCanvasBackground(event.target.value)}
                         className="h-9 flex-1 rounded-xl border bg-background px-3 text-sm outline-none ring-primary/20 focus:ring-2"
                       />

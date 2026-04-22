@@ -95,7 +95,7 @@ export function makeBlankPage(index: number, viewport: "desktop" | "tablet" | "m
     canvas: {
       width: dimensions.width,
       height: dimensions.height,
-      background: "#0b1220",
+      background: "#ffffff",
       elements: [],
     },
   };

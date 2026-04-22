@@ -133,10 +133,10 @@ export function CanvasPreview({
   }
 
   return (
-    <section className="min-w-0 rounded-2xl border bg-background/50 p-3">
-      <div ref={viewportRef} className="h-[72vh] overflow-auto rounded-xl border bg-[#111827] p-4">
+    <section className="min-w-0">
+      <div ref={viewportRef} className="h-[72vh] overflow-auto bg-background">
         <div
-          className="relative mx-auto overflow-hidden rounded-xl border border-slate-700 bg-[#0b1220]"
+          className="relative mx-auto overflow-hidden bg-white"
           style={{
             width: page.canvas.width,
             height: page.canvas.height,
