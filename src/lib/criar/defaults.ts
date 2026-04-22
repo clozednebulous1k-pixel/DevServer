@@ -96,6 +96,7 @@ export function makeBlankPage(index: number, viewport: "desktop" | "tablet" | "m
       x: (index % 2) * 1400,
       y: Math.floor(index / 2) * 1080,
     },
+    connections: [],
     canvas: {
       width: dimensions.width,
       height: dimensions.height,

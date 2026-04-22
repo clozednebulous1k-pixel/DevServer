@@ -12,6 +12,13 @@ export type ElementAnimation = {
   delay: number;
 };
 
+export type PageConnection = {
+  id: string;
+  targetSlug: string;
+  effect: "slideOver" | "slideUnder" | "fold" | "flip" | "fade" | "push";
+  layer: "over" | "under";
+};
+
 export type CanvasBaseElement = {
   id: string;
   x: number;
@@ -63,6 +70,7 @@ export type CriarPageSchema = {
     x: number;
     y: number;
   };
+  connections: PageConnection[];
   canvas: {
     width: number;
     height: number;
@@ -257,6 +265,20 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
           x: isNumber(asRecord(pageRecord.layout)?.x) ? Number(asRecord(pageRecord.layout)?.x) : normalizedPages.length * 220,
           y: isNumber(asRecord(pageRecord.layout)?.y) ? Number(asRecord(pageRecord.layout)?.y) : Math.floor(normalizedPages.length / 2) * 220,
         },
+        connections: Array.isArray(pageRecord.connections)
+          ? pageRecord.connections
+              .map((entry) => asRecord(entry))
+              .filter(Boolean)
+              .map((entry) => ({
+                id: String(entry!.id ?? `conn-${Math.random().toString(36).slice(2, 8)}`),
+                targetSlug: String(entry!.targetSlug ?? ""),
+                effect: ["slideOver", "slideUnder", "fold", "flip", "fade", "push"].includes(String(entry!.effect))
+                  ? (String(entry!.effect) as PageConnection["effect"])
+                  : "slideOver",
+                layer: entry!.layer === "under" ? "under" : "over",
+              }))
+              .filter((entry) => entry.targetSlug.length > 0)
+          : [],
         canvas: {
           width: canvas.width,
           height: canvas.height,
@@ -287,6 +309,7 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
           x: normalizedPages.length * 220,
           y: Math.floor(normalizedPages.length / 2) * 220,
         },
+        connections: [],
         canvas: {
           width: 1200,
           height: Math.max(900, elements.length * 180),
@@ -321,7 +344,8 @@ export function validateCriarSchema(input: unknown): { ok: true; value: CriarPro
       !isString(page.title) ||
       (page.viewport !== "desktop" && page.viewport !== "tablet" && page.viewport !== "mobile") ||
       !isNumber(page.layout?.x) ||
-      !isNumber(page.layout?.y)
+      !isNumber(page.layout?.y) ||
+      !Array.isArray(page.connections)
     ) {
       return { ok: false, error: "Pagina invalida." };
     }

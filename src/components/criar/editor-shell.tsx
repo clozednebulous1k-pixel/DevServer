@@ -28,6 +28,13 @@ export function EditorShell({ projectId }: Props) {
   const [activePageIndex, setActivePageIndex] = useState(0);
   const clipboardRef = useRef<CriarCanvasElement | null>(null);
   const pageClipboardRef = useRef<CriarProjectSchema["pages"][number] | null>(null);
+  const historyRef = useRef<CriarProjectSchema[]>([]);
+  const historyIndexRef = useRef(-1);
+  const applyingHistoryRef = useRef(false);
+
+  function cloneSchemaSnapshot(input: CriarProjectSchema): CriarProjectSchema {
+    return JSON.parse(JSON.stringify(input)) as CriarProjectSchema;
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +77,39 @@ export function EditorShell({ projectId }: Props) {
   const elements = page?.canvas.elements ?? [];
   const selectedIndex = elements.findIndex((element) => element.id === selectedBlockId);
   const selectedElement = selectedIndex >= 0 ? elements[selectedIndex]! : null;
+
+  useEffect(() => {
+    if (!project?.schema) return;
+    if (applyingHistoryRef.current) return;
+    const snapshot = cloneSchemaSnapshot(project.schema);
+    const current = historyRef.current[historyIndexRef.current];
+    if (current && JSON.stringify(current) === JSON.stringify(snapshot)) return;
+    const nextHistory = historyRef.current.slice(0, historyIndexRef.current + 1);
+    nextHistory.push(snapshot);
+    if (nextHistory.length > 100) {
+      nextHistory.shift();
+    }
+    historyRef.current = nextHistory;
+    historyIndexRef.current = nextHistory.length - 1;
+  }, [project?.schema]);
+
+  function restoreHistory(direction: -1 | 1) {
+    if (!project) return;
+    const nextIndex = historyIndexRef.current + direction;
+    if (nextIndex < 0 || nextIndex >= historyRef.current.length) return;
+    const snapshot = historyRef.current[nextIndex];
+    if (!snapshot) return;
+    applyingHistoryRef.current = true;
+    historyIndexRef.current = nextIndex;
+    const nextSchema = cloneSchemaSnapshot(snapshot);
+    const safePageIndex = Math.max(0, Math.min(activePageIndex, nextSchema.pages.length - 1));
+    setProject({ ...project, schema: nextSchema });
+    setActivePageIndex(safePageIndex);
+    setSelectedBlockId(nextSchema.pages[safePageIndex]?.canvas.elements[0]?.id ?? null);
+    window.setTimeout(() => {
+      applyingHistoryRef.current = false;
+    }, 0);
+  }
 
   function mutateElements(mutator: (list: CriarCanvasElement[]) => CriarCanvasElement[], nextSelectedId?: string | null) {
     if (!project) return;
@@ -114,6 +154,7 @@ export function EditorShell({ projectId }: Props) {
       ...source,
       slug: `pagina-${index + 1}`,
       title: `${source.title} ${index + 1}`,
+      connections: [],
       layout: {
         x: source.layout.x + 120,
         y: source.layout.y + 120,
@@ -239,11 +280,41 @@ export function EditorShell({ projectId }: Props) {
   function deletePage(pageIndexToDelete: number) {
     if (!project) return;
     if (project.schema.pages.length <= 1) return;
-    const nextPages = project.schema.pages.filter((_, index) => index !== pageIndexToDelete);
+    const removedSlug = project.schema.pages[pageIndexToDelete]?.slug;
+    const nextPages = project.schema.pages
+      .filter((_, index) => index !== pageIndexToDelete)
+      .map((entry) => ({
+        ...entry,
+        connections: entry.connections.filter((connection) => connection.targetSlug !== removedSlug),
+      }));
     const nextActive = Math.max(0, Math.min(activePageIndex > pageIndexToDelete ? activePageIndex - 1 : activePageIndex, nextPages.length - 1));
     setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
     setActivePageIndex(nextActive);
     setSelectedBlockId(nextPages[nextActive]?.canvas.elements[0]?.id ?? null);
+  }
+
+  function linkPage(
+    pageIndexToLink: number,
+    payload: { targetSlug: string; effect: "slideOver" | "slideUnder" | "fold" | "flip" | "fade" | "push"; layer: "over" | "under" } | null,
+  ) {
+    if (!project) return;
+    const currentPage = project.schema.pages[pageIndexToLink];
+    if (!currentPage) return;
+    const nextPages = [...project.schema.pages];
+    nextPages[pageIndexToLink] = {
+      ...currentPage,
+      connections: payload
+        ? [
+            {
+              id: `conn-${Math.random().toString(36).slice(2, 10)}`,
+              targetSlug: payload.targetSlug,
+              effect: payload.effect,
+              layer: payload.layer,
+            },
+          ]
+        : [],
+    };
+    setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
   }
 
   function setManualZoom(next: number) {
@@ -261,6 +332,18 @@ export function EditorShell({ projectId }: Props) {
 
       const key = event.key.toLowerCase();
       const withMeta = event.ctrlKey || event.metaKey;
+
+      if (withMeta && key === "z" && !event.shiftKey) {
+        event.preventDefault();
+        restoreHistory(-1);
+        return;
+      }
+
+      if (withMeta && (key === "y" || (event.shiftKey && key === "z"))) {
+        event.preventDefault();
+        restoreHistory(1);
+        return;
+      }
 
       if (withMeta && key === "c" && selectedElement) {
         event.preventDefault();
@@ -519,6 +602,7 @@ export function EditorShell({ projectId }: Props) {
                 onSelectPage={setActivePageIndex}
                 onMovePage={movePage}
                 onDeletePage={deletePage}
+                onLinkPage={linkPage}
                 selectedBlockId={selectedBlockId}
                 onSelectBlock={setSelectedBlockId}
                 onChangeElement={updateSelectedElement}

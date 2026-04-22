@@ -18,12 +18,25 @@ const QUICK_FONT_OPTIONS = [
   "\"Courier New\", monospace",
 ];
 
+const PAGE_EFFECT_OPTIONS: Array<{ value: "slideOver" | "slideUnder" | "fold" | "flip" | "fade" | "push"; label: string }> = [
+  { value: "slideOver", label: "Deslizar por cima" },
+  { value: "slideUnder", label: "Deslizar por baixo" },
+  { value: "fold", label: "Dobra" },
+  { value: "flip", label: "Flip" },
+  { value: "fade", label: "Fade" },
+  { value: "push", label: "Empurrar" },
+];
+
 type Props = {
   schema: CriarProjectSchema;
   pageIndex: number;
   onSelectPage: (pageIndex: number) => void;
   onMovePage: (pageIndex: number, x: number, y: number) => void;
   onDeletePage: (pageIndex: number) => void;
+  onLinkPage: (
+    pageIndex: number,
+    payload: { targetSlug: string; effect: "slideOver" | "slideUnder" | "fold" | "flip" | "fade" | "push"; layer: "over" | "under" } | null,
+  ) => void;
   selectedBlockId: string | null;
   onSelectBlock: (blockId: string) => void;
   onChangeElement: (next: CriarCanvasElement) => void;
@@ -56,6 +69,7 @@ export function CanvasPreview({
   onSelectPage,
   onMovePage,
   onDeletePage,
+  onLinkPage,
   selectedBlockId,
   onSelectBlock,
   onChangeElement,
@@ -86,6 +100,14 @@ export function CanvasPreview({
   const [editingValue, setEditingValue] = useState("");
   const [isPanning, setIsPanning] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
+  const [pageContextMenu, setPageContextMenu] = useState<{
+    x: number;
+    y: number;
+    pageIndex: number;
+    targetSlug: string;
+    effect: "slideOver" | "slideUnder" | "fold" | "flip" | "fade" | "push";
+    layer: "over" | "under";
+  } | null>(null);
   const [fontMenu, setFontMenu] = useState<{
     x: number;
     y: number;
@@ -117,6 +139,7 @@ export function CanvasPreview({
   useEffect(() => {
     function closeFloatingMenus() {
       setContextMenu(null);
+      setPageContextMenu(null);
       setFontMenu((current) => {
         if (!current) return null;
         if (!current.locked && selectedElement && selectedElement.id === current.elementId) {
@@ -356,6 +379,9 @@ export function CanvasPreview({
                   if (event.target !== event.currentTarget) return;
                   event.preventDefault();
                   onSelectPage(currentPageIndex);
+                  setContextMenu(null);
+                  setFontMenu(null);
+                  setPageContextMenu(null);
                   pageDragging.current = {
                     pageIndex: currentPageIndex,
                     startX: event.clientX,
@@ -364,7 +390,30 @@ export function CanvasPreview({
                     baseY: frame.y,
                   };
                 }}
+                onContextMenu={(event) => {
+                  if (event.target !== event.currentTarget) return;
+                  event.preventDefault();
+                  event.stopPropagation();
+                  const currentConnection = currentPage.connections[0] ?? null;
+                  const fallbackTarget = schema.pages.find((candidate) => candidate.slug !== currentPage.slug)?.slug ?? "";
+                  onSelectPage(currentPageIndex);
+                  setContextMenu(null);
+                  setFontMenu(null);
+                  setPageContextMenu({
+                    x: event.clientX,
+                    y: event.clientY,
+                    pageIndex: currentPageIndex,
+                    targetSlug: currentConnection?.targetSlug ?? fallbackTarget,
+                    effect: currentConnection?.effect ?? "slideOver",
+                    layer: currentConnection?.layer ?? "over",
+                  });
+                }}
               >
+                {currentPage.connections[0] ? (
+                  <div className="pointer-events-none absolute left-2 top-2 z-20 rounded-md border bg-background/90 px-2 py-1 text-[10px] font-medium text-foreground/80">
+                    {`Unida -> ${schema.pages.find((entry) => entry.slug === currentPage.connections[0]!.targetSlug)?.title ?? "Tela"} (${currentPage.connections[0]!.effect} / ${currentPage.connections[0]!.layer})`}
+                  </div>
+                ) : null}
                 {isActivePage ? (
                   <button
                     type="button"
@@ -426,6 +475,7 @@ export function CanvasPreview({
                         y: event.clientY,
                         elementId: element.id,
                       });
+                      setPageContextMenu(null);
                       setFontMenu(null);
                     }}
                     className={cn(
@@ -677,6 +727,81 @@ export function CanvasPreview({
                 {font.split(",")[0]!.replace(/"/g, "")}
               </button>
             ))}
+          </div>
+        </div>
+      ) : null}
+      {pageContextMenu ? (
+        <div
+          className="fixed z-50 w-72 rounded-xl border bg-background/95 p-3 shadow-2xl backdrop-blur"
+          style={{ left: pageContextMenu.x, top: pageContextMenu.y }}
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          <p className="mb-2 text-xs font-semibold text-muted-foreground">Unir telas</p>
+          <div className="grid gap-2">
+            <select
+              value={pageContextMenu.targetSlug}
+              onChange={(event) => setPageContextMenu((current) => (current ? { ...current, targetSlug: event.target.value } : null))}
+              className="h-8 rounded-md border px-2 text-xs"
+            >
+              <option value="">Escolher tela de destino</option>
+              {schema.pages
+                .filter((entry, index) => index !== pageContextMenu.pageIndex)
+                .map((entry) => (
+                  <option key={entry.slug} value={entry.slug}>
+                    {entry.title}
+                  </option>
+                ))}
+            </select>
+            <select
+              value={pageContextMenu.effect}
+              onChange={(event) =>
+                setPageContextMenu((current) =>
+                  current ? { ...current, effect: event.target.value as (typeof PAGE_EFFECT_OPTIONS)[number]["value"] } : null,
+                )
+              }
+              className="h-8 rounded-md border px-2 text-xs"
+            >
+              {PAGE_EFFECT_OPTIONS.map((entry) => (
+                <option key={entry.value} value={entry.value}>
+                  {entry.label}
+                </option>
+              ))}
+            </select>
+            <select
+              value={pageContextMenu.layer}
+              onChange={(event) => setPageContextMenu((current) => (current ? { ...current, layer: event.target.value as "over" | "under" } : null))}
+              className="h-8 rounded-md border px-2 text-xs"
+            >
+              <option value="over">Vir por cima</option>
+              <option value="under">Vir por baixo</option>
+            </select>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              className="rounded-md border px-2 py-1 text-xs hover:bg-accent"
+              onClick={() => {
+                if (!pageContextMenu.targetSlug) return;
+                onLinkPage(pageContextMenu.pageIndex, {
+                  targetSlug: pageContextMenu.targetSlug,
+                  effect: pageContextMenu.effect,
+                  layer: pageContextMenu.layer,
+                });
+                setPageContextMenu(null);
+              }}
+            >
+              Salvar uniao
+            </button>
+            <button
+              type="button"
+              className="rounded-md border px-2 py-1 text-xs text-destructive hover:bg-destructive/10"
+              onClick={() => {
+                onLinkPage(pageContextMenu.pageIndex, null);
+                setPageContextMenu(null);
+              }}
+            >
+              Remover uniao
+            </button>
           </div>
         </div>
       ) : null}
