@@ -47,16 +47,18 @@ export function CanvasPreview({
 
   useEffect(() => {
     if (!page) return;
-    const viewport = viewportRef.current;
-    if (!viewport) return;
 
     function computeFit() {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
       const availableW = Math.max(viewport.clientWidth - 24, 320);
       const availableH = Math.max(viewport.clientHeight - 24, 280);
       const fit = Math.min(availableW / canvasWidth, availableH / canvasHeight, 1);
       onFitZoomChange(Math.max(0.2, Number(fit.toFixed(2))));
     }
 
+    const viewport = viewportRef.current;
+    if (!viewport) return;
     computeFit();
     const observer = new ResizeObserver(computeFit);
     observer.observe(viewport);
