@@ -1,4 +1,12 @@
-import { CRIAR_SCHEMA_VERSION, type CriarCanvasElement, type CriarProjectSchema } from "@/lib/criar/schema";
+import {
+  CRIAR_SCHEMA_VERSION,
+  type ButtonElement,
+  type CriarCanvasElement,
+  type CriarProjectSchema,
+  type ImageElement,
+  type ShapeElement,
+  type TextElement,
+} from "@/lib/criar/schema";
 
 function uid(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
@@ -21,7 +29,9 @@ function makeElementBase() {
   };
 }
 
-export function makeElement(type: CriarCanvasElement["type"]): CriarCanvasElement {
+type ElementByType<T extends CriarCanvasElement["type"]> = Extract<CriarCanvasElement, { type: T }>;
+
+export function makeElement<T extends CriarCanvasElement["type"]>(type: T): ElementByType<T> {
   const base = makeElementBase();
   switch (type) {
     case "text":
@@ -35,7 +45,7 @@ export function makeElement(type: CriarCanvasElement["type"]): CriarCanvasElemen
         ...base,
         w: 420,
         h: 72,
-      };
+      } as ElementByType<T>;
     case "button":
       return {
         id: uid("btn"),
@@ -49,7 +59,7 @@ export function makeElement(type: CriarCanvasElement["type"]): CriarCanvasElemen
         w: 220,
         h: 56,
         radius: 999,
-      };
+      } as ElementByType<T>;
     case "shape":
       return {
         id: uid("shape"),
@@ -58,7 +68,7 @@ export function makeElement(type: CriarCanvasElement["type"]): CriarCanvasElemen
         ...base,
         w: 320,
         h: 180,
-      };
+      } as ElementByType<T>;
     case "image":
       return {
         id: uid("img"),
@@ -67,7 +77,11 @@ export function makeElement(type: CriarCanvasElement["type"]): CriarCanvasElemen
         ...base,
         w: 360,
         h: 220,
-      };
+      } as ElementByType<T>;
+    default: {
+      const neverType: never = type;
+      throw new Error(`Tipo de elemento não suportado: ${neverType as string}`);
+    }
   }
 }
 
@@ -88,7 +102,7 @@ export function makeDefaultSchema(): CriarProjectSchema {
           height: 920,
           elements: [
             {
-              ...makeElement("text"),
+              ...(makeElement("text") as TextElement),
               text: "Sua landing, do seu jeito.",
               x: 96,
               y: 88,
@@ -97,7 +111,7 @@ export function makeDefaultSchema(): CriarProjectSchema {
               fontSize: 64,
             },
             {
-              ...makeElement("text"),
+              ...(makeElement("text") as TextElement),
               text: "Edite componentes visuais, sem travar no código.",
               x: 98,
               y: 188,
@@ -108,7 +122,7 @@ export function makeDefaultSchema(): CriarProjectSchema {
               fontWeight: 500,
             },
             {
-              ...makeElement("button"),
+              ...(makeElement("button") as ButtonElement),
               label: "Começar projeto",
               x: 98,
               y: 268,
@@ -117,7 +131,7 @@ export function makeDefaultSchema(): CriarProjectSchema {
               bg: "#5b8cff",
             },
             {
-              ...makeElement("shape"),
+              ...(makeElement("shape") as ShapeElement),
               x: 750,
               y: 190,
               w: 420,
@@ -126,7 +140,7 @@ export function makeDefaultSchema(): CriarProjectSchema {
               radius: 24,
             },
             {
-              ...makeElement("image"),
+              ...(makeElement("image") as ImageElement),
               x: 735,
               y: 176,
               w: 420,
