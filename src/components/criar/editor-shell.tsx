@@ -289,9 +289,9 @@ export function EditorShell({ projectId }: Props) {
       <SiteNav />
       <main className="w-full px-4 pb-10 pt-28">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold">{headerTitle}</h1>
-            <p className="text-sm text-muted-foreground">Canvas livre: crie, arraste, redimensione e anime elementos visuais.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-xl font-semibold">{headerTitle}</h1>
+            <p className="text-xs text-muted-foreground">crie, arraste, redimensione e anime elementos visuais.</p>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/criar">
@@ -316,7 +316,8 @@ export function EditorShell({ projectId }: Props) {
         ) : !project || !schema ? (
           <div className="rounded-2xl border bg-card/80 p-6 text-sm text-destructive">Não foi possível abrir o projeto.</div>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)_320px]">
+            <BlockPalette onAddBlock={addBlock} />
             <div className="min-w-0 space-y-4">
               <section className="rounded-2xl border bg-card/80 p-3">
                 <h3 className="text-sm font-semibold">Telas do site</h3>
@@ -426,7 +427,6 @@ export function EditorShell({ projectId }: Props) {
               />
             </div>
             <div className="min-w-0 space-y-4">
-              <BlockPalette onAddBlock={addBlock} />
               <section className="rounded-2xl border bg-card/80 p-4">
                 <h3 className="text-sm font-semibold">Aparência global</h3>
                 <div className="mt-3 grid gap-2">
