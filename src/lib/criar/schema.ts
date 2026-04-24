@@ -269,7 +269,7 @@ export function normalizeCriarSchema(input: unknown): CriarProjectSchema | null 
           ? pageRecord.connections
               .map((entry) => asRecord(entry))
               .filter(Boolean)
-              .map((entry) => ({
+              .map((entry): PageConnection => ({
                 id: String(entry!.id ?? `conn-${Math.random().toString(36).slice(2, 8)}`),
                 targetSlug: String(entry!.targetSlug ?? ""),
                 effect: ["slideOver", "slideUnder", "fold", "flip", "fade", "push"].includes(String(entry!.effect))
