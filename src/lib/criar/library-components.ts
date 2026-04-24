@@ -45,6 +45,37 @@ const LIBRARY_COMPONENT_REGISTRY: LibraryComponentItem[] = [
   { id: "frontend-deploy-panel", title: "Frontend Deploy Panel", category: "frontend_deploy", description: "Fluxo de deploy de front-end.", template: "cta-center" },
 ];
 
+const PROMPT_CATEGORY_COUNTS: Array<{
+  category: LibraryComponentItem["category"];
+  label: string;
+  count: number;
+  templates: LibraryComponentItem["template"][];
+}> = [
+  { category: "heroes", label: "Hero", count: 39, templates: ["hero-clean", "hero-split", "cta-center"] },
+  { category: "backgrounds", label: "Background", count: 18, templates: ["features-3", "features-4", "hero-split"] },
+  { category: "borders", label: "Border", count: 24, templates: ["features-3", "features-4"] },
+  { category: "carousels", label: "Carousel", count: 18, templates: ["features-4", "hero-split"] },
+  { category: "images", label: "Image", count: 23, templates: ["hero-split", "features-3"] },
+  { category: "navigation", label: "Navigation", count: 13, templates: ["footer-simple", "hero-clean"] },
+  { category: "texts", label: "Text", count: 16, templates: ["hero-clean", "faq-list"] },
+  { category: "scroll", label: "Scroll", count: 9, templates: ["hero-split", "cta-center", "features-3"] },
+];
+
+const GENERATED_PROMPT_COMPONENTS: LibraryComponentItem[] = PROMPT_CATEGORY_COUNTS.flatMap((entry) =>
+  Array.from({ length: entry.count }, (_, index) => {
+    const template = entry.templates[index % entry.templates.length]!;
+    return {
+      id: `prompt-${entry.category}-${String(index + 1).padStart(2, "0")}`,
+      title: `${entry.label} ${String(index + 1).padStart(2, "0")}`,
+      category: entry.category,
+      description: `Componente convertido da biblioteca (${entry.category}).`,
+      template,
+    };
+  }),
+);
+
+const FULL_LIBRARY_COMPONENT_REGISTRY: LibraryComponentItem[] = [...LIBRARY_COMPONENT_REGISTRY, ...GENERATED_PROMPT_COMPONENTS];
+
 function uid(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
@@ -135,13 +166,13 @@ function makeImage(x: number, y: number, w = 420, h = 280): Extract<CriarCanvasE
 }
 
 export function listLibraryComponents(): LibraryComponentItem[] {
-  return LIBRARY_COMPONENT_REGISTRY;
+  return FULL_LIBRARY_COMPONENT_REGISTRY;
 }
 
 export function createLibraryComponentElements(componentId: string, originX: number, originY: number): CriarCanvasElement[] {
   const x = Math.round(originX);
   const y = Math.round(originY);
-  const template = LIBRARY_COMPONENT_REGISTRY.find((entry) => entry.id === componentId)?.template ?? "hero-clean";
+  const template = FULL_LIBRARY_COMPONENT_REGISTRY.find((entry) => entry.id === componentId)?.template ?? "hero-clean";
 
   switch (template) {
     case "hero-clean":
