@@ -165,6 +165,191 @@ function makeImage(x: number, y: number, w = 420, h = 280): Extract<CriarCanvasE
   };
 }
 
+function extractVariantFromId(componentId: string): number {
+  const match = componentId.match(/-(\d+)$/);
+  if (!match) return 1;
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) ? Math.max(1, parsed) : 1;
+}
+
+function makeAnimatedBackgroundSet(x: number, y: number, variant: number): CriarCanvasElement[] {
+  const palettes = [
+    { base: "#0b1020", a: "#7c3aed", b: "#06b6d4", c: "#f43f5e", d: "#22c55e" },
+    { base: "#070f1a", a: "#2563eb", b: "#14b8a6", c: "#e879f9", d: "#f59e0b" },
+    { base: "#09111f", a: "#a855f7", b: "#22d3ee", c: "#fb7185", d: "#84cc16" },
+    { base: "#0a0f1f", a: "#6366f1", b: "#06b6d4", c: "#f97316", d: "#ec4899" },
+  ] as const;
+  const pick = palettes[(variant - 1) % palettes.length]!;
+
+  return [
+    makeShape(x, y, 1180, 560, pick.base),
+    {
+      ...makeShape(x + 50, y + 40, 360, 220, pick.a),
+      opacity: 0.45,
+      radius: 999,
+      animation: { preset: "float", duration: 6.4, delay: 0.2 },
+    },
+    {
+      ...makeShape(x + 420, y + 70, 420, 260, pick.b),
+      opacity: 0.35,
+      radius: 999,
+      animation: { preset: "pulse", duration: 4.8, delay: 0.4 },
+    },
+    {
+      ...makeShape(x + 820, y + 120, 260, 180, pick.c),
+      opacity: 0.4,
+      radius: 999,
+      animation: { preset: "float", duration: 5.2, delay: 0.1 },
+    },
+    {
+      ...makeShape(x + 220, y + 330, 720, 170, pick.d),
+      opacity: 0.3,
+      radius: 999,
+      animation: { preset: "pulse", duration: 5.6, delay: 0.6 },
+    },
+    { ...makeText(x + 64, y + 70, `Background ${String(variant).padStart(2, "0")}`, 46, "#f8fafc"), w: 700 },
+    { ...makeText(x + 64, y + 130, "Componente animado e colorido da biblioteca", 18, "#cbd5e1"), w: 640 },
+  ];
+}
+
+function makeAnimatedScrollSet(x: number, y: number, variant: number): CriarCanvasElement[] {
+  const accents = ["#22d3ee", "#a78bfa", "#f97316", "#34d399"] as const;
+  const accent = accents[(variant - 1) % accents.length]!;
+  return [
+    makeShape(x, y, 1080, 620, "#0b1020"),
+    { ...makeText(x + 54, y + 56, `Scroll ${String(variant).padStart(2, "0")}`, 40, "#f8fafc"), w: 520 },
+    { ...makeText(x + 54, y + 114, "Seção com ritmo visual para narrativa no scroll", 18, "#cbd5e1"), w: 620 },
+    {
+      ...makeShape(x + 56, y + 180, 960, 70, accent),
+      opacity: 0.35,
+      radius: 16,
+      animation: { preset: "slideUp", duration: 1.2, delay: 0.05 },
+    },
+    {
+      ...makeShape(x + 56, y + 280, 880, 70, accent),
+      opacity: 0.28,
+      radius: 16,
+      animation: { preset: "slideUp", duration: 1.2, delay: 0.2 },
+    },
+    {
+      ...makeShape(x + 56, y + 380, 760, 70, accent),
+      opacity: 0.2,
+      radius: 16,
+      animation: { preset: "slideUp", duration: 1.2, delay: 0.35 },
+    },
+    {
+      ...makeShape(x + 840, y + 470, 180, 80, "#111827"),
+      radius: 999,
+      animation: { preset: "pulse", duration: 3.6, delay: 0.1 },
+    },
+    { ...makeButton(x + 868, y + 486, "Explorar", accent), w: 130, h: 48 },
+  ];
+}
+
+function makeAnimatedBorderSet(x: number, y: number, variant: number): CriarCanvasElement[] {
+  const accents = ["#38bdf8", "#a78bfa", "#f97316", "#22c55e"] as const;
+  const accent = accents[(variant - 1) % accents.length]!;
+  return [
+    makeShape(x, y, 1100, 560, "#0b1220"),
+    { ...makeShape(x + 26, y + 26, 1048, 508, "#111827"), radius: 18 },
+    {
+      ...makeShape(x + 18, y + 18, 1064, 524, accent),
+      opacity: 0.18,
+      radius: 22,
+      animation: { preset: "pulse", duration: 4.2, delay: 0.1 },
+    },
+    { ...makeText(x + 52, y + 58, `Borders ${String(variant).padStart(2, "0")}`, 38, "#f8fafc"), w: 540 },
+    { ...makeText(x + 52, y + 116, "Layout com destaque de borda e camadas.", 18, "#cbd5e1"), w: 520 },
+    makeShape(x + 52, y + 186, 480, 130, "#1f2937"),
+    makeShape(x + 560, y + 186, 480, 130, "#1f2937"),
+    makeShape(x + 52, y + 334, 988, 160, "#1f2937"),
+  ];
+}
+
+function makeAnimatedCarouselSet(x: number, y: number, variant: number): CriarCanvasElement[] {
+  const accent = ["#22d3ee", "#f59e0b", "#34d399", "#a78bfa"][(variant - 1) % 4]!;
+  return [
+    makeShape(x, y, 1180, 420, "#0b1020"),
+    { ...makeText(x + 44, y + 44, `Carrossel ${String(variant).padStart(2, "0")}`, 34, "#f8fafc"), w: 440 },
+    {
+      ...makeShape(x + 42, y + 110, 260, 230, "#111827"),
+      animation: { preset: "float", duration: 4.8, delay: 0 },
+    },
+    {
+      ...makeShape(x + 320, y + 110, 260, 230, "#111827"),
+      animation: { preset: "float", duration: 4.8, delay: 0.15 },
+    },
+    {
+      ...makeShape(x + 598, y + 110, 260, 230, "#111827"),
+      animation: { preset: "float", duration: 4.8, delay: 0.3 },
+    },
+    {
+      ...makeShape(x + 876, y + 110, 260, 230, "#111827"),
+      animation: { preset: "float", duration: 4.8, delay: 0.45 },
+    },
+    { ...makeShape(x + 44, y + 360, 1090, 8, accent), radius: 999, opacity: 0.6 },
+  ];
+}
+
+function makeAnimatedImageSet(x: number, y: number, variant: number): CriarCanvasElement[] {
+  const accent = ["#06b6d4", "#f43f5e", "#22c55e", "#a78bfa"][(variant - 1) % 4]!;
+  return [
+    makeShape(x, y, 1120, 520, "#0b1020"),
+    makeImage(x + 44, y + 64, 620, 390),
+    {
+      ...makeShape(x + 700, y + 64, 380, 390, "#111827"),
+      animation: { preset: "pulse", duration: 3.8, delay: 0.2 },
+    },
+    { ...makeShape(x + 718, y + 86, 344, 120, accent), opacity: 0.35, radius: 16 },
+    { ...makeText(x + 730, y + 102, `Imagem ${String(variant).padStart(2, "0")}`, 30, "#f8fafc"), w: 300 },
+    { ...makeText(x + 730, y + 220, "Bloco visual para galeria e destaque.", 17, "#cbd5e1"), w: 300 },
+    makeButton(x + 730, y + 390, "Ver projeto", accent),
+  ];
+}
+
+function makeAnimatedNavigationSet(x: number, y: number, variant: number): CriarCanvasElement[] {
+  const accent = ["#22d3ee", "#f59e0b", "#34d399", "#a78bfa"][(variant - 1) % 4]!;
+  return [
+    makeShape(x, y, 1200, 140, "#0b1020"),
+    { ...makeText(x + 26, y + 44, "DevServer", 30, "#f8fafc"), w: 220 },
+    { ...makeText(x + 330, y + 52, "Inicio", 16, "#cbd5e1"), w: 80, h: 30 },
+    { ...makeText(x + 430, y + 52, "Biblioteca", 16, "#cbd5e1"), w: 120, h: 30 },
+    { ...makeText(x + 570, y + 52, "Criar", 16, "#cbd5e1"), w: 70, h: 30 },
+    { ...makeText(x + 650, y + 52, "Projetos", 16, "#cbd5e1"), w: 95, h: 30 },
+    { ...makeButton(x + 980, y + 42, "Entrar", accent), w: 170, h: 48 },
+    { ...makeShape(x + 320, y + 88, 450, 4, accent), radius: 999, opacity: 0.65 },
+  ];
+}
+
+function makeAnimatedTextSet(x: number, y: number, variant: number): CriarCanvasElement[] {
+  const accent = ["#38bdf8", "#a78bfa", "#f43f5e", "#22c55e"][(variant - 1) % 4]!;
+  return [
+    makeShape(x, y, 1080, 420, "#0b1020"),
+    { ...makeText(x + 48, y + 70, `Texto ${String(variant).padStart(2, "0")}`, 52, "#f8fafc"), w: 560 },
+    { ...makeText(x + 48, y + 146, "Headline e copy com hierarquia visual.", 22, "#cbd5e1"), w: 620 },
+    {
+      ...makeShape(x + 48, y + 212, 760, 8, accent),
+      radius: 999,
+      opacity: 0.75,
+      animation: { preset: "pulse", duration: 3.2, delay: 0.05 },
+    },
+    { ...makeText(x + 48, y + 254, "Texto pronto para editar fonte, cor e tamanho.", 18, "#94a3b8"), w: 640 },
+  ];
+}
+
+function makeAnimatedTechnicalPanelSet(x: number, y: number, variant: number, label: string): CriarCanvasElement[] {
+  const accent = ["#22d3ee", "#34d399", "#f59e0b", "#a78bfa"][(variant - 1) % 4]!;
+  return [
+    makeShape(x, y, 1080, 520, "#0b1020"),
+    { ...makeText(x + 44, y + 50, label, 34, "#f8fafc"), w: 680 },
+    { ...makeText(x + 44, y + 102, "Painel convertido para edição visual no CRIAR.", 18, "#cbd5e1"), w: 680 },
+    { ...makeShape(x + 44, y + 156, 992, 82, "#111827"), radius: 14 },
+    { ...makeShape(x + 44, y + 254, 992, 82, "#111827"), radius: 14 },
+    { ...makeShape(x + 44, y + 352, 992, 82, "#111827"), radius: 14 },
+    { ...makeShape(x + 44, y + 454, 400, 8, accent), radius: 999, opacity: 0.7 },
+  ];
+}
+
 export function listLibraryComponents(): LibraryComponentItem[] {
   return FULL_LIBRARY_COMPONENT_REGISTRY;
 }
@@ -172,7 +357,49 @@ export function listLibraryComponents(): LibraryComponentItem[] {
 export function createLibraryComponentElements(componentId: string, originX: number, originY: number): CriarCanvasElement[] {
   const x = Math.round(originX);
   const y = Math.round(originY);
-  const template = FULL_LIBRARY_COMPONENT_REGISTRY.find((entry) => entry.id === componentId)?.template ?? "hero-clean";
+  const item = FULL_LIBRARY_COMPONENT_REGISTRY.find((entry) => entry.id === componentId);
+  const template = item?.template ?? "hero-clean";
+  const variant = extractVariantFromId(componentId);
+
+  if (item?.category === "backgrounds") {
+    return makeAnimatedBackgroundSet(x, y, variant);
+  }
+  if (item?.category === "borders") {
+    return makeAnimatedBorderSet(x, y, variant);
+  }
+  if (item?.category === "carousels") {
+    return makeAnimatedCarouselSet(x, y, variant);
+  }
+  if (item?.category === "images") {
+    return makeAnimatedImageSet(x, y, variant);
+  }
+  if (item?.category === "navigation") {
+    return makeAnimatedNavigationSet(x, y, variant);
+  }
+  if (item?.category === "texts") {
+    return makeAnimatedTextSet(x, y, variant);
+  }
+  if (item?.category === "scroll") {
+    return makeAnimatedScrollSet(x, y, variant);
+  }
+  if (item?.category === "seo") {
+    return makeAnimatedTechnicalPanelSet(x, y, variant, "SEO Guia Pratico");
+  }
+  if (item?.category === "security") {
+    return makeAnimatedTechnicalPanelSet(x, y, variant, "Security Check Panel");
+  }
+  if (item?.category === "hosting") {
+    return makeAnimatedTechnicalPanelSet(x, y, variant, "Hosting Panel");
+  }
+  if (item?.category === "speed") {
+    return makeAnimatedTechnicalPanelSet(x, y, variant, "Speed Panel");
+  }
+  if (item?.category === "databases") {
+    return makeAnimatedTechnicalPanelSet(x, y, variant, "Database Panel");
+  }
+  if (item?.category === "frontend_deploy") {
+    return makeAnimatedTechnicalPanelSet(x, y, variant, "Frontend Deploy Panel");
+  }
 
   switch (template) {
     case "hero-clean":
