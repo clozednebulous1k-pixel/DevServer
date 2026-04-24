@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { BlockPalette } from "@/components/criar/block-palette";
 import { CanvasPreview } from "@/components/criar/canvas-preview";
 import { PropertiesPanel } from "@/components/criar/properties-panel";
+import { createLibraryComponentElements } from "@/lib/criar/library-components";
 import { makeBlankPage, makeElement } from "@/lib/criar/defaults";
 import { normalizeCriarSchema, type CriarCanvasElement, type CriarProjectRecord, type CriarProjectSchema } from "@/lib/criar/schema";
 
@@ -132,6 +133,24 @@ export function EditorShell({ projectId }: Props) {
   function addBlock(type: CriarCanvasElement["type"]) {
     const element = makeElement(type);
     mutateElements((list) => [...list, element], element.id);
+  }
+
+  function addLibraryComponent(componentId: string, targetPageIndex = activePageIndex, x = 120, y = 120) {
+    if (!project) return;
+    const localPage = project.schema.pages[targetPageIndex];
+    if (!localPage) return;
+    const nextElements = createLibraryComponentElements(componentId, x, y);
+    const nextPages = [...project.schema.pages];
+    nextPages[targetPageIndex] = {
+      ...localPage,
+      canvas: {
+        ...localPage.canvas,
+        elements: [...localPage.canvas.elements, ...nextElements],
+      },
+    };
+    setProject({ ...project, schema: { ...project.schema, pages: nextPages } });
+    setActivePageIndex(targetPageIndex);
+    setSelectedBlockId(nextElements[0]?.id ?? null);
   }
 
   function cloneElement(element: CriarCanvasElement) {
@@ -497,7 +516,7 @@ export function EditorShell({ projectId }: Props) {
         ) : (
           <div className="grid h-[calc(100vh-11.5rem)] gap-3 overflow-hidden lg:grid-cols-[190px_minmax(0,1fr)_280px]">
             <div className="min-w-0 space-y-3 overflow-y-auto pr-1">
-              <BlockPalette onAddBlock={addBlock} />
+              <BlockPalette onAddBlock={addBlock} onAddLibraryComponent={(componentId) => addLibraryComponent(componentId)} />
               <section className="rounded-xl border bg-card/80 p-2.5">
                 <h3 className="text-sm font-semibold">Telas do site</h3>
                 <p className="mt-1 text-xs text-muted-foreground">Defina quantas telas seu site terá.</p>
@@ -602,6 +621,7 @@ export function EditorShell({ projectId }: Props) {
                 onSelectPage={setActivePageIndex}
                 onMovePage={movePage}
                 onDeletePage={deletePage}
+                onDropLibraryComponent={addLibraryComponent}
                 onLinkPage={linkPage}
                 selectedBlockId={selectedBlockId}
                 onSelectBlock={setSelectedBlockId}

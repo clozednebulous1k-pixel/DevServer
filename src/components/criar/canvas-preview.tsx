@@ -33,6 +33,7 @@ type Props = {
   onSelectPage: (pageIndex: number) => void;
   onMovePage: (pageIndex: number, x: number, y: number) => void;
   onDeletePage: (pageIndex: number) => void;
+  onDropLibraryComponent: (componentId: string, pageIndex: number, x: number, y: number) => void;
   onLinkPage: (
     pageIndex: number,
     payload: { targetSlug: string; effect: "slideOver" | "slideUnder" | "fold" | "flip" | "fade" | "push"; layer: "over" | "under" } | null,
@@ -69,6 +70,7 @@ export function CanvasPreview({
   onSelectPage,
   onMovePage,
   onDeletePage,
+  onDropLibraryComponent,
   onLinkPage,
   selectedBlockId,
   onSelectBlock,
@@ -376,6 +378,21 @@ export function CanvasPreview({
                     effect: currentConnection?.effect ?? "slideOver",
                     layer: currentConnection?.layer ?? "over",
                   });
+                }}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "copy";
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  const componentId = event.dataTransfer.getData("application/x-criar-library-component");
+                  if (!componentId) return;
+                  const scale = Math.max(zoom, 0.2);
+                  const bounds = event.currentTarget.getBoundingClientRect();
+                  const nextX = Math.round((event.clientX - bounds.left) / scale);
+                  const nextY = Math.round((event.clientY - bounds.top) / scale);
+                  onSelectPage(currentPageIndex);
+                  onDropLibraryComponent(componentId, currentPageIndex, nextX, nextY);
                 }}
               >
                 {currentPage.connections[0] ? (
