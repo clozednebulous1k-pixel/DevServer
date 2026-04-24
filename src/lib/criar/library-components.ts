@@ -3,19 +3,46 @@ import type { CriarCanvasElement } from "@/lib/criar/schema";
 export type LibraryComponentItem = {
   id: string;
   title: string;
-  category: "hero" | "cta" | "features" | "pricing" | "faq" | "footer";
+  category:
+    | "heroes"
+    | "backgrounds"
+    | "borders"
+    | "carousels"
+    | "images"
+    | "navigation"
+    | "texts"
+    | "scroll"
+    | "seo"
+    | "security"
+    | "hosting"
+    | "speed"
+    | "databases"
+    | "frontend_deploy";
   description: string;
+  template: "hero-clean" | "hero-split" | "cta-center" | "features-3" | "features-4" | "pricing-3" | "faq-list" | "footer-simple";
 };
 
 const LIBRARY_COMPONENT_REGISTRY: LibraryComponentItem[] = [
-  { id: "hero-clean", title: "Hero Clean", category: "hero", description: "Titulo, subtitulo e CTA principal." },
-  { id: "hero-split", title: "Hero Split", category: "hero", description: "Texto a esquerda e imagem a direita." },
-  { id: "cta-center", title: "CTA Center", category: "cta", description: "Bloco de chamada com botao central." },
-  { id: "features-3", title: "Features 3 Colunas", category: "features", description: "Titulo e tres cartoes de recursos." },
-  { id: "features-4", title: "Features 4 Colunas", category: "features", description: "Grade compacta com quatro blocos." },
-  { id: "pricing-3", title: "Pricing 3 Planos", category: "pricing", description: "Tabela com tres planos e destaque." },
-  { id: "faq-list", title: "FAQ Lista", category: "faq", description: "Perguntas e respostas em lista visual." },
-  { id: "footer-simple", title: "Footer Simples", category: "footer", description: "Rodape com links e copyright." },
+  { id: "hero-myna-ui", title: "Hero Myna UI", category: "heroes", description: "Hero com CTA e foco em produto tech.", template: "hero-clean" },
+  { id: "hero-digital-loom", title: "Hero Digital Loom", category: "heroes", description: "Hero com fundo marcante para landing.", template: "hero-split" },
+  { id: "hero-robot-spline", title: "Hero Robot Spline", category: "heroes", description: "Composicao hero com area de destaque visual.", template: "hero-split" },
+  { id: "hero-cta-dithering", title: "Hero CTA Dithering", category: "heroes", description: "Bloco de chamada com titulo e acao.", template: "cta-center" },
+  { id: "hero-section-8", title: "Hero Section 8", category: "heroes", description: "Hero limpo para captura de leads.", template: "hero-clean" },
+  { id: "animated-hero-section-1", title: "Animated Hero 1", category: "heroes", description: "Hero com narrativa e botoes secundarios.", template: "hero-split" },
+  { id: "background-orbital", title: "Orbital Background", category: "backgrounds", description: "Secao com visual de background para destaque.", template: "features-4" },
+  { id: "background-grid-gradient", title: "Grid Gradient Background", category: "backgrounds", description: "Composicao de fundo para seções de features.", template: "features-3" },
+  { id: "border-divided-sections", title: "Border Divided Sections", category: "borders", description: "Layout dividido com blocos e bordas.", template: "features-3" },
+  { id: "carousel-logos", title: "Carrossel de Logos", category: "carousels", description: "Faixa de clientes/parceiros.", template: "features-4" },
+  { id: "image-gallery-focus", title: "Image Gallery Focus", category: "images", description: "Secao visual com destaque de imagem.", template: "hero-split" },
+  { id: "navigation-tubelight", title: "Navigation Tubelight", category: "navigation", description: "Topo para navegação principal do site.", template: "footer-simple" },
+  { id: "text-vaporize", title: "Vaporize Text", category: "texts", description: "Bloco de texto para headlines e storytelling.", template: "hero-clean" },
+  { id: "scroll-expansion-hero", title: "Scroll Expansion Hero", category: "scroll", description: "Secao com ritmo de leitura vertical.", template: "hero-split" },
+  { id: "seo-guia-pratico", title: "SEO Guia Pratico", category: "seo", description: "Secao de conteudo e orientacao SEO.", template: "faq-list" },
+  { id: "security-check-panel", title: "Security Check Panel", category: "security", description: "Checklist de seguranca para deploy.", template: "faq-list" },
+  { id: "hosting-panel", title: "Hosting Panel", category: "hosting", description: "Comparativo de hospedagem e ambiente.", template: "pricing-3" },
+  { id: "speed-panel", title: "Speed Panel", category: "speed", description: "Bloco para performance e otimizações.", template: "features-3" },
+  { id: "database-panel", title: "Database Panel", category: "databases", description: "Estrutura para dados e persistencia.", template: "pricing-3" },
+  { id: "frontend-deploy-panel", title: "Frontend Deploy Panel", category: "frontend_deploy", description: "Fluxo de deploy de front-end.", template: "cta-center" },
 ];
 
 function uid(prefix: string): string {
@@ -114,8 +141,9 @@ export function listLibraryComponents(): LibraryComponentItem[] {
 export function createLibraryComponentElements(componentId: string, originX: number, originY: number): CriarCanvasElement[] {
   const x = Math.round(originX);
   const y = Math.round(originY);
+  const template = LIBRARY_COMPONENT_REGISTRY.find((entry) => entry.id === componentId)?.template ?? "hero-clean";
 
-  switch (componentId) {
+  switch (template) {
     case "hero-clean":
       return [
         makeText(x, y, "Construa landing pages com DevServer", 52),
