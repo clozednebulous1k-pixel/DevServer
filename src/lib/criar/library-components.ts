@@ -23,26 +23,26 @@ export type LibraryComponentItem = {
 };
 
 const LIBRARY_COMPONENT_REGISTRY: LibraryComponentItem[] = [
-  { id: "hero-myna-ui", title: "Hero Myna UI", category: "heroes", description: "Hero com CTA e foco em produto tech.", template: "hero-clean" },
-  { id: "hero-digital-loom", title: "Hero Digital Loom", category: "heroes", description: "Hero com fundo marcante para landing.", template: "hero-split" },
-  { id: "hero-robot-spline", title: "Hero Robot Spline", category: "heroes", description: "Composicao hero com area de destaque visual.", template: "hero-split" },
-  { id: "hero-cta-dithering", title: "Hero CTA Dithering", category: "heroes", description: "Bloco de chamada com titulo e acao.", template: "cta-center" },
-  { id: "hero-section-8", title: "Hero Section 8", category: "heroes", description: "Hero limpo para captura de leads.", template: "hero-clean" },
-  { id: "animated-hero-section-1", title: "Animated Hero 1", category: "heroes", description: "Hero com narrativa e botoes secundarios.", template: "hero-split" },
-  { id: "background-orbital", title: "Orbital Background", category: "backgrounds", description: "Secao com visual de background para destaque.", template: "features-4" },
-  { id: "background-grid-gradient", title: "Grid Gradient Background", category: "backgrounds", description: "Composicao de fundo para seções de features.", template: "features-3" },
-  { id: "border-divided-sections", title: "Border Divided Sections", category: "borders", description: "Layout dividido com blocos e bordas.", template: "features-3" },
-  { id: "carousel-logos", title: "Carrossel de Logos", category: "carousels", description: "Faixa de clientes/parceiros.", template: "features-4" },
-  { id: "image-gallery-focus", title: "Image Gallery Focus", category: "images", description: "Secao visual com destaque de imagem.", template: "hero-split" },
-  { id: "navigation-tubelight", title: "Navigation Tubelight", category: "navigation", description: "Topo para navegação principal do site.", template: "footer-simple" },
-  { id: "text-vaporize", title: "Vaporize Text", category: "texts", description: "Bloco de texto para headlines e storytelling.", template: "hero-clean" },
-  { id: "scroll-expansion-hero", title: "Scroll Expansion Hero", category: "scroll", description: "Secao com ritmo de leitura vertical.", template: "hero-split" },
-  { id: "seo-guia-pratico", title: "SEO Guia Pratico", category: "seo", description: "Secao de conteudo e orientacao SEO.", template: "faq-list" },
-  { id: "security-check-panel", title: "Security Check Panel", category: "security", description: "Checklist de seguranca para deploy.", template: "faq-list" },
-  { id: "hosting-panel", title: "Hosting Panel", category: "hosting", description: "Comparativo de hospedagem e ambiente.", template: "pricing-3" },
-  { id: "speed-panel", title: "Speed Panel", category: "speed", description: "Bloco para performance e otimizações.", template: "features-3" },
-  { id: "database-panel", title: "Database Panel", category: "databases", description: "Estrutura para dados e persistencia.", template: "pricing-3" },
-  { id: "frontend-deploy-panel", title: "Frontend Deploy Panel", category: "frontend_deploy", description: "Fluxo de deploy de front-end.", template: "cta-center" },
+  { id: "hero-myna-ui", title: "Hero Myna UI - IA & mono", category: "heroes", description: "Hero with navigation, mobile sheet menu, animated title sequence and feature grid.", template: "hero-clean" },
+  { id: "hero-digital-loom", title: "Hero Digital Loom", category: "heroes", description: "Threaded canvas-inspired background with futuristic product framing.", template: "hero-split" },
+  { id: "hero-robot-spline", title: "Hero with Robot Spline", category: "heroes", description: "3D-focused hero layout with content overlay and scene spotlight area.", template: "hero-split" },
+  { id: "hero-cta-dithering", title: "Hero CTA Dithering", category: "heroes", description: "Large CTA hero card style with shader-like visual treatment.", template: "cta-center" },
+  { id: "hero-section-8", title: "Hero Section 8", category: "heroes", description: "Form-oriented hero pattern with strong heading and clear CTA.", template: "hero-clean" },
+  { id: "animated-hero-section-1", title: "Animated Hero Section 1", category: "heroes", description: "Fullscreen marketing hero with layered content and CTA pair.", template: "hero-split" },
+  { id: "background-orbital", title: "Orbital Background", category: "backgrounds", description: "Orbital and glow-style background composition block.", template: "features-4" },
+  { id: "background-grid-gradient", title: "Grid Gradient Background", category: "backgrounds", description: "Grid/gradient visual backdrop for section highlights.", template: "features-3" },
+  { id: "border-divided-sections", title: "Border Divided Sections", category: "borders", description: "Border-forward section structure with split content areas.", template: "features-3" },
+  { id: "carousel-logos", title: "Logo Carousel Strip", category: "carousels", description: "Client/logo carousel section pattern for social proof.", template: "features-4" },
+  { id: "image-gallery-focus", title: "Image Gallery Focus", category: "images", description: "Visual-first gallery section with featured media slot.", template: "hero-split" },
+  { id: "navigation-tubelight", title: "Navigation Tubelight", category: "navigation", description: "Top navigation block with emphasized active rail.", template: "footer-simple" },
+  { id: "text-vaporize", title: "Vaporize Text", category: "texts", description: "Typography-driven section for hero messaging and storytelling.", template: "hero-clean" },
+  { id: "scroll-expansion-hero", title: "Scroll Expansion Hero", category: "scroll", description: "Scroll narrative section with staged reveal rhythm.", template: "hero-split" },
+  { id: "seo-guia-pratico", title: "SEO Practical Guide", category: "seo", description: "Structured informational panel for SEO guidance content.", template: "faq-list" },
+  { id: "security-check-panel", title: "Security Check Panel", category: "security", description: "Operational security checklist section for launch readiness.", template: "faq-list" },
+  { id: "hosting-panel", title: "Hosting Panel", category: "hosting", description: "Hosting comparison and infrastructure recommendation section.", template: "pricing-3" },
+  { id: "speed-panel", title: "Speed Panel", category: "speed", description: "Performance-focused section for optimization highlights.", template: "features-3" },
+  { id: "database-panel", title: "Database Panel", category: "databases", description: "Database architecture and selection overview block.", template: "pricing-3" },
+  { id: "frontend-deploy-panel", title: "Frontend Deploy Panel", category: "frontend_deploy", description: "Frontend deployment workflow section with action focus.", template: "cta-center" },
 ];
 
 const PROMPT_CATEGORY_COUNTS: Array<{
@@ -68,7 +68,7 @@ const GENERATED_PROMPT_COMPONENTS: LibraryComponentItem[] = PROMPT_CATEGORY_COUN
       id: `prompt-${entry.category}-${String(index + 1).padStart(2, "0")}`,
       title: `${entry.label} ${String(index + 1).padStart(2, "0")}`,
       category: entry.category,
-      description: `Componente convertido da biblioteca (${entry.category}).`,
+      description: `Library-derived component from ${entry.category} prompts.`,
       template,
     };
   }),
@@ -350,6 +350,111 @@ function makeAnimatedTechnicalPanelSet(x: number, y: number, variant: number, la
   ];
 }
 
+function makeMynaHeroSet(x: number, y: number): CriarCanvasElement[] {
+  return [
+    makeShape(x, y, 1220, 760, "#030712"),
+    // Header
+    makeShape(x + 26, y + 24, 1168, 72, "#0b1220"),
+    { ...makeText(x + 48, y + 48, "DevServer", 24, "#f8fafc"), w: 180, h: 38 },
+    { ...makeText(x + 320, y + 52, "Home", 15, "#cbd5e1"), w: 70, h: 28 },
+    { ...makeText(x + 408, y + 52, "Recursos", 15, "#cbd5e1"), w: 92, h: 28 },
+    { ...makeText(x + 516, y + 52, "Precos", 15, "#cbd5e1"), w: 78, h: 28 },
+    { ...makeText(x + 608, y + 52, "Docs", 15, "#cbd5e1"), w: 64, h: 28 },
+    { ...makeButton(x + 1038, y + 36, "Comecar", "#2563eb"), w: 138, h: 44 },
+    // Hero title with monospace style and staggered animation feel
+    {
+      ...makeText(x + 86, y + 160, "A REVOLUCAO DE IA PARA O", 56, "#f8fafc"),
+      fontFamily: "\"Courier New\", monospace",
+      w: 920,
+      animation: { preset: "slideUp", duration: 1, delay: 0.05 },
+    },
+    {
+      ...makeText(x + 86, y + 232, "SEU NEGOCIO", 56, "#f8fafc"),
+      fontFamily: "\"Courier New\", monospace",
+      w: 640,
+      animation: { preset: "slideUp", duration: 1, delay: 0.2 },
+    },
+    {
+      ...makeText(x + 88, y + 308, "Transforme dados em receita com automacoes e fluxo inteligente.", 19, "#94a3b8"),
+      w: 860,
+      animation: { preset: "slideUp", duration: 1, delay: 0.35 },
+    },
+    // 3 labels below subtitle
+    { ...makeShape(x + 88, y + 354, 170, 38, "#111827"), radius: 999 },
+    { ...makeText(x + 108, y + 364, "Sparkles", 14, "#cbd5e1"), w: 130, h: 24 },
+    { ...makeShape(x + 272, y + 354, 160, 38, "#111827"), radius: 999 },
+    { ...makeText(x + 292, y + 364, "Plug", 14, "#cbd5e1"), w: 120, h: 24 },
+    { ...makeShape(x + 444, y + 354, 170, 38, "#111827"), radius: 999 },
+    { ...makeText(x + 464, y + 364, "Activity", 14, "#cbd5e1"), w: 140, h: 24 },
+    // Bottom cards grid
+    makeShape(x + 88, y + 438, 330, 220, "#0b1220"),
+    makeShape(x + 446, y + 438, 330, 220, "#0b1220"),
+    makeShape(x + 804, y + 438, 330, 220, "#0b1220"),
+    { ...makeShape(x + 116, y + 464, 42, 42, "#2563eb"), radius: 999, opacity: 0.25 },
+    { ...makeText(x + 172, y + 472, "Analise inteligente", 18, "#f8fafc"), w: 210, h: 30 },
+    { ...makeText(x + 116, y + 520, "Metrica em tempo real para decisoes.", 15, "#94a3b8"), w: 270, h: 48 },
+    { ...makeShape(x + 474, y + 464, 42, 42, "#2563eb"), radius: 999, opacity: 0.25 },
+    { ...makeText(x + 530, y + 472, "Automacao total", 18, "#f8fafc"), w: 210, h: 30 },
+    { ...makeText(x + 474, y + 520, "Fluxos prontos para marketing e vendas.", 15, "#94a3b8"), w: 280, h: 48 },
+    { ...makeShape(x + 832, y + 464, 42, 42, "#2563eb"), radius: 999, opacity: 0.25 },
+    { ...makeText(x + 888, y + 472, "Ativacao rapida", 18, "#f8fafc"), w: 210, h: 30 },
+    { ...makeText(x + 832, y + 520, "Suba e publique em minutos.", 15, "#94a3b8"), w: 250, h: 48 },
+  ];
+}
+
+function makeDigitalLoomHeroSet(x: number, y: number): CriarCanvasElement[] {
+  return [
+    makeShape(x, y, 1220, 760, "#030712"),
+    { ...makeShape(x + 18, y + 18, 1184, 724, "#07111f"), radius: 22 },
+    // thread-like background strips
+    { ...makeShape(x + 60, y + 90, 1080, 3, "#14532d"), opacity: 0.35, animation: { preset: "pulse", duration: 4.2, delay: 0.1 } },
+    { ...makeShape(x + 60, y + 132, 1080, 3, "#16a34a"), opacity: 0.28, animation: { preset: "pulse", duration: 5, delay: 0.2 } },
+    { ...makeShape(x + 60, y + 176, 1080, 3, "#22c55e"), opacity: 0.22, animation: { preset: "pulse", duration: 5.6, delay: 0.3 } },
+    { ...makeShape(x + 60, y + 220, 1080, 3, "#4ade80"), opacity: 0.16, animation: { preset: "pulse", duration: 6, delay: 0.4 } },
+    { ...makeShape(x + 84, y + 252, 260, 44, "#0b1220"), radius: 999 },
+    { ...makeText(x + 108, y + 264, "Background: Digital Loom", 15, "#bbf7d0"), w: 230, h: 24 },
+    { ...makeText(x + 84, y + 328, "Construa interfaces com textura e movimento", 54, "#f8fafc"), w: 980 },
+    { ...makeText(x + 86, y + 404, "Hero com visual futurista para produtos DevServer.", 20, "#94a3b8"), w: 760 },
+    makeButton(x + 86, y + 462, "Comecar", "#22c55e"),
+    { ...makeShape(x + 86, y + 532, 1048, 150, "#0b1220"), radius: 18 },
+    { ...makeText(x + 116, y + 568, "Camada pronta para adicionar blocos e cards.", 19, "#cbd5e1"), w: 520 },
+  ];
+}
+
+function makeRobotSplineHeroSet(x: number, y: number): CriarCanvasElement[] {
+  return [
+    makeShape(x, y, 1220, 760, "#020617"),
+    { ...makeShape(x + 26, y + 26, 1168, 708, "#0b1220"), radius: 22 },
+    { ...makeText(x + 76, y + 90, "Hero Robot Spline", 20, "#93c5fd"), w: 260 },
+    { ...makeText(x + 76, y + 148, "Experiencia 3D para destaque de produto", 50, "#f8fafc"), w: 760 },
+    { ...makeText(x + 76, y + 220, "Layout preparado para cena Spline e CTA principal.", 19, "#94a3b8"), w: 650 },
+    makeButton(x + 76, y + 276, "Testar Demo", "#2563eb"),
+    { ...makeShape(x + 640, y + 122, 500, 420, "#111827"), radius: 22 },
+    { ...makeImage(x + 662, y + 144, 456, 376), radius: 18, animation: { preset: "float", duration: 5.2, delay: 0.1 } },
+    { ...makeShape(x + 76, y + 360, 500, 170, "#111827"), radius: 16 },
+    { ...makeText(x + 102, y + 392, "Dica: troque a imagem por preview da cena Spline.", 17, "#cbd5e1"), w: 430 },
+    { ...makeShape(x + 76, y + 548, 1064, 144, "#0f172a"), radius: 16 },
+    { ...makeText(x + 102, y + 586, "Area de specs, bullets e social proof.", 18, "#94a3b8"), w: 480 },
+  ];
+}
+
+function makeDitheringCtaHeroSet(x: number, y: number): CriarCanvasElement[] {
+  return [
+    makeShape(x, y, 1220, 760, "#020617"),
+    { ...makeShape(x + 96, y + 108, 1028, 540, "#0f172a"), radius: 30 },
+    { ...makeShape(x + 118, y + 132, 984, 496, "#1e293b"), radius: 26, opacity: 0.32, animation: { preset: "pulse", duration: 4.5, delay: 0.2 } },
+    { ...makeShape(x + 146, y + 172, 210, 38, "#111827"), radius: 999 },
+    { ...makeText(x + 170, y + 182, "CTA Dithering", 14, "#cbd5e1"), w: 170, h: 22 },
+    { ...makeText(x + 146, y + 250, "Converta visitantes em clientes", 54, "#f8fafc"), w: 860 },
+    { ...makeText(x + 146, y + 324, "Secao com foco em headline, prova e botao principal.", 20, "#94a3b8"), w: 770 },
+    { ...makeButton(x + 146, y + 390, "COMEÇAR", "#2563eb"), w: 190, h: 52 },
+    { ...makeShape(x + 372, y + 398, 180, 40, "#111827"), radius: 999 },
+    { ...makeText(x + 402, y + 408, "Ver demo", 16, "#cbd5e1"), w: 120, h: 24 },
+    { ...makeShape(x + 146, y + 480, 930, 98, "#111827"), radius: 18 },
+    { ...makeText(x + 178, y + 514, "Espaco ideal para bullets, logos e prova social.", 18, "#cbd5e1"), w: 560 },
+  ];
+}
+
 export function listLibraryComponents(): LibraryComponentItem[] {
   return FULL_LIBRARY_COMPONENT_REGISTRY;
 }
@@ -361,6 +466,18 @@ export function createLibraryComponentElements(componentId: string, originX: num
   const template = item?.template ?? "hero-clean";
   const variant = extractVariantFromId(componentId);
 
+  if (componentId === "hero-myna-ui") {
+    return makeMynaHeroSet(x, y);
+  }
+  if (componentId === "hero-digital-loom") {
+    return makeDigitalLoomHeroSet(x, y);
+  }
+  if (componentId === "hero-robot-spline") {
+    return makeRobotSplineHeroSet(x, y);
+  }
+  if (componentId === "hero-cta-dithering") {
+    return makeDitheringCtaHeroSet(x, y);
+  }
   if (item?.category === "backgrounds") {
     return makeAnimatedBackgroundSet(x, y, variant);
   }
