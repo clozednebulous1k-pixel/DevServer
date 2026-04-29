@@ -30,6 +30,19 @@ const TRANSITION_OPTIONS: Array<{ value: TransitionKey; label: string; descripti
   { value: "fade", label: "Fade suave", description: "Transição limpa por opacidade entre as telas." },
 ];
 
+const PREVIEW_PALETTE = [
+  "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",
+  "linear-gradient(135deg, #16a34a 0%, #22c55e 100%)",
+  "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+  "linear-gradient(135deg, #ea580c 0%, #f97316 100%)",
+  "linear-gradient(135deg, #db2777 0%, #f43f5e 100%)",
+  "linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)",
+] as const;
+
+function getPreviewBackground(page: number): string {
+  return PREVIEW_PALETTE[(page - 1) % PREVIEW_PALETTE.length]!;
+}
+
 function getPrompt(config: TransitionConfig): string {
   const option = TRANSITION_OPTIONS.find((item) => item.value === config.transition);
   return `Apply a "${option?.label}" transition in already existing pages. Duration: ${config.duration.toFixed(1)}s, easing: "easeInOut". Keep good readability and smooth motion between route changes.`;
@@ -207,12 +220,18 @@ function getMotionValuesFromKey(key: string) {
                         Ver animacao
                       </Button>
                     </div>
-                    <div className="relative h-24 overflow-hidden rounded-lg border border-border/80 bg-black/65">
-                      <div className="absolute inset-0 flex items-center justify-center text-xs text-white/75">Tela {config.fromPage}</div>
+                    <div className="relative h-24 overflow-hidden rounded-lg border border-border/80 bg-slate-900">
+                      <div
+                        className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white/95"
+                        style={{ background: getPreviewBackground(config.fromPage) }}
+                      >
+                        Tela {config.fromPage}
+                      </div>
                       <div
                         key={`${config.id}-${rowPreviewTick[config.id] ?? 0}`}
-                        className="absolute inset-0 flex items-center justify-center text-xs text-white"
+                        className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white"
                         style={{
+                          background: getPreviewBackground(config.toPage),
                           animation: `fadeIn ${config.duration}s ease-in-out forwards`,
                           transform:
                             config.transition === "left-right"
