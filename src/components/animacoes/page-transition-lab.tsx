@@ -21,39 +21,38 @@ type TransitionConfig = {
 };
 
 const TRANSITION_OPTIONS: Array<{ value: TransitionKey; label: string; description: string }> = [
-  { value: "top-down", label: "Top -> Down", description: "A próxima tela entra de cima para baixo." },
-  { value: "bottom-up", label: "Bottom -> Up", description: "A próxima tela entra de baixo para cima." },
-  { value: "left-right", label: "Left -> Right", description: "A próxima tela entra da esquerda para a direita." },
-  { value: "right-left", label: "Right -> Left", description: "A próxima tela entra da direita para a esquerda." },
-  { value: "zoom-in", label: "Zoom In", description: "A próxima tela cresce suavemente até ocupar o frame." },
-  { value: "zoom-out", label: "Zoom Out", description: "A tela atual afasta e revela a próxima." },
-  { value: "fade", label: "Fade", description: "Transição limpa por opacidade entre as telas." },
+  { value: "top-down", label: "De cima para baixo", description: "A próxima tela entra de cima para baixo." },
+  { value: "bottom-up", label: "De baixo para cima", description: "A próxima tela entra de baixo para cima." },
+  { value: "left-right", label: "Da esquerda para direita", description: "A próxima tela entra da esquerda para a direita." },
+  { value: "right-left", label: "Da direita para esquerda", description: "A próxima tela entra da direita para a esquerda." },
+  { value: "zoom-in", label: "Zoom aproximando", description: "A próxima tela cresce suavemente até ocupar o frame." },
+  { value: "zoom-out", label: "Zoom afastando", description: "A tela atual afasta e revela a próxima." },
+  { value: "fade", label: "Fade suave", description: "Transição limpa por opacidade entre as telas." },
 ];
 
-const SCREEN_COLORS = ["#0f172a", "#111827", "#1e1b4b", "#052e16"] as const;
+const SCREEN_COLORS = ["#0f172a", "#111827", "#1e1b4b", "#052e16", "#3f1d2e", "#1f2937"] as const;
 
 function getPrompt(config: TransitionConfig): string {
   const option = TRANSITION_OPTIONS.find((item) => item.value === config.transition);
   return `Create a page transition from Screen ${config.fromPage} to Screen ${config.toPage}. Use "${option?.label}" movement, duration ${config.duration.toFixed(1)}s, easing "easeInOut", and preserve readability during motion.`;
 }
 
-function getAnimationClasses(transition: TransitionKey, active: boolean): string {
-  if (!active) return "opacity-0";
+function getAnimationClass(transition: TransitionKey): string {
   switch (transition) {
     case "top-down":
-      return "animate-[slideDown_700ms_ease-in-out_forwards]";
+      return "animate-[slideDown_var(--d)_ease-in-out_forwards]";
     case "bottom-up":
-      return "animate-[slideUp_700ms_ease-in-out_forwards]";
+      return "animate-[slideUp_var(--d)_ease-in-out_forwards]";
     case "left-right":
-      return "animate-[slideRight_700ms_ease-in-out_forwards]";
+      return "animate-[slideRight_var(--d)_ease-in-out_forwards]";
     case "right-left":
-      return "animate-[slideLeft_700ms_ease-in-out_forwards]";
+      return "animate-[slideLeft_var(--d)_ease-in-out_forwards]";
     case "zoom-in":
-      return "animate-[zoomIn_700ms_ease-in-out_forwards]";
+      return "animate-[zoomIn_var(--d)_ease-in-out_forwards]";
     case "zoom-out":
-      return "animate-[zoomOut_700ms_ease-in-out_forwards]";
+      return "animate-[zoomOut_var(--d)_ease-in-out_forwards]";
     default:
-      return "animate-[fadeIn_700ms_ease-in-out_forwards]";
+      return "animate-[fadeIn_var(--d)_ease-in-out_forwards]";
   }
 }
 
@@ -66,6 +65,9 @@ export function PageTransitionLab() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewStep, setPreviewStep] = useState(0);
   const [codeOpen, setCodeOpen] = useState(false);
+  const [rowPreviewTick, setRowPreviewTick] = useState<Record<string, number>>({});
+
+  const pageCount = configs.length + 1;
 
   const generatedCode = useMemo(() => {
     const entries = configs
@@ -79,6 +81,25 @@ export function PageTransitionLab() {
 
   const handleUpdate = <K extends keyof TransitionConfig>(id: string, key: K, value: TransitionConfig[K]) => {
     setConfigs((prev) => prev.map((cfg) => (cfg.id === id ? { ...cfg, [key]: value } : cfg)));
+  };
+
+  const createPage = () => {
+    setConfigs((prev) => {
+      const nextFrom = prev.length + 1;
+      const nextTo = nextFrom + 1;
+      return [...prev, { id: `t-${crypto.randomUUID()}`, fromPage: nextFrom, toPage: nextTo, transition: "fade", duration: 0.8 }];
+    });
+  };
+
+  const removePage = () => {
+    setConfigs((prev) => {
+      if (prev.length <= 1) return prev;
+      return prev.slice(0, -1).map((cfg, idx) => ({ ...cfg, fromPage: idx + 1, toPage: idx + 2 }));
+    });
+  };
+
+  const playRowPreview = (id: string) => {
+    setRowPreviewTick((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
   };
 
   const runPreview = () => {
@@ -107,14 +128,26 @@ export function PageTransitionLab() {
       <div className="rounded-3xl border border-border bg-card/70 p-6 shadow-xl backdrop-blur md:p-8">
         <h1 className="text-2xl font-semibold md:text-4xl">Organizador de animacoes entre paginas</h1>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground md:text-base">
-          Configure as transicoes entre 4 telas do seu site. Cada linha representa uma passagem entre paginas, com opcoes visuais e prompt tecnico ao lado.
+          Configure as transicoes entre telas do seu site. Cada linha representa uma passagem entre paginas, com tipo da animacao, prompt tecnico e preview visual ao lado.
         </p>
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button type="button" variant="outline" className="rounded-full" onClick={createPage}>
+            Criar pagina
+          </Button>
+          <Button type="button" variant="outline" className="rounded-full" onClick={removePage} disabled={pageCount <= 2}>
+            Excluir ultima pagina
+          </Button>
+          <p className="self-center text-xs text-muted-foreground">Paginas atuais: {pageCount}</p>
+        </div>
 
         <div className="mt-8 grid gap-4">
           {configs.map((config) => {
             const option = TRANSITION_OPTIONS.find((item) => item.value === config.transition);
+            const fromColor = SCREEN_COLORS[(config.fromPage - 1) % SCREEN_COLORS.length]!;
+            const toColor = SCREEN_COLORS[(config.toPage - 1) % SCREEN_COLORS.length]!;
             return (
-              <article key={config.id} className="grid gap-4 rounded-2xl border border-border/70 bg-background/70 p-4 md:grid-cols-[1.15fr_1fr]">
+              <article key={config.id} className="grid gap-4 rounded-2xl border border-border/70 bg-background/70 p-4 md:grid-cols-[1.1fr_1fr]">
                 <div className="space-y-3">
                   <p className="text-sm font-semibold">
                     Pagina {config.fromPage} {"->"} Pagina {config.toPage}
@@ -148,9 +181,32 @@ export function PageTransitionLab() {
                   <p className="text-xs text-muted-foreground">{option?.description}</p>
                 </div>
 
-                <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">Prompt</p>
-                  <p className="text-xs leading-relaxed text-muted-foreground">{getPrompt(config)}</p>
+                <div className="space-y-3 rounded-xl border border-dashed border-primary/30 bg-primary/5 p-3">
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">Prompt</p>
+                    <p className="text-xs leading-relaxed text-muted-foreground">{getPrompt(config)}</p>
+                  </div>
+
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-primary">Visualizacao</p>
+                      <Button type="button" size="sm" variant="secondary" className="h-7 rounded-full px-3 text-[11px]" onClick={() => playRowPreview(config.id)}>
+                        Ver animacao
+                      </Button>
+                    </div>
+                    <div className="relative h-28 overflow-hidden rounded-lg border border-border/80 bg-black/50">
+                      <div className="absolute inset-0 flex items-center justify-center text-xs text-white/90" style={{ background: fromColor }}>
+                        Tela {config.fromPage}
+                      </div>
+                      <div
+                        key={`${config.id}-${rowPreviewTick[config.id] ?? 0}`}
+                        className={`absolute inset-0 flex items-center justify-center text-xs text-white ${getAnimationClass(config.transition)}`}
+                        style={{ background: toColor, ["--d" as string]: `${config.duration}s` }}
+                      >
+                        Tela {config.toPage}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </article>
             );
@@ -183,14 +239,14 @@ export function PageTransitionLab() {
               </Button>
             </div>
             <div className="relative h-[360px] overflow-hidden rounded-xl border border-border bg-muted/30">
-              {[1, 2, 3, 4].map((page, index) => {
+              {Array.from({ length: pageCount }, (_, idx) => idx + 1).map((page, index) => {
                 const active = previewStep >= index;
                 const transition = configs[Math.max(0, index - 1)]?.transition ?? "fade";
                 return (
                   <div
                     key={page}
-                    className={`absolute inset-0 flex items-center justify-center ${getAnimationClasses(transition, active)}`}
-                    style={{ background: SCREEN_COLORS[index] }}
+                    className={`absolute inset-0 flex items-center justify-center ${active ? getAnimationClass(transition) : "opacity-0"}`}
+                    style={{ background: SCREEN_COLORS[index % SCREEN_COLORS.length], ["--d" as string]: `${configs[Math.max(0, index - 1)]?.duration ?? 0.8}s` }}
                   >
                     <div className="rounded-2xl border border-white/20 bg-black/25 px-8 py-6 text-center text-white backdrop-blur">
                       <p className="text-xs uppercase tracking-[0.2em] text-white/70">Tela</p>
