@@ -1,18 +1,12 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "motion/react";
-import { usePathname } from "next/navigation";
 
 /**
  * Linha neon de fundo que desce com o scroll.
  * Dark: branca | Light: preta.
  */
 export function GlobalScrollLine() {
-  const pathname = usePathname();
-  if (pathname.startsWith("/criar")) {
-    return null;
-  }
-
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["-35%", "130%"]);
   const xDrift = useTransform(

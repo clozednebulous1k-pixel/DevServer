@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  Blend,
   BookOpen,
   BriefcaseBusiness,
-  FolderPlus,
   HomeIcon,
   LayoutPanelTop,
   LogIn,
@@ -101,7 +101,7 @@ export function SiteNav() {
       const items = [
         ...publicItems,
         { name: "Biblioteca", url: "/biblioteca", icon: BookOpen },
-        { name: "Criar", url: "/criar", icon: FolderPlus },
+        { name: "Animacoes", url: "/animacoes", icon: Blend },
         { name: "Painel", url: "/painel", icon: LayoutPanelTop },
       ];
       if (session.role === "admin") {
