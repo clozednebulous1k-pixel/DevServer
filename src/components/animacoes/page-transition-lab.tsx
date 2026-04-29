@@ -63,7 +63,7 @@ export function PageTransitionLab() {
     { id: "t-3", fromPage: 3, toPage: 4, transition: "left-right", duration: 0.8 },
   ]);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewStep, setPreviewStep] = useState(0);
+  const [scrollPreviewProgress, setScrollPreviewProgress] = useState(0);
   const [codeOpen, setCodeOpen] = useState(false);
   const [rowPreviewTick, setRowPreviewTick] = useState<Record<string, number>>({});
 
@@ -103,14 +103,39 @@ export function PageTransitionLab() {
   };
 
   const runPreview = () => {
-    setPreviewStep(0);
+    setScrollPreviewProgress(0);
     setPreviewOpen(true);
-    let index = 0;
-    const loop = setInterval(() => {
-      index += 1;
-      setPreviewStep(index);
-      if (index > configs.length) clearInterval(loop);
-    }, 1100);
+  };
+
+  const handleScrollPreview = (event: React.UIEvent<HTMLDivElement>) => {
+    const el = event.currentTarget;
+    const max = Math.max(1, el.scrollHeight - el.clientHeight);
+    setScrollPreviewProgress(el.scrollTop / max);
+  };
+
+  const segmentProgress = scrollPreviewProgress * Math.max(1, pageCount - 1);
+  const currentSegment = Math.min(pageCount - 1, Math.floor(segmentProgress));
+  const localProgress = Math.min(1, Math.max(0, segmentProgress - currentSegment));
+  const currentTransition = configs[currentSegment]?.transition ?? "fade";
+
+  const getIncomingStyle = (transition: TransitionKey, progress: number) => {
+    const p = Math.min(1, Math.max(0, progress));
+    switch (transition) {
+      case "top-down":
+        return { transform: `translateY(${(-100 + p * 100).toFixed(2)}%)`, opacity: p };
+      case "bottom-up":
+        return { transform: `translateY(${(100 - p * 100).toFixed(2)}%)`, opacity: p };
+      case "left-right":
+        return { transform: `translateX(${(-100 + p * 100).toFixed(2)}%)`, opacity: p };
+      case "right-left":
+        return { transform: `translateX(${(100 - p * 100).toFixed(2)}%)`, opacity: p };
+      case "zoom-in":
+        return { transform: `scale(${(0.75 + p * 0.25).toFixed(3)})`, opacity: p };
+      case "zoom-out":
+        return { transform: `scale(${(1.2 - p * 0.2).toFixed(3)})`, opacity: p };
+      default:
+        return { transform: "translateX(0%)", opacity: p };
+    }
   };
 
   return (
@@ -233,30 +258,45 @@ export function PageTransitionLab() {
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4">
           <div className="w-full max-w-4xl rounded-2xl border border-border bg-card p-4 shadow-2xl md:p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Preview das 4 paginas</h2>
+              <h2 className="text-lg font-semibold">Preview por scroll das paginas</h2>
               <Button type="button" size="sm" variant="outline" className="rounded-full" onClick={() => setPreviewOpen(false)}>
                 Fechar
               </Button>
             </div>
-            <div className="relative h-[360px] overflow-hidden rounded-xl border border-border bg-muted/30">
-              {Array.from({ length: pageCount }, (_, idx) => idx + 1).map((page, index) => {
-                const active = previewStep >= index;
-                const transition = configs[Math.max(0, index - 1)]?.transition ?? "fade";
-                return (
-                  <div
-                    key={page}
-                    className={`absolute inset-0 flex items-center justify-center ${active ? getAnimationClass(transition) : "opacity-0"}`}
-                    style={{ background: SCREEN_COLORS[index % SCREEN_COLORS.length], ["--d" as string]: `${configs[Math.max(0, index - 1)]?.duration ?? 0.8}s` }}
-                  >
-                    <div className="rounded-2xl border border-white/20 bg-black/25 px-8 py-6 text-center text-white backdrop-blur">
-                      <p className="text-xs uppercase tracking-[0.2em] text-white/70">Tela</p>
-                      <p className="mt-2 text-4xl font-bold">{page}</p>
-                    </div>
+            <div className="grid gap-3 md:grid-cols-[1fr_210px]">
+              <div className="relative h-[360px] overflow-hidden rounded-xl border border-border bg-muted/30">
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ background: SCREEN_COLORS[currentSegment % SCREEN_COLORS.length] }}
+                >
+                  <div className="rounded-2xl border border-white/20 bg-black/25 px-8 py-6 text-center text-white backdrop-blur">
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/70">Tela atual</p>
+                    <p className="mt-2 text-4xl font-bold">{currentSegment + 1}</p>
                   </div>
-                );
-              })}
+                </div>
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{
+                    background: SCREEN_COLORS[(currentSegment + 1) % SCREEN_COLORS.length],
+                    ...getIncomingStyle(currentTransition, localProgress),
+                  }}
+                >
+                  <div className="rounded-2xl border border-white/20 bg-black/25 px-8 py-6 text-center text-white backdrop-blur">
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/70">Proxima tela</p>
+                    <p className="mt-2 text-4xl font-bold">{Math.min(pageCount, currentSegment + 2)}</p>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="h-[360px] overflow-y-auto rounded-xl border border-border bg-background/60 p-3"
+                onScroll={handleScrollPreview}
+              >
+                <div className="h-[1100px]">
+                  <p className="text-xs text-muted-foreground">Role aqui para acionar as transicoes.</p>
+                </div>
+              </div>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">As telas aparecem uma por uma com as transicoes configuradas acima.</p>
+            <p className="mt-3 text-xs text-muted-foreground">Agora o preview e 100% por scroll: role para avancar entre as telas e ver a animacao.</p>
           </div>
         </div>
       ) : null}
